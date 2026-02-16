@@ -1,0 +1,16 @@
+# Python
+ml/.venv/
+__pycache__/
+*.pyc
+
+# Large ONNX models (FP32)
+public/models/clip-image-encoder.onnx
+public/models/clip-image-encoder.onnx.data
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
