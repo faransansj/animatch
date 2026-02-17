@@ -50,6 +50,7 @@ export default {
     feedbackLowRes: '해상도가 낮아요 (200px 이상 권장)',
     feedbackFaceFound: '얼굴이 감지됐어요',
     feedbackNoFace: '얼굴이 잘 안 보여요 - 정면 사진 추천',
+    multiFacePrompt: '👥 여러 얼굴이 감지됐어요. 분석할 얼굴을 선택해주세요:',
   },
   loading: {
     step1: '얼굴 특징 분석',

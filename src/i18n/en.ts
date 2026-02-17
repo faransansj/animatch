@@ -50,6 +50,7 @@ export default {
     feedbackLowRes: 'Low resolution (200px+ recommended)',
     feedbackFaceFound: 'Face detected',
     feedbackNoFace: 'Face not detected - front-facing photo recommended',
+    multiFacePrompt: '👥 Multiple faces detected. Select the face to analyze:',
   },
   loading: {
     step1: 'Face Analysis',

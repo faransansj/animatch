@@ -1,6 +1,6 @@
 """
 Export MobileFaceNet (ArcFace) model to ONNX format.
-Downloads from insightface model zoo, converts to ONNX.
+Downloads buffalo_sc recognition model from insightface releases.
 
 Input: [1, 3, 112, 112] (RGB, normalized)
 Output: [1, 512] (face embedding)
@@ -12,9 +12,13 @@ Usage:
 import os
 import numpy as np
 
+
 def download_mobilefacenet():
-    """Download MobileFaceNet from insightface model zoo."""
+    """Download MobileFaceNet from insightface buffalo_sc release."""
     import onnx
+    import urllib.request
+    import zipfile
+    import tempfile
 
     model_dir = os.path.join(os.path.dirname(__file__), 'models')
     os.makedirs(model_dir, exist_ok=True)
@@ -25,53 +29,34 @@ def download_mobilefacenet():
         print(f"Model already exists: {output_path}")
         return output_path
 
-    # Try using insightface to get the model
-    try:
-        from insightface.app import FaceAnalysis
-        from insightface.utils import face_align
-        import insightface
+    # buffalo_sc: lightweight face recognition model from insightface
+    # Contains: det_500m.onnx (detector) + w600k_mbf.onnx (MobileFaceNet recognizer)
+    url = "https://github.com/deepinsight/insightface/releases/download/v0.7/buffalo_sc.zip"
+    print(f"Downloading buffalo_sc from: {url}")
 
-        # Download buffalo_l which includes recognition model
-        app = FaceAnalysis(name='buffalo_l', providers=['CPUExecutionProvider'])
-        app.prepare(ctx_id=-1, det_size=(640, 640))
+    with tempfile.TemporaryDirectory() as tmpdir:
+        zip_path = os.path.join(tmpdir, 'buffalo_sc.zip')
+        urllib.request.urlretrieve(url, zip_path)
+        print(f"Downloaded: {os.path.getsize(zip_path) / 1024 / 1024:.1f} MB")
 
-        # Extract the recognition model (w600k_r50.onnx or similar)
-        rec_model = app.models.get('recognition', None)
-        if rec_model is None:
-            for model in app.models.values():
-                if hasattr(model, 'input_size') and model.input_size == (112, 112):
-                    rec_model = model
-                    break
+        with zipfile.ZipFile(zip_path, 'r') as zf:
+            # Find the recognition model (w600k_mbf.onnx)
+            rec_files = [f for f in zf.namelist() if 'w600k' in f and f.endswith('.onnx')]
+            if not rec_files:
+                # Fallback: look for any .onnx that's not det_
+                rec_files = [f for f in zf.namelist() if f.endswith('.onnx') and 'det_' not in f]
 
-        if rec_model is not None:
-            import shutil
-            src_path = rec_model.model_file if hasattr(rec_model, 'model_file') else None
-            if src_path and os.path.exists(src_path):
-                shutil.copy2(src_path, output_path)
-                print(f"Copied recognition model to: {output_path}")
-                return output_path
-    except ImportError:
-        print("insightface not installed, trying direct download...")
+            if not rec_files:
+                raise RuntimeError(f"No recognition model found in zip. Contents: {zf.namelist()}")
 
-    # Alternative: download MobileFaceNet directly
-    try:
-        import urllib.request
-        # MobileFaceNet from ONNX model zoo
-        url = "https://github.com/onnx/models/raw/main/validated/vision/body_analysis/arcface/model/arcfaceresnet100-11-int8.onnx"
-        print(f"Downloading from: {url}")
-        urllib.request.urlretrieve(url, output_path)
-        print(f"Downloaded to: {output_path}")
-        return output_path
-    except Exception as e:
-        print(f"Direct download failed: {e}")
+            rec_file = rec_files[0]
+            print(f"Extracting: {rec_file}")
+            with zf.open(rec_file) as src, open(output_path, 'wb') as dst:
+                dst.write(src.read())
 
-    raise RuntimeError(
-        "Could not download MobileFaceNet. Please manually place a "
-        "MobileFaceNet ONNX model at: " + output_path + "\n"
-        "You can get it from:\n"
-        "  1. pip install insightface && python -c \"from insightface.app import FaceAnalysis; FaceAnalysis(name='buffalo_sc')\"\n"
-        "  2. https://github.com/deepinsight/insightface/tree/master/model_zoo"
-    )
+    print(f"Saved to: {output_path}")
+    print(f"Size: {os.path.getsize(output_path) / 1024 / 1024:.1f} MB")
+    return output_path
 
 
 def verify_model(model_path: str):
@@ -97,6 +82,8 @@ def verify_model(model_path: str):
     session = ort.InferenceSession(model_path, providers=['CPUExecutionProvider'])
     input_name = session.get_inputs()[0].name
     input_shape = session.get_inputs()[0].shape
+    # Replace dynamic dims (str/0) with 1
+    input_shape = [1 if isinstance(d, str) or d == 0 else d for d in input_shape]
 
     dummy = np.random.randn(*input_shape).astype(np.float32)
     result = session.run(None, {input_name: dummy})

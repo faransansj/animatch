@@ -48,7 +48,7 @@ export default function MultiFaceSelector({ faces, imageDataURL, onSelect }: Pro
 
   return (
     <div className={styles.container}>
-      <p className={styles.label}>👥 여러 얼굴이 감지됐어요. 분석할 얼굴을 선택해주세요:</p>
+      <p className={styles.label}>{t('upload.multiFacePrompt')}</p>
       <div className={styles.grid}>
         {thumbnails.map((thumb, i) => (
           <button key={i} className={styles.thumb} onClick={() => handleSelect(i)}>

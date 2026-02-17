@@ -56,6 +56,8 @@ def verify_quality(fp32_path: str, int8_path: str):
 
     input_name = session_fp32.get_inputs()[0].name
     input_shape = session_fp32.get_inputs()[0].shape
+    # Replace dynamic dims (str/0) with 1
+    input_shape = [1 if isinstance(d, str) or d == 0 else d for d in input_shape]
 
     # Test with multiple random inputs
     similarities = []

@@ -7,6 +7,7 @@ __pycache__/
 public/models/clip-image-encoder.onnx
 public/models/clip-image-encoder.onnx.data
 ml/models/
+ml/images/
 
 # Node
 node_modules/
