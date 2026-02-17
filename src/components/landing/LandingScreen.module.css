@@ -1,0 +1,246 @@
+.screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Background */
+.bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.glowOrb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.5;
+  animation: orbFloat 8s ease-in-out infinite alternate;
+}
+
+.orb1 {
+  width: 400px;
+  height: 400px;
+  background: var(--glow-pink);
+  top: -100px;
+  right: -100px;
+}
+
+.orb2 {
+  width: 350px;
+  height: 350px;
+  background: var(--glow-purple);
+  bottom: -50px;
+  left: -80px;
+  animation-delay: -3s;
+}
+
+.orb3 {
+  width: 250px;
+  height: 250px;
+  background: var(--glow-blue);
+  top: 40%;
+  left: 50%;
+  animation-delay: -5s;
+}
+
+.particleField {
+  position: absolute;
+  inset: 0;
+}
+
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  animation: particleRise linear infinite;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  position: relative;
+  z-index: 10;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logoIcon {
+  font-size: 28px;
+}
+
+.logoText {
+  font-size: 22px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Content */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 24px 40px;
+  position: relative;
+  z-index: 10;
+  text-align: center;
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(255, 107, 157, 0.1);
+  border: 1px solid rgba(255, 107, 157, 0.2);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--primary-light);
+  margin-bottom: 24px;
+}
+
+.heroTitle {
+  font-size: clamp(32px, 7vw, 52px);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+
+.gradientText {
+  background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% auto;
+  animation: gradientShift 4s ease infinite;
+}
+
+.heroSubtitle {
+  font-size: 16px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 32px;
+  max-width: 400px;
+  white-space: pre-line;
+}
+
+/* Example Cards */
+.exampleCards {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 40px;
+  perspective: 800px;
+}
+
+.exampleCard {
+  width: 90px;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: var(--transition);
+  transform: scale(0.9);
+  opacity: 0.7;
+}
+
+.featured {
+  transform: scale(1.05);
+  opacity: 1;
+  border-color: var(--primary);
+  box-shadow: 0 0 30px var(--glow-pink);
+}
+
+.exampleImg {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.exampleInfo {
+  padding: 8px;
+  text-align: center;
+}
+
+.exampleName {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.exampleAnime {
+  display: block;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* CTA */
+.ctaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 48px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  transition: all 0.4s ease;
+  box-shadow: 0 8px 30px var(--glow-pink);
+  margin-bottom: 32px;
+}
+
+.ctaBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 45px var(--glow-pink);
+}
+
+.ctaArrow {
+  transition: transform 0.3s;
+}
+
+.ctaBtn:hover .ctaArrow {
+  transform: translateX(4px);
+}
+
+/* Ad */
+.adBanner {
+  width: 100%;
+  max-width: 728px;
+  height: 90px;
+  background: var(--bg-card);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.adLabel {
+  background: var(--bg-card-2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}

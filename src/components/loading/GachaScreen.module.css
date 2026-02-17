@@ -1,0 +1,247 @@
+.screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, #1a1040 0%, var(--bg-dark) 100%);
+  z-index: 0;
+}
+
+.particles {
+  position: absolute;
+  inset: 0;
+}
+
+.particle {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  animation: particleRise linear infinite;
+}
+
+.glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, var(--glow-pink), transparent);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  filter: blur(60px);
+  animation: gachaGlow 3s ease-in-out infinite;
+}
+
+@keyframes gachaGlow {
+  0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+.content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 40px 24px;
+  gap: 40px;
+}
+
+/* Steps */
+.steps {
+  display: flex;
+  align-items: center;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  transition: color 0.5s;
+}
+
+.step.active {
+  color: var(--primary-light);
+}
+
+.step.done {
+  color: var(--accent);
+}
+
+.stepDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: all 0.5s;
+}
+
+.step.active .stepDot {
+  background: var(--primary);
+  box-shadow: 0 0 12px var(--glow-pink);
+  animation: dotPulse 1s ease-in-out infinite;
+}
+
+.step.done .stepDot {
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--glow-blue);
+}
+
+.stepLine {
+  width: 40px;
+  height: 2px;
+  background: var(--text-muted);
+  margin: 0 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stepLine.filling::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  animation: lineFill 1.5s ease-out forwards;
+}
+
+@keyframes lineFill {
+  to { width: 100%; }
+}
+
+/* Gacha Stage */
+.gachaStage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+.silhouette {
+  width: 200px;
+  height: 260px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.silhouetteGlow {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--glow-purple), transparent);
+  animation: silGlow 2s ease-in-out infinite;
+}
+
+@keyframes silGlow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+.silhouetteShape {
+  width: 160px;
+  height: 220px;
+  background: linear-gradient(135deg, rgba(192, 132, 252, 0.2), rgba(255, 107, 157, 0.15));
+  border-radius: 80px 80px 60px 60px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 1;
+  animation: silFloat 3s ease-in-out infinite;
+}
+
+@keyframes silFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.reveal .silhouetteShape {
+  animation: silReveal 0.8s ease-out forwards;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-color: rgba(255, 255, 255, 0.3);
+  font-size: 72px;
+  color: white;
+}
+
+@keyframes silReveal {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Quote */
+.quoteContainer {
+  text-align: center;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.quoteMark {
+  font-size: 24px;
+  color: var(--primary);
+  opacity: 0;
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.quoteText {
+  font-size: 18px;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--text);
+  max-width: 350px;
+  line-height: 1.6;
+  min-height: 28px;
+}
+
+.quoteCursor {
+  display: inline;
+  color: var(--primary);
+  animation: blink 0.7s step-end infinite;
+}
+
+/* Progress */
+.loadingProgress {
+  width: 100%;
+  max-width: 350px;
+}
+
+.progressBar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progressFill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-dim);
+}

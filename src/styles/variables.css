@@ -1,0 +1,22 @@
+:root {
+  --primary: #FF6B9D;
+  --primary-light: #ff8fb8;
+  --secondary: #C084FC;
+  --secondary-light: #d4a5ff;
+  --accent: #38BDF8;
+  --bg-dark: #0F172A;
+  --bg-card: #1E293B;
+  --bg-card-2: #273548;
+  --text: #F1F5F9;
+  --text-dim: #94A3B8;
+  --text-muted: #64748B;
+  --border: rgba(255, 255, 255, 0.08);
+  --glow-pink: rgba(255, 107, 157, 0.4);
+  --glow-purple: rgba(192, 132, 252, 0.3);
+  --glow-blue: rgba(56, 189, 248, 0.3);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-lg: 24px;
+  --font-main: 'Pretendard Variable', 'Outfit', -apple-system, sans-serif;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

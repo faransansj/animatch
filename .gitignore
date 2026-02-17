@@ -6,6 +6,12 @@ __pycache__/
 # Large ONNX models (FP32)
 public/models/clip-image-encoder.onnx
 public/models/clip-image-encoder.onnx.data
+ml/models/
+
+# Node
+node_modules/
+dist/
+*.local
 
 # OS
 .DS_Store
