@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import styles from './Header.module.css';
 
@@ -14,10 +14,10 @@ export default function Header({ backTo = '/', backLabel }: HeaderProps) {
 
   return (
     <header className={styles.header}>
-      <button className={styles.backBtn} onClick={() => navigate(backTo)}>
+      <Link to={backTo} className={styles.backBtn}>
         {label}
-      </button>
-      <div className={styles.logoSmall}>🎌 AniMatch</div>
+      </Link>
+      <div className={styles.logoSmall}>AniMatch</div>
     </header>
   );
 }

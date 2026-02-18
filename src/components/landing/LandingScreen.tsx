@@ -56,7 +56,6 @@ export default function LandingScreen() {
 
       <header className={styles.header}>
         <div className={styles.logo}>
-          <span className={styles.logoIcon}>🎌</span>
           <span className={styles.logoText}>AniMatch</span>
         </div>
         <LangToggle />

@@ -30,6 +30,7 @@ export default function UploadScreen() {
   const [crop, setCrop] = useState<Crop>();
   const cropImgRef = useRef<HTMLImageElement>(null);
   const [cameraOpen, setCameraOpen] = useState(false);
+  const [hasConsent, setHasConsent] = useState(false);
   const hasCamera = typeof navigator !== 'undefined' && !!navigator.mediaDevices?.getUserMedia;
 
   const hasImage = !!rawImageData;
@@ -209,9 +210,22 @@ export default function UploadScreen() {
           />
         )}
 
+        {/* Consent Checkbox */}
+        <div className={styles.consentWrap}>
+          <label className={styles.consentLabel}>
+            <input
+              type="checkbox"
+              className={styles.consentCheckbox}
+              checked={hasConsent}
+              onChange={(e) => setHasConsent(e.target.checked)}
+            />
+            <span className={styles.consentText}>{t('upload.consentLabel')}</span>
+          </label>
+        </div>
+
         <button
           className={styles.analyzeBtn}
-          disabled={!hasImage}
+          disabled={!hasImage || !hasConsent}
           onClick={startAnalysis}
         >
           <span>{t('upload.analyze')}</span>
@@ -219,7 +233,7 @@ export default function UploadScreen() {
         </button>
 
         <div className={styles.privacyNotice}>
-          {t('upload.privacyNotice')} · <a href="#" className={styles.privacyLink} onClick={(e) => { e.preventDefault(); showToast(`📄 ${t('common.preparing')}`); }}>{t('common.privacy')}</a>
+          {t('upload.privacyNotice')} · <a href="/privacy" className={styles.privacyLink} onClick={(e) => { e.preventDefault(); navigate('/privacy'); }}>{t('common.privacy')}</a>
         </div>
       </main>
 

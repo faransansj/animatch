@@ -155,8 +155,17 @@
 }
 
 @keyframes facePulse {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.02); }
+
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
 }
 
 .faceGuideText {
@@ -400,7 +409,45 @@
     flex-direction: column;
     gap: 4px;
   }
+
   .tipDivider {
     display: none;
   }
+}
+
+/* Consent Checkbox */
+.consentWrap {
+  margin: 1rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.consentLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.consentLabel:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.consentCheckbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #ff6b9d;
+  /* Directly use primary color if needed */
+}
+
+.consentText {
+  line-height: 1.4;
 }

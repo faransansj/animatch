@@ -1,8 +1,10 @@
 export interface CharacterEmbedding {
+  heroine_id: number;
   protagonist: string;
   protagonist_en: string;
   heroine_name: string;
   heroine_name_en: string;
+  heroine_image?: string;
   heroine_emoji: string;
   heroine_color: string;
   heroine_quote: string;

@@ -57,6 +57,7 @@ export default {
     cameraClose: '닫기',
     cameraError: '카메라를 사용할 수 없어요',
     cameraPermission: '카메라 권한을 허용해주세요',
+    consentLabel: '만 14세 이상이며 개인정보처리방침에 동의합니다',
   },
   loading: {
     step1: '얼굴 특징 분석',

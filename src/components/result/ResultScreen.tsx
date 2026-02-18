@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import Header from '@/components/shared/Header';
@@ -7,6 +7,7 @@ import { useResultStore } from '@/stores/resultStore';
 import { useUploadStore } from '@/stores/uploadStore';
 import { useAppStore } from '@/stores/appStore';
 import { shareToX, shareToBluesky, copyLink } from '@/utils/share';
+import { getTarotImageUrl } from '@/utils/tarot';
 import type { MatchCandidate } from '@/types/match';
 import type { CharacterEmbedding } from '@/types/character';
 import styles from './ResultScreen.module.css';
@@ -22,6 +23,53 @@ function useLocalizedChar(char: CharacterEmbedding) {
     charm: isEn ? char.heroine_charm_en : char.heroine_charm,
     genre: isEn ? char.genre_en : char.genre,
   };
+}
+
+function HeroImage({ char, children }: { char: CharacterEmbedding; children: React.ReactNode }) {
+  const [imgError, setImgError] = useState(false);
+  const tarotUrl = getTarotImageUrl(char.heroine_id);
+  const fallbackBg = char.heroine_color || 'linear-gradient(135deg, #f093fb, #f5576c)';
+
+  return (
+    <div className={styles.heroImg} style={imgError ? { background: fallbackBg } : undefined}>
+      {!imgError ? (
+        <img
+          className={styles.heroTarotImg}
+          src={tarotUrl}
+          alt={char.heroine_name}
+          onError={() => setImgError(true)}
+        />
+      ) : (
+        <span className={styles.emojiLg}>{char.heroine_emoji || '💖'}</span>
+      )}
+      {children}
+    </div>
+  );
+}
+
+function RunnerUpImage({ char }: { char: CharacterEmbedding }) {
+  const [imgError, setImgError] = useState(false);
+  const tarotUrl = getTarotImageUrl(char.heroine_id);
+  const fallbackBg = char.heroine_color || 'linear-gradient(135deg, #667eea, #764ba2)';
+
+  if (imgError) {
+    return (
+      <div className={styles.runnerUpEmoji} style={{ background: fallbackBg }}>
+        <span>{char.heroine_emoji || '💕'}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.runnerUpEmoji}>
+      <img
+        className={styles.runnerUpTarotImg}
+        src={tarotUrl}
+        alt={char.heroine_name}
+        onError={() => setImgError(true)}
+      />
+    </div>
+  );
 }
 
 export default function ResultScreen() {
@@ -44,8 +92,13 @@ export default function ResultScreen() {
     navigate('/');
   }, [navigate, uploadReset, resultReset]);
 
+  useEffect(() => {
+    if (!matchResult) {
+      navigate('/upload', { replace: true });
+    }
+  }, []); // Only check on mount to avoid race conditions during state reset
+
   if (!matchResult) {
-    navigate('/upload', { replace: true });
     return null;
   }
 
@@ -93,9 +146,7 @@ export default function ResultScreen() {
         >
           <div className={styles.cardGlow} />
 
-          <div className={styles.heroImg} style={{ background: char.heroine_color || 'linear-gradient(135deg, #f093fb, #f5576c)' }}>
-            <span className={styles.emojiLg}>{char.heroine_emoji || '💖'}</span>
-
+          <HeroImage char={char}>
             <div className={styles.compatBadge}>
               <svg className={styles.percentageRing} viewBox="0 0 36 36">
                 <path className={styles.ringBg} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
@@ -110,7 +161,7 @@ export default function ResultScreen() {
                 {confidenceLabels[matchResult.confidence]}
               </span>
             )}
-          </div>
+          </HeroImage>
 
           <div className={styles.infoPanel}>
             <div className={styles.cardHeader}>
@@ -173,9 +224,7 @@ export default function ResultScreen() {
                     onClick={() => swapToRunnerUp(entry)}
                   >
                     <div className={styles.runnerUpRank}>{t('result.rank', { rank: idx + 2 })}</div>
-                    <div className={styles.runnerUpEmoji} style={{ background: rc.heroine_color || 'linear-gradient(135deg, #667eea, #764ba2)' }}>
-                      <span>{rc.heroine_emoji || '💕'}</span>
-                    </div>
+                    <RunnerUpImage char={rc} />
                     <div className={styles.runnerUpInfo}>
                       <span className={styles.runnerUpName}>{isEn ? rc.heroine_name_en : rc.heroine_name}</span>
                       <span className={styles.runnerUpAnime}>{isEn ? rc.anime_en : rc.anime}</span>
@@ -205,7 +254,7 @@ export default function ResultScreen() {
               <span className={styles.shareIcon}>🦋</span>
               <span>{t('result.shareBluesky')}</span>
             </button>
-            <button className={`${styles.shareBtn} ${styles.copy}`} onClick={() => copyLink(() => showToast(t('result.linkCopied')))}>
+            <button className={`${styles.shareBtn} ${styles.copy}`} onClick={() => copyLink(char.heroine_id, () => showToast(t('result.linkCopied')))}>
               <span className={styles.shareIcon}>🔗</span>
               <span>{t('result.shareCopy')}</span>
             </button>
@@ -216,15 +265,21 @@ export default function ResultScreen() {
           </div>
         </motion.div>
 
-        <motion.button
-          className={styles.retryBtn}
-          onClick={handleRetry}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-        >
-          {t('common.retry')}
-        </motion.button>
+        <div className={styles.actionButtons}>
+          <Link
+            to="/"
+            className={styles.homeBtn}
+            onClick={() => {
+              uploadReset();
+              resultReset();
+            }}
+          >
+            {t('common.backToHome')}
+          </Link>
+          <button className={styles.retryBtn} onClick={handleRetry}>
+            {t('common.retry')}
+          </button>
+        </div>
 
         <div className={styles.adBanner}>
           <span className={styles.adLabel}>AD</span>

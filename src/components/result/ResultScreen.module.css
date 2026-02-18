@@ -48,7 +48,9 @@
 }
 
 @keyframes cardGlowSpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .heroImg {
@@ -61,6 +63,14 @@
   overflow: hidden;
 }
 
+.heroTarotImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  inset: 0;
+}
+
 .emojiLg {
   font-size: 100px;
   filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.3));
@@ -68,8 +78,15 @@
 }
 
 @keyframes heroBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 /* Compat Badge */
@@ -109,7 +126,9 @@
 }
 
 @keyframes ringDraw {
-  from { stroke-dasharray: 0, 100; }
+  from {
+    stroke-dasharray: 0, 100;
+  }
 }
 
 .percentageText {
@@ -351,6 +370,15 @@
   justify-content: center;
   font-size: 22px;
   flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.runnerUpTarotImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
 }
 
 .runnerUpInfo {
@@ -426,14 +454,36 @@
   font-size: 20px;
 }
 
-.twitter:hover { border-color: #1DA1F2; }
-.bluesky:hover { border-color: #0085FF; }
-.copy:hover { border-color: var(--accent); }
-.download:hover { border-color: var(--secondary); }
+.twitter:hover {
+  border-color: #1DA1F2;
+}
 
-/* Retry */
-.retryBtn {
-  padding: 14px 32px;
+.bluesky:hover {
+  border-color: #0085FF;
+}
+
+.copy:hover {
+  border-color: var(--accent);
+}
+
+.download:hover {
+  border-color: var(--secondary);
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  max-width: 400px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.retryBtn,
+.homeBtn {
+  flex: 1;
+  padding: 14px 24px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -441,12 +491,26 @@
   font-weight: 500;
   color: var(--text-dim);
   transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
-.retryBtn:hover {
+.homeBtn {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.retryBtn:hover,
+.homeBtn:hover {
   border-color: var(--text-dim);
   color: var(--text);
   transform: translateY(-2px);
+}
+
+.retryBtn:active,
+.homeBtn:active {
+  transform: translateY(0);
 }
 
 /* Ad */
@@ -478,11 +542,13 @@
   .heroineCard {
     flex-direction: column;
   }
+
   .heroImg {
     flex: none;
     min-height: 320px;
     width: 100%;
   }
+
   .infoPanel {
     padding: 20px;
   }
@@ -492,28 +558,36 @@
   .shareButtons {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .heroImg {
     min-height: 280px;
   }
+
   .emojiLg {
     font-size: 72px;
   }
+
   .nameArea {
     text-align: center;
   }
+
   .tags {
     justify-content: center;
   }
+
   .runnerUpGrid {
     grid-template-columns: 1fr 1fr;
   }
+
   .runnerUpCard {
     padding: 10px;
     gap: 8px;
   }
+
   .runnerUpName {
     font-size: 13px;
   }
+
   .runnerUpEmoji {
     width: 38px;
     height: 38px;

@@ -57,6 +57,7 @@ export default {
     cameraClose: 'Close',
     cameraError: 'Camera not available',
     cameraPermission: 'Please allow camera access',
+    consentLabel: 'I am 14+ and agree to the Privacy Policy',
   },
   loading: {
     step1: 'Face Analysis',
