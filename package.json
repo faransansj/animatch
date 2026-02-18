@@ -7,11 +7,16 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "cf:dev": "wrangler pages dev dist",
+    "deploy": "pnpm build && rm -rf dist/models && wrangler pages deploy dist",
+    "deploy:models": "wrangler r2 object put animatch-models/clip-image-encoder-q8.onnx --file public/models/clip-image-encoder-q8.onnx --remote && wrangler r2 object put animatch-models/mobilefacenet-q8.onnx --file public/models/mobilefacenet-q8.onnx --remote",
+    "deploy:db": "wrangler d1 migrations apply animatch-db --remote"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^0.10.32",
     "framer-motion": "^11.18.0",
+    "hono": "^4.11.9",
     "i18next": "^24.2.0",
     "onnxruntime-web": "^1.21.0",
     "react": "^19.0.0",
@@ -22,10 +27,12 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260218.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.0",
     "typescript": "~5.7.0",
-    "vite": "^6.0.0"
+    "vite": "^6.0.0",
+    "wrangler": "^4.66.0"
   }
 }

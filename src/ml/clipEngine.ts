@@ -1,5 +1,5 @@
 import * as ort from 'onnxruntime-web';
-import { PREPROCESS, MODEL_PATHS } from './types';
+import { PREPROCESS, MODEL_PATH } from './types';
 import { preprocessImage } from './preprocessing';
 
 let modelSession: ort.InferenceSession | null = null;
@@ -7,20 +7,18 @@ let modelSession: ort.InferenceSession | null = null;
 export async function initClipEngine(
   onProgress?: (progress: number) => void,
 ): Promise<boolean> {
-  for (const modelPath of MODEL_PATHS) {
-    try {
-      onProgress?.(10);
-      modelSession = await ort.InferenceSession.create(modelPath, {
-        executionProviders: ['wasm'],
-        graphOptimizationLevel: 'all',
-      });
-      onProgress?.(100);
-      return true;
-    } catch (e) {
-      console.warn(`Failed to load ${modelPath}:`, (e as Error).message);
-    }
+  try {
+    onProgress?.(10);
+    modelSession = await ort.InferenceSession.create(MODEL_PATH, {
+      executionProviders: ['wasm'],
+      graphOptimizationLevel: 'all',
+    });
+    onProgress?.(100);
+    return true;
+  } catch (e) {
+    console.warn(`Failed to load ${MODEL_PATH}:`, (e as Error).message);
+    return false;
   }
-  return false;
 }
 
 export function isClipReady(): boolean {

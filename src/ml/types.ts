@@ -4,7 +4,4 @@ export const PREPROCESS = {
   std: [0.26862954, 0.26130258, 0.27577711] as const,
 };
 
-export const MODEL_PATHS = [
-  '/models/clip-image-encoder-q8.onnx',
-  '/models/clip-image-encoder.onnx',
-] as const;
+export const MODEL_PATH = '/models/clip-image-encoder-q8.onnx';

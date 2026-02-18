@@ -9,11 +9,12 @@ import { getArcFaceEmbedding, isArcFaceReady } from '@/ml/arcFaceEngine';
 import { findBestMatch, getRandomMatch } from '@/ml/matching';
 import { findBestMatchDual } from '@/ml/dualEmbedding';
 import { sleep } from '@/utils/image';
+import { logMatchResult } from '@/utils/analytics';
 import type { MatchResult } from '@/types/match';
 
 export function useGachaAnimation() {
   const navigate = useNavigate();
-  const { orientation, showToast } = useAppStore();
+  const { orientation, language, showToast } = useAppStore();
   const { embeddingsData } = useMLStore();
   const { processedImageData } = useUploadStore();
   const {
@@ -133,6 +134,7 @@ export function useGachaAnimation() {
     setGachaStep('idle');
 
     let result: MatchResult | null = null;
+    const usedDualMatching = isClipReady() && isArcFaceReady();
 
     if (isClipReady()) {
       result = await runMLSequence();
@@ -146,9 +148,10 @@ export function useGachaAnimation() {
 
     if (result) {
       setMatchResult(result);
+      logMatchResult(result, orientation, language, usedDualMatching);
       navigate('/result');
     }
-  }, [navigate, setGachaProgress, setGachaRevealed, setQuoteText, setGachaStep, setMatchResult, runMLSequence, runFallbackSequence]);
+  }, [navigate, orientation, language, setGachaProgress, setGachaRevealed, setQuoteText, setGachaStep, setMatchResult, runMLSequence, runFallbackSequence]);
 
   return { start };
 }

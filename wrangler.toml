@@ -1,0 +1,20 @@
+name = "animatch"
+compatibility_date = "2024-12-01"
+pages_build_output_dir = "dist"
+
+# R2 Bucket (ONNX models)
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "animatch-models"
+
+# D1 Database (analytics)
+[[d1_databases]]
+binding = "DB"
+database_name = "animatch-db"
+database_id = "b5911fc7-37d3-47f1-aab3-7ca4c5c46ddf"
+migrations_dir = "migrations"
+
+# KV Namespace (rate limiting)
+[[kv_namespaces]]
+binding = "KV"
+id = "a8c4a36e06224fdc8c2764f8e2e38b6f"
