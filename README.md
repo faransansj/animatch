@@ -224,15 +224,16 @@ pnpm dev
 - [x] react-image-crop 크롭 기능 개선
 - [x] i18n (한국어 / English)
 
-### Phase 4 — Backend & Deploy
+### Phase 4 — Backend & Deploy (Complete)
 > **목표**: Cloudflare 풀스택 배포
 
-- [ ] Cloudflare Workers API (Hono)
-- [ ] Cloudflare D1 DB 마이그레이션
+- [x] Cloudflare Workers API (Hono) — analytics log/trending API
+- [x] Cloudflare D1 DB 마이그레이션 — analysis_logs 테이블
 - [ ] Cloudflare R2 이미지/모델 호스팅
-- [ ] Cloudflare KV 세션 캐시
-- [ ] Cloudflare Pages 프론트엔드 배포
+- [x] Cloudflare KV 세션 캐시 — rate limiting (30 req/min)
+- [x] Cloudflare Pages 프론트엔드 배포
 - [ ] 커스텀 도메인 + SSL
+- [x] 개인정보처리방침 + 이용약관 페이지 (ko/en)
 
 ### Phase 5 — Monetization & Growth
 > **목표**: 수익화 + 사용자 확대

@@ -1,0 +1,132 @@
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    min-height: 100vh;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.backBtn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: color 0.2s;
+    padding: 0.5rem;
+}
+
+.backBtn:hover {
+    color: #fff;
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.content {
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.lastUpdated {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 2rem;
+}
+
+.section {
+    margin-bottom: 2.5rem;
+}
+
+.section h2 {
+    font-size: 1.3rem;
+    color: #fff;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section h2::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 1.2rem;
+    background: #6366f1;
+    border-radius: 2px;
+}
+
+.section p {
+    margin-bottom: 1rem;
+}
+
+.section ul {
+    padding-left: 1.2rem;
+    list-style-type: none;
+}
+
+.section li {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.section li::before {
+    content: '•';
+    position: absolute;
+    left: -1.2rem;
+    color: #6366f1;
+}
+
+.section strong {
+    color: #a5b4fc;
+}
+
+.section a {
+    color: #818cf8;
+    text-decoration: none;
+}
+
+.section a:hover {
+    text-decoration: underline;
+}
+
+.footer {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: center;
+}
+
+.homeBtn {
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    color: #fff;
+    padding: 0.8rem 2rem;
+    border-radius: 99rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.homeBtn:hover {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.4);
+    transform: translateY(-2px);
+}

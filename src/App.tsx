@@ -6,6 +6,8 @@ import GachaScreen from '@/components/loading/GachaScreen';
 import ResultScreen from '@/components/result/ResultScreen';
 import Toast from '@/components/shared/Toast';
 import ModelLoadingOverlay from '@/components/shared/ModelLoadingOverlay';
+import PrivacyPolicy from '@/components/legal/PrivacyPolicy';
+import TermsOfService from '@/components/legal/TermsOfService';
 import { useMLEngine } from '@/hooks/useMLEngine';
 
 export default function App() {
@@ -23,6 +25,8 @@ export default function App() {
           <Route path="/upload" element={<UploadScreen />} />
           <Route path="/loading" element={<GachaScreen />} />
           <Route path="/result" element={<ResultScreen />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
         </Routes>
       </AnimatePresence>
       <Toast />
