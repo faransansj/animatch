@@ -57,6 +57,7 @@ export default function GachaScreen() {
 
   const progressText = () => {
     switch (gachaStep) {
+      case 'preparing': return t('loading.preparing');
       case 'analyzing': return t('loading.analyzing');
       case 'matching': return t('loading.matching');
       case 'revealing': return t('loading.found');
@@ -81,20 +82,29 @@ export default function GachaScreen() {
       <main className={styles.content}>
         {/* Steps */}
         <div className={styles.steps}>
-          <div className={`${styles.step} ${stepStatus('analyzing', 'analyzing')}`}>
-            <div className={styles.stepDot} />
-            <span>{t('loading.step1')}</span>
-          </div>
-          <div className={`${styles.stepLine} ${stepStatus('matching', 'analyzing') === 'done' ? styles.filling : ''}`} />
-          <div className={`${styles.step} ${stepStatus('matching', 'matching')}`}>
-            <div className={styles.stepDot} />
-            <span>{t('loading.step2')}</span>
-          </div>
-          <div className={`${styles.stepLine} ${stepStatus('revealing', 'matching') === 'done' ? styles.filling : ''}`} />
-          <div className={`${styles.step} ${stepStatus('revealing', 'revealing')}`}>
-            <div className={styles.stepDot} />
-            <span>{t('loading.step3')}</span>
-          </div>
+          {gachaStep === 'preparing' ? (
+            <div className={`${styles.step ?? ''} active`}>
+              <div className={styles.stepDot} />
+              <span>{t('loading.preparing')}</span>
+            </div>
+          ) : (
+            <>
+              <div className={`${styles.step ?? ''} ${stepStatus('analyzing', 'analyzing')}`}>
+                <div className={styles.stepDot} />
+                <span>{t('loading.step1')}</span>
+              </div>
+              <div className={`${styles.stepLine ?? ''} ${stepStatus('matching', 'analyzing') === 'done' ? styles.filling ?? '' : ''}`} />
+              <div className={`${styles.step ?? ''} ${stepStatus('matching', 'matching')}`}>
+                <div className={styles.stepDot} />
+                <span>{t('loading.step2')}</span>
+              </div>
+              <div className={`${styles.stepLine ?? ''} ${stepStatus('revealing', 'matching') === 'done' ? styles.filling ?? '' : ''}`} />
+              <div className={`${styles.step ?? ''} ${stepStatus('revealing', 'revealing')}`}>
+                <div className={styles.stepDot} />
+                <span>{t('loading.step3')}</span>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Gacha Stage */}

@@ -7,6 +7,7 @@ import 'react-image-crop/dist/ReactCrop.css';
 import { useState } from 'react';
 import Header from '@/components/shared/Header';
 import MultiFaceSelector from '@/components/upload/MultiFaceSelector';
+import CameraCapture from '@/components/upload/CameraCapture';
 import { useAppStore } from '@/stores/appStore';
 import { useUploadStore } from '@/stores/uploadStore';
 import { useImageUpload } from '@/hooks/useImageUpload';
@@ -22,12 +23,14 @@ export default function UploadScreen() {
     rawImageData, processedImageData, feedbackItems,
     cropModalOpen, setCropModalOpen, setProcessedImageData, setFeedbackItems,
   } = useUploadStore();
-  const { handleFile } = useImageUpload();
+  const { handleFile, handleDataURL } = useImageUpload();
   const { detect, selectFace } = useFaceDetection();
   const detectedFaces = useUploadStore(s => s.detectedFaces);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [crop, setCrop] = useState<Crop>();
   const cropImgRef = useRef<HTMLImageElement>(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const hasCamera = typeof navigator !== 'undefined' && !!navigator.mediaDevices?.getUserMedia;
 
   const hasImage = !!rawImageData;
 
@@ -174,6 +177,12 @@ export default function UploadScreen() {
           <span className={styles.tipInline}>{t('upload.tipSingle')}</span>
         </div>
 
+        {hasCamera && !hasImage && (
+          <button className={styles.cameraBtn} onClick={() => setCameraOpen(true)}>
+            📷 {t('upload.camera')}
+          </button>
+        )}
+
         {/* Guideline Feedback */}
         {hasImage && feedbackItems.length > 0 && (
           <div className={styles.feedback}>
@@ -213,6 +222,17 @@ export default function UploadScreen() {
           {t('upload.privacyNotice')} · <a href="#" className={styles.privacyLink} onClick={(e) => { e.preventDefault(); showToast(`📄 ${t('common.preparing')}`); }}>{t('common.privacy')}</a>
         </div>
       </main>
+
+      {/* Camera Modal */}
+      {cameraOpen && (
+        <CameraCapture
+          onCapture={(dataURL) => {
+            setCameraOpen(false);
+            handleDataURL(dataURL);
+          }}
+          onClose={() => setCameraOpen(false)}
+        />
+      )}
 
       {/* Crop Modal */}
       {cropModalOpen && rawImageData && (

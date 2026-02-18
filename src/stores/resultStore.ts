@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { MatchResult } from '@/types/match';
 
-type GachaStep = 'idle' | 'analyzing' | 'matching' | 'revealing' | 'done';
+type GachaStep = 'idle' | 'preparing' | 'analyzing' | 'matching' | 'revealing' | 'done';
 
 interface ResultState {
   matchResult: MatchResult | null;

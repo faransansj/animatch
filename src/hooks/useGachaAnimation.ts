@@ -126,6 +126,31 @@ export function useGachaAnimation() {
     return matchResult;
   }, [embeddingsData, orientation, showToast, setGachaStep, animateProgress, typeQuote, setGachaRevealed]);
 
+  const waitForModel = useCallback((timeoutMs: number): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (isClipReady()) {
+        resolve(true);
+        return;
+      }
+
+      const timer = setTimeout(() => {
+        unsub();
+        resolve(false);
+      }, timeoutMs);
+
+      const unsub = useMLStore.subscribe((state) => {
+        // Mirror clipProgress (0-100) into gachaProgress during preparing phase
+        setGachaProgress(state.clipProgress);
+
+        if (state.clipReady) {
+          clearTimeout(timer);
+          unsub();
+          resolve(true);
+        }
+      });
+    });
+  }, [setGachaProgress]);
+
   const start = useCallback(async () => {
     // Reset
     setGachaProgress(0);
@@ -133,16 +158,25 @@ export function useGachaAnimation() {
     setQuoteText('');
     setGachaStep('idle');
 
-    let result: MatchResult | null = null;
-    const usedDualMatching = isClipReady() && isArcFaceReady();
+    let clipReady = isClipReady();
 
-    if (isClipReady()) {
+    // Wait for model if not ready yet
+    if (!clipReady) {
+      setGachaStep('preparing');
+      clipReady = await waitForModel(60_000);
+    }
+
+    let result: MatchResult | null = null;
+    const usedDualMatching = clipReady && isArcFaceReady();
+
+    if (clipReady) {
+      setGachaProgress(0);
       result = await runMLSequence();
       if (!result) {
-        // Fallback on ML failure
         result = await runFallbackSequence();
       }
     } else {
+      setGachaProgress(0);
       result = await runFallbackSequence();
     }
 
@@ -151,7 +185,7 @@ export function useGachaAnimation() {
       logMatchResult(result, orientation, language, usedDualMatching);
       navigate('/result');
     }
-  }, [navigate, orientation, language, setGachaProgress, setGachaRevealed, setQuoteText, setGachaStep, setMatchResult, runMLSequence, runFallbackSequence]);
+  }, [navigate, orientation, language, setGachaProgress, setGachaRevealed, setQuoteText, setGachaStep, setMatchResult, runMLSequence, runFallbackSequence, waitForModel]);
 
   return { start };
 }

@@ -235,13 +235,18 @@ pnpm dev
 - [ ] 커스텀 도메인 + SSL
 - [x] 개인정보처리방침 + 이용약관 페이지 (ko/en)
 
-### Phase 5 — Monetization & Growth
-> **목표**: 수익화 + 사용자 확대
+### Phase 5 — UX 개선 & Monetization (In Progress)
+> **목표**: 사용자 경험 최적화 + 수익화 + 사용자 확대
 
-- [ ] Google AdSense 광고 통합
-- [ ] Google Analytics 4 이벤트 트래킹
+**UX 개선**
+- [x] AI 모델 백그라운드 로딩 (블로킹 오버레이 제거, GachaScreen에서 대기)
+- [x] 카메라 촬영 기능 (모바일 대응)
 - [ ] OG 이미지 동적 생성 (결과 카드)
 - [ ] 결과 카드 이미지 다운로드
+
+**수익화**
+- [ ] Google AdSense 광고 통합
+- [ ] Google Analytics 4 이벤트 트래킹
 - [ ] SEO 최적화
 - [ ] Sentry 에러 트래킹
 

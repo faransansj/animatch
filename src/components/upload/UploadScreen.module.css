@@ -188,6 +188,24 @@
   font-size: 10px;
 }
 
+/* Camera Button */
+.cameraBtn {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 10px;
+  background: rgba(56, 189, 248, 0.08);
+  transition: var(--transition);
+  margin-bottom: 8px;
+}
+
+.cameraBtn:hover {
+  background: rgba(56, 189, 248, 0.15);
+  transform: translateY(-1px);
+}
+
 /* Feedback */
 .feedback {
   width: 100%;

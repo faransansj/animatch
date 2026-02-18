@@ -5,7 +5,6 @@ import UploadScreen from '@/components/upload/UploadScreen';
 import GachaScreen from '@/components/loading/GachaScreen';
 import ResultScreen from '@/components/result/ResultScreen';
 import Toast from '@/components/shared/Toast';
-import ModelLoadingOverlay from '@/components/shared/ModelLoadingOverlay';
 import PrivacyPolicy from '@/components/legal/PrivacyPolicy';
 import TermsOfService from '@/components/legal/TermsOfService';
 import { useMLEngine } from '@/hooks/useMLEngine';
@@ -18,7 +17,6 @@ export default function App() {
 
   return (
     <>
-      <ModelLoadingOverlay />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<LandingScreen />} />
