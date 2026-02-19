@@ -263,14 +263,14 @@ pnpm dev
 - [x] SEO 최적화 (robots.txt, sitemap.xml, JSON-LD 구조화 데이터, OG/Twitter Card 메타 태그)
 - [ ] Sentry 에러 트래킹
 
-### Phase 6 — Social & Engagement
-> **목표**: 소셜 기능 + 재방문 유도
+### Phase 6 — Social & Engagement (canceled)
+~> **목표**: 소셜 기능 + 재방문 유도~
 
-- [ ] 결과 히스토리 저장
-- [ ] 인기 매칭 랭킹
-- [ ] 시즌/이벤트 캐릭터 추가
-- [ ] 커뮤니티 기능 (결과 댓글)
-- [ ] 푸시 알림 (신규 캐릭터 추가 시)
+~- [ ] 결과 히스토리 저장~
+~- [ ] 인기 매칭 랭킹~
+~- [ ] 시즌/이벤트 캐릭터 추가~
+~- [ ] 커뮤니티 기능 (결과 댓글)~
+~- [ ] 푸시 알림 (신규 캐릭터 추가 시)~
 
 ### Phase 7 — Continuous Operation
 > **목표**: 지속 운영 파이프라인
