@@ -16,7 +16,7 @@ export function useGachaAnimation() {
   const navigate = useNavigate();
   const { orientation, language, showToast } = useAppStore();
   const { embeddingsData } = useMLStore();
-  const { processedImageData } = useUploadStore();
+  const { processedImageData, detectedFaces } = useUploadStore();
   const {
     setGachaStep, setGachaProgress, setMatchResult,
     setGachaRevealed, setQuoteText,
@@ -78,9 +78,10 @@ export function useGachaAnimation() {
 
     // Phase 2: Dual matching (falls back to CLIP-only if no ArcFace)
     setGachaStep('matching');
+    const hasFace = detectedFaces.length > 0;
     const matchResult = arcfaceEmbedding
-      ? findBestMatchDual(clipEmbedding, arcfaceEmbedding, orientation, embeddingsData)
-      : findBestMatch(clipEmbedding, orientation, embeddingsData);
+      ? findBestMatchDual(clipEmbedding, arcfaceEmbedding, orientation, embeddingsData, hasFace)
+      : findBestMatch(clipEmbedding, orientation, embeddingsData, hasFace);
     await animateProgress(75, 85, 800);
 
     // Phase 3: Reveal
@@ -96,7 +97,7 @@ export function useGachaAnimation() {
 
     await sleep(600);
     return matchResult;
-  }, [processedImageData, embeddingsData, orientation, setGachaStep, animateProgress, typeQuote, setGachaRevealed]);
+  }, [processedImageData, embeddingsData, orientation, detectedFaces, setGachaStep, animateProgress, typeQuote, setGachaRevealed]);
 
   const runFallbackSequence = useCallback(async (): Promise<MatchResult | null> => {
     if (!embeddingsData) {

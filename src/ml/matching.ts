@@ -1,4 +1,4 @@
-import type { EmbeddingsData, CharacterEmbedding } from '@/types/character';
+import type { EmbeddingsData } from '@/types/character';
 import type { MatchResult, MatchCandidate, Confidence } from '@/types/match';
 import type { Orientation } from '@/types/common';
 
@@ -8,10 +8,61 @@ export function cosineSimilarity(a: number[], b: number[]): number {
   return dot;
 }
 
+/**
+ * Spread-aware percent calculation.
+ *
+ * Instead of min-max normalizing into a narrow 75-98% band (which makes
+ * every input—including non-faces—look like a 90%+ match), we use the
+ * **spread** of raw similarities to gauge match quality:
+ *
+ *  - Large spread → the model clearly prefers one character → higher %
+ *  - Small spread → all characters scored similarly → lower %
+ *
+ * The spread thresholds were derived empirically:
+ *  - CLIP-only spread for face inputs:    ~0.02–0.06
+ *  - CLIP-only spread for non-face inputs: ~0.005–0.015
+ *  - Dual (0.3 CLIP + 0.7 ArcFace) spread for faces: ~0.08–0.25
+ *  - Dual spread for non-faces: ~0.02–0.05
+ *
+ * @param rawSim       cosine similarity of this candidate
+ * @param allRawSims   sorted desc array of all candidate similarities
+ * @param spreadThresh spread value at which we consider quality "good" (default 0.05 for CLIP-only)
+ * @param hasFace      whether BlazeFace detected a face in the input
+ */
+export function similarityToPercent(
+  rawSim: number,
+  allRawSims: number[],
+  spreadThresh: number,
+  hasFace: boolean,
+): number {
+  const best = allRawSims[0]!;
+  const worst = allRawSims[allRawSims.length - 1]!;
+  const spread = best - worst;
+
+  // 1. Relative position within candidates (0 → worst, 1 → best)
+  const relPos = spread > 0.0001 ? (rawSim - worst) / spread : 0.5;
+
+  // 2. Spread quality factor (0 → indistinguishable, 1 → clear winner)
+  const spreadQuality = Math.min(spread / spreadThresh, 1.0);
+
+  // 3. Face detection bonus
+  const faceBonus = hasFace ? 0.12 : 0;
+
+  // 4. Blend: relative position scaled by spread quality + face bonus
+  const score = relPos * (0.35 + 0.40 * spreadQuality) + faceBonus;
+
+  // Map to 50–97% range
+  return Math.min(97, Math.max(50, Math.round(50 + score * 47)));
+}
+
+// Spread threshold for CLIP-only matching
+const CLIP_SPREAD_THRESH = 0.05;
+
 export function findBestMatch(
   userEmbedding: number[],
   orientation: Orientation,
   embeddingsData: EmbeddingsData,
+  hasFace = true,
 ): MatchResult {
   const candidates = embeddingsData.characters.filter(c => c.orientation === orientation);
 
@@ -29,18 +80,13 @@ export function findBestMatch(
 
   scored.sort((a, b) => b.weightedScore - a.weightedScore);
 
-  const min = scored[scored.length - 1]!.similarity;
-  const max = scored[0]!.similarity;
-  const range = max - min;
+  const allRawSims = scored.map(s => s.similarity);
 
-  const top3: MatchCandidate[] = scored.slice(0, 3).map(s => {
-    const normalized = range > 0.001 ? (s.similarity - min) / range : 1;
-    return {
-      character: s.character,
-      similarity: s.similarity,
-      percent: Math.round(75 + normalized * 23),
-    };
-  });
+  const top3: MatchCandidate[] = scored.slice(0, 3).map(s => ({
+    character: s.character,
+    similarity: s.similarity,
+    percent: similarityToPercent(s.similarity, allRawSims, CLIP_SPREAD_THRESH, hasFace),
+  }));
 
   const gap = scored.length > 1 ? scored[0]!.weightedScore - scored[1]!.weightedScore : 1;
   let confidence: Confidence = 'low';
@@ -62,7 +108,7 @@ export function getRandomMatch(
 ): MatchResult {
   const candidates = embeddingsData.characters.filter(c => c.orientation === orientation);
   const randomChar = candidates[Math.floor(Math.random() * candidates.length)]!;
-  const percent = Math.round(75 + Math.random() * 20);
+  const percent = Math.round(55 + Math.random() * 25);
 
   return {
     character: randomChar,
