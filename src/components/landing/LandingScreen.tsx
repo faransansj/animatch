@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import LangToggle from '@/components/shared/LangToggle';
 import Footer from '@/components/shared/Footer';
+import AdBanner from '@/components/shared/AdBanner';
 import styles from './LandingScreen.module.css';
 
 function ParticleField() {
@@ -98,10 +99,7 @@ export default function LandingScreen() {
           <span className={styles.ctaArrow}>{t('landing.ctaArrow')}</span>
         </button>
 
-        <div className={styles.adBanner}>
-          <span className={styles.adLabel}>AD</span>
-          <span>{t('landing.adBanner')}</span>
-        </div>
+        <AdBanner />
       </main>
 
       <Footer />

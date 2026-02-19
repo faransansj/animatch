@@ -16,7 +16,12 @@ TAG_MAP = {
     "다크판타지": "Dark Fantasy", "로맨틱코미디": "RomCom", "집착": "Obsession",
     "메이드": "Maid", "비밀": "Secret", "헌신": "Devotion", "가정적": "Domestic",
     "눈매": "Sharp Eyes", "소형": "Petite", "전투적": "Aggressive", "서포트": "Support",
-    "활발": "Energetic", "단정": "Neat", "츤츤": "Tsun-Tsun", "데레데레": "Dere-Dere"
+    "활발": "Energetic", "단정": "Neat", "츤츤": "Tsun-Tsun", "데레데레": "Dere-Dere",
+    "연기": "Acting", "완벽주의": "Perfectionism", "카멜레온": "Chameleon",
+    "검술": "Swordsmanship", "마법": "Magic", "성녀": "Saint", "공주": "Princess",
+    "아이돌": "Idol", "배우": "Actress", "복수": "Revenge", "순진": "Innocent",
+    "천재": "Genius", "노력": "Effort", "우정": "Friendship", "가족": "Family",
+    "사극": "Historical", "추리": "Deduction", "연예": "Entertainment", "서스펜스": "Suspense"
 }
 
 GENRE_MAP = {
@@ -24,7 +29,7 @@ GENRE_MAP = {
     "액션": "Action", "코미디": "Comedy", "스릴러": "Thriller", "미스터리": "Mystery",
     "이세계": "Isekai", "다크판타지": "Dark Fantasy", "스포츠": "Sports", "닌자": "Ninja",
     "성장": "Growth", "피겨스케이팅": "Figure Skating", "댄스": "Dance", "테니스": "Tennis",
-    "치유": "Healing"
+    "치유": "Healing", "연예": "Entertainment", "서스펜스": "Suspense"
 }
 
 def translate_list(items, mapping):
@@ -40,9 +45,17 @@ def translate_personality(name, personality_ko):
     return [translate_text(p) for p in personality_ko]
 
 def translate_text(text):
-    # Placeholder for simple text translation
-    # In this context, I'll provide a few manual translations for the most common ones
+    if not text: return ""
     translations = {
+        # Akane Kurokawa (Oshi no Ko)
+        "천재적 관찰력으로 어떤 역할이든 완벽히 소화": "Perfectly embodies any role with genius observational skills",
+        "겉으로는 침착하지만 내면은 열정적": "Calm on the outside but passionate on the inside",
+        "상대를 깊이 이해하고 분석하는 능력": "Possesses the ability to deeply understand and analyze others",
+        "사랑하는 사람을 위해 자신을 바꿀 수 있는 헌신": "Devotion to change oneself for the person they love",
+        "당신이 원하는 모습이 되어줄 수 있는 사람. 하지만 진짜 매력은, 연기가 아닌 진심으로 당신을 바라보는 그 눈빛.": "Someone who can become whoever you want. But her true charm is that gaze looking at you with sincerity, not acting.",
+        "당신이 원하는 내가 되어줄게": "I'll become the person you want me to be",
+        
+        # General/Other
         "처음에는 거칠지만 마음을 열면 한없이 순수": "Rough at first, but infinitely pure once opened up",
         "혼자 있을 때 외로움을 많이 타는 여린 마음": "A delicate heart that gets lonely when alone",
         "사랑을 깨닫고 나면 누구보다 솔직해짐": "Becomes more honest than anyone once realizing love",

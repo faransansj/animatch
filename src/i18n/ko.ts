@@ -91,9 +91,11 @@ export default {
     shareCopy: '링크 복사',
     shareDownload: '저장',
     linkCopied: '🔗 링크가 복사되었습니다!',
-    downloadPreparing: '⬇️ 결과 카드 다운로드 (준비 중)',
+    downloadComplete: '이미지가 저장되었습니다!',
+    downloadError: '다운로드 실패. 다시 시도해주세요.',
     shareText: 'AniMatch에서 나의 애니 연인을 찾았어요! 💕\n나의 애니 연인은 "{{name}}" ({{anime}})\n매칭도: {{percent}}%\n\n당신도 찾아보세요! 👉',
     shareTextShort: 'AniMatch에서 나의 애니 연인을 찾았어요! 💕 나의 애니 연인은 "{{name}}" ({{anime}}) 매칭도: {{percent}}%',
+    adBanner: 'AdSense Banner (728×90)',
   },
   model: {
     title: 'AI 모델 준비 중',

@@ -515,9 +515,9 @@
 
 /* Ad */
 .adBanner {
-  max-width: 300px;
+  max-width: 728px;
   width: 100%;
-  height: 250px;
+  height: 90px;
   background: var(--bg-card);
   border: 1px dashed var(--border);
   border-radius: var(--radius-sm);

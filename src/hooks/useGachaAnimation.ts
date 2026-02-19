@@ -53,7 +53,7 @@ export function useGachaAnimation() {
 
     // Phase 1: CLIP + ArcFace inference in parallel
     setGachaStep('analyzing');
-    await animateProgress(0, 15, 400);
+    await animateProgress(50, 60, 400);
 
     let clipEmbedding: number[];
     let arcfaceEmbedding: number[] | null = null;
@@ -74,25 +74,25 @@ export function useGachaAnimation() {
       return null;
     }
 
-    await animateProgress(15, 40, 600);
+    await animateProgress(60, 75, 600);
 
     // Phase 2: Dual matching (falls back to CLIP-only if no ArcFace)
     setGachaStep('matching');
     const matchResult = arcfaceEmbedding
       ? findBestMatchDual(clipEmbedding, arcfaceEmbedding, orientation, embeddingsData)
       : findBestMatch(clipEmbedding, orientation, embeddingsData);
-    await animateProgress(40, 70, 800);
+    await animateProgress(75, 85, 800);
 
     // Phase 3: Reveal
     setGachaStep('revealing');
     const quote = matchResult.character.heroine_quote || '...';
     await typeQuote(quote);
-    await animateProgress(70, 90, 600);
+    await animateProgress(85, 95, 600);
 
     await sleep(400);
     setGachaRevealed(true);
     setGachaStep('done');
-    await animateProgress(90, 100, 400);
+    await animateProgress(95, 100, 400);
 
     await sleep(600);
     return matchResult;
@@ -107,20 +107,20 @@ export function useGachaAnimation() {
     const matchResult = getRandomMatch(orientation, embeddingsData);
 
     setGachaStep('analyzing');
-    await animateProgress(0, 35, 1200);
+    await animateProgress(50, 65, 1200);
 
     setGachaStep('matching');
-    await animateProgress(35, 70, 1200);
+    await animateProgress(65, 80, 1200);
 
     setGachaStep('revealing');
     const quote = matchResult.character.heroine_quote || '...';
     await typeQuote(quote);
-    await animateProgress(70, 90, 800);
+    await animateProgress(80, 95, 800);
 
     await sleep(500);
     setGachaRevealed(true);
     setGachaStep('done');
-    await animateProgress(90, 100, 500);
+    await animateProgress(95, 100, 500);
 
     await sleep(800);
     return matchResult;
@@ -139,8 +139,8 @@ export function useGachaAnimation() {
       }, timeoutMs);
 
       const unsub = useMLStore.subscribe((state) => {
-        // Mirror clipProgress (0-100) into gachaProgress during preparing phase
-        setGachaProgress(state.clipProgress);
+        // Mirror clipProgress (0-100) into gachaProgress during preparing phase (scaled to 50%)
+        setGachaProgress(state.clipProgress * 0.5);
 
         if (state.clipReady) {
           clearTimeout(timer);
@@ -170,13 +170,13 @@ export function useGachaAnimation() {
     const usedDualMatching = clipReady && isArcFaceReady();
 
     if (clipReady) {
-      setGachaProgress(0);
+      setGachaProgress(50);
       result = await runMLSequence();
       if (!result) {
         result = await runFallbackSequence();
       }
     } else {
-      setGachaProgress(0);
+      setGachaProgress(50);
       result = await runFallbackSequence();
     }
 

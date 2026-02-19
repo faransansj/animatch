@@ -91,9 +91,11 @@ export default {
     shareCopy: 'Copy Link',
     shareDownload: 'Save',
     linkCopied: '🔗 Link copied!',
-    downloadPreparing: '⬇️ Result card download (coming soon)',
+    downloadComplete: 'Image saved!',
+    downloadError: 'Download failed. Please try again.',
     shareText: 'I found my anime partner on AniMatch! 💕\nMy anime partner is "{{name}}" ({{anime}})\nMatch: {{percent}}%\n\nTry it yourself! 👉',
     shareTextShort: 'I found my anime partner on AniMatch! 💕 My anime partner is "{{name}}" ({{anime}}) Match: {{percent}}%',
+    adBanner: 'AdSense Banner (728×90)',
   },
   model: {
     title: 'Preparing AI Model',

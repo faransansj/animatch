@@ -92,17 +92,23 @@ animatch/
 │   │   ├── upload/            # 업로드 + 얼굴감지 + 멀티셀렉터
 │   │   ├── loading/           # 가챠 애니메이션
 │   │   ├── result/            # 결과 화면
-│   │   └── shared/            # Header, Footer, LangToggle, Toast
+│   │   ├── legal/             # 개인정보처리방침, 이용약관
+│   │   └── shared/            # Header, Footer, LangToggle, Toast, AdBanner
 │   ├── hooks/                 # useMLEngine, useGachaAnimation, useFaceDetection
 │   ├── stores/                # Zustand (app, ml, upload, result)
 │   ├── ml/                    # CLIP, ArcFace, BlazeFace, 듀얼매칭
 │   ├── i18n/                  # react-i18next (ko/en)
 │   ├── styles/                # CSS Modules
 │   ├── types/                 # TypeScript 타입
-│   └── utils/                 # 이미지 처리 유틸
+│   └── utils/                 # 이미지 처리, 공유, 결과카드 유틸
 │
 ├── public/
 │   ├── embeddings.json(.gz)   # 캐릭터 임베딩 (CLIP + ArcFace)
+│   ├── robots.txt             # 크롤러 규칙
+│   ├── sitemap.xml            # 사이트맵
+│   ├── images/
+│   │   ├── og-default.webp    # OG 기본 이미지 (1200×630)
+│   │   └── tarot/             # 캐릭터 타로카드 이미지 (WebP)
 │   └── models/
 │       ├── clip-image-encoder-q8.onnx    # CLIP INT8 (85MB)
 │       └── mobilefacenet-q8.onnx         # ArcFace INT8
@@ -112,9 +118,15 @@ animatch/
 │   ├── schema.sql / seed.sql  # 스키마 + 시드
 │   └── seed_generator.js      # 시드 생성
 │
+├── functions/
+│   └── _middleware.ts         # Cloudflare Pages 미들웨어 (동적 OG 태그)
+│
 └── ml/
     ├── generate_embeddings.py       # CLIP 임베딩 생성
     ├── generate_dual_embeddings.py  # 듀얼 임베딩 (CLIP + ArcFace)
+    ├── generate_tarot_images.py     # 타로카드 이미지 검증/변환
+    ├── generate_og_default.py       # OG 기본 이미지 생성
+    ├── generate_og_data.py          # 미들웨어용 캐릭터 데이터 생성
     ├── export_arcface_onnx.py       # ArcFace ONNX 변환
     ├── quantize_arcface.py          # ArcFace INT8 양자화
     └── requirements.txt
@@ -241,13 +253,14 @@ pnpm dev
 **UX 개선**
 - [x] AI 모델 백그라운드 로딩 (블로킹 오버레이 제거, GachaScreen에서 대기)
 - [x] 카메라 촬영 기능 (모바일 대응)
-- [ ] OG 이미지 동적 생성 (결과 카드)
-- [ ] 결과 카드 이미지 다운로드
+- [x] OG 이미지 동적 생성 (Cloudflare Pages 미들웨어 + 캐릭터별 동적 OG 태그)
+- [x] 결과 카드 이미지 다운로드 (Canvas 2D, 1080×1350 PNG)
+- [x] 타로카드 이미지 파이프라인 (프롬프트 생성 + 검증 + WebP 변환 스크립트)
 
 **수익화**
-- [ ] Google AdSense 광고 통합
+- [x] Google AdSense 광고 통합 (AdBanner 컴포넌트, pub ID 발급 후 활성화)
 - [ ] Google Analytics 4 이벤트 트래킹
-- [ ] SEO 최적화
+- [x] SEO 최적화 (robots.txt, sitemap.xml, JSON-LD 구조화 데이터, OG/Twitter Card 메타 태그)
 - [ ] Sentry 에러 트래킹
 
 ### Phase 6 — Social & Engagement

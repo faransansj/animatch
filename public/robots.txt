@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /models/
+
+Sitemap: https://animatch.social/sitemap.xml

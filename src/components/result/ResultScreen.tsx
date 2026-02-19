@@ -8,8 +8,10 @@ import { useUploadStore } from '@/stores/uploadStore';
 import { useAppStore } from '@/stores/appStore';
 import { shareToX, shareToBluesky, copyLink } from '@/utils/share';
 import { getTarotImageUrl } from '@/utils/tarot';
+import { generateResultCard } from '@/utils/resultCard';
 import type { MatchCandidate } from '@/types/match';
 import type { CharacterEmbedding } from '@/types/character';
+import AdBanner from '@/components/shared/AdBanner';
 import styles from './ResultScreen.module.css';
 
 function useLocalizedChar(char: CharacterEmbedding) {
@@ -91,6 +93,32 @@ export default function ResultScreen() {
     resultReset();
     navigate('/');
   }, [navigate, uploadReset, resultReset]);
+
+  const handleDownload = useCallback(async () => {
+    if (!matchResult) return;
+    const c = matchResult.character;
+    const isEn = i18n.language === 'en';
+    try {
+      const blob = await generateResultCard({
+        characterName: isEn ? c.heroine_name_en : c.heroine_name,
+        animeName: isEn ? c.anime_en : c.anime,
+        percent: matchResult.percent,
+        heroineId: c.heroine_id,
+        heroineEmoji: c.heroine_emoji,
+        heroineColor: c.heroine_color,
+        lang: isEn ? 'en' : 'ko',
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `animatch-${c.heroine_name_en.toLowerCase().replace(/\s+/g, '-')}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast(t('result.downloadComplete'));
+    } catch {
+      showToast(t('result.downloadError'));
+    }
+  }, [matchResult, i18n.language, showToast, t]);
 
   useEffect(() => {
     if (!matchResult) {
@@ -258,7 +286,7 @@ export default function ResultScreen() {
               <span className={styles.shareIcon}>🔗</span>
               <span>{t('result.shareCopy')}</span>
             </button>
-            <button className={`${styles.shareBtn} ${styles.download}`} onClick={() => showToast(t('result.downloadPreparing'))}>
+            <button className={`${styles.shareBtn} ${styles.download}`} onClick={handleDownload}>
               <span className={styles.shareIcon}>⬇</span>
               <span>{t('result.shareDownload')}</span>
             </button>
@@ -281,10 +309,7 @@ export default function ResultScreen() {
           </button>
         </div>
 
-        <div className={styles.adBanner}>
-          <span className={styles.adLabel}>AD</span>
-          <span>AdSense Banner (300×250)</span>
-        </div>
+        <AdBanner />
       </main>
     </motion.section>
   );
