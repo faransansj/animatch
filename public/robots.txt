@@ -2,5 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /models/
+Disallow: /loading
+Disallow: /result
 
 Sitemap: https://animatch.social/sitemap.xml
