@@ -4,12 +4,21 @@ export function runGuidelineCheck(imageData: string): Promise<FeedbackItem[]> {
   return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => {
+      const MAX_DIM = 2048;
+      let drawW = img.width;
+      let drawH = img.height;
+      if (drawW > MAX_DIM || drawH > MAX_DIM) {
+        const scale = MAX_DIM / Math.max(drawW, drawH);
+        drawW = Math.round(drawW * scale);
+        drawH = Math.round(drawH * scale);
+      }
+
       const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
+      canvas.width = drawW;
+      canvas.height = drawH;
       const ctx = canvas.getContext('2d')!;
-      ctx.drawImage(img, 0, 0);
-      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      ctx.drawImage(img, 0, 0, drawW, drawH);
+      const data = ctx.getImageData(0, 0, drawW, drawH).data;
 
       // Check brightness
       let totalBrightness = 0;
@@ -22,23 +31,23 @@ export function runGuidelineCheck(imageData: string): Promise<FeedbackItem[]> {
       const avgBrightness = totalBrightness / sampleCount;
       const isBright = avgBrightness > 60;
 
-      // Check aspect ratio
+      // Check aspect ratio (use original dimensions for accuracy)
       const ratio = img.width / img.height;
       const isPortrait = ratio < 1.5;
 
-      // Check resolution
+      // Check resolution (use original dimensions)
       const isHighRes = img.width >= 200 && img.height >= 200;
 
       // Center region skin-tone analysis
-      const cx = Math.floor(img.width / 2);
-      const cy = Math.floor(img.height / 3);
-      const checkRadius = Math.floor(Math.min(img.width, img.height) * 0.15);
+      const cx = Math.floor(drawW / 2);
+      const cy = Math.floor(drawH / 3);
+      const checkRadius = Math.floor(Math.min(drawW, drawH) * 0.15);
       let skinPixels = 0;
       let totalChecked = 0;
       for (let y = cy - checkRadius; y < cy + checkRadius; y += 3) {
         for (let x = cx - checkRadius; x < cx + checkRadius; x += 3) {
-          if (x < 0 || y < 0 || x >= img.width || y >= img.height) continue;
-          const idx = (y * img.width + x) * 4;
+          if (x < 0 || y < 0 || x >= drawW || y >= drawH) continue;
+          const idx = (y * drawW + x) * 4;
           const r = data[idx]!, g = data[idx + 1]!, b = data[idx + 2]!;
           if (r > 80 && g > 50 && b > 30 && r > g && r > b && (r - g) > 10) {
             skinPixels++;

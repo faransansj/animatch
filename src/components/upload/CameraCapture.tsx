@@ -25,7 +25,7 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
     stopStream();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 960 } },
+        video: { facingMode: facing, width: { ideal: 720 }, height: { ideal: 540 } },
         audio: false,
       });
       streamRef.current = stream;
