@@ -1,4 +1,4 @@
-import { PREPROCESS } from './types';
+import { PREPROCESS, getModelPath } from './types';
 import { preprocessImage } from './preprocessing';
 import { sendWorkerRequest } from './workerClient';
 
@@ -13,7 +13,9 @@ export async function initClipEngine(
   }
   try {
     onProgress?.(10);
-    await sendWorkerRequest('INIT_CLIP');
+    const modelPath = getModelPath();
+    console.log(`[CLIP] Loading model: ${modelPath}`);
+    await sendWorkerRequest('INIT_CLIP', modelPath);
     clipReady = true;
     onProgress?.(100);
     return true;

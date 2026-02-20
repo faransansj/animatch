@@ -46,14 +46,22 @@ export function similarityToPercent(
   // 2. Spread quality factor (0 → indistinguishable, 1 → clear winner)
   const spreadQuality = Math.min(spread / spreadThresh, 1.0);
 
-  // 3. Face detection bonus
-  const faceBonus = hasFace ? 0.12 : 0;
+  // 3. Face detection: bonus when detected, strong penalty when not
+  //    - hasFace=true  → +0.12 bonus, output range 50–97%
+  //    - hasFace=false → -0.15 penalty, output capped at 78% (< 80%)
+  const faceFactor = hasFace ? 0.12 : -0.15;
 
-  // 4. Blend: relative position scaled by spread quality + face bonus
-  const score = relPos * (0.35 + 0.40 * spreadQuality) + faceBonus;
+  // 4. Blend: relative position scaled by spread quality + face factor
+  const score = relPos * (0.35 + 0.40 * spreadQuality) + faceFactor;
 
-  // Map to 50–97% range
-  return Math.min(97, Math.max(50, Math.round(50 + score * 47)));
+  if (hasFace) {
+    // Map to 50–97% range
+    return Math.min(97, Math.max(50, Math.round(50 + score * 47)));
+  } else {
+    // No face detected: map to 50–78% range (guaranteed < 80%)
+    const noFaceMax = 78;
+    return Math.min(noFaceMax, Math.max(50, Math.round(50 + score * 47)));
+  }
 }
 
 // Spread threshold for CLIP-only matching

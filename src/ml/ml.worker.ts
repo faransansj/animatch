@@ -18,9 +18,11 @@ ctx.addEventListener('message', async (e) => {
 
     try {
         switch (type) {
-            case 'INIT_CLIP':
+            case 'INIT_CLIP': {
                 if (!clipSession) {
-                    clipSession = await ort.InferenceSession.create(MODEL_PATH, {
+                    // Accept dynamic model path from main thread; fallback to default
+                    const modelPath = (payload as string) || MODEL_PATH;
+                    clipSession = await ort.InferenceSession.create(modelPath, {
                         executionProviders: ['wasm'],
                         graphOptimizationLevel: 'all',
                         executionMode: 'sequential',
@@ -29,6 +31,7 @@ ctx.addEventListener('message', async (e) => {
                 }
                 ctx.postMessage({ id, type: 'INIT_CLIP_DONE', success: true });
                 break;
+            }
 
             case 'RUN_CLIP': {
                 if (!clipSession) throw new Error('CLIP session not initialized');

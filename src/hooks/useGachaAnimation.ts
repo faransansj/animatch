@@ -68,10 +68,12 @@ export function useGachaAnimation() {
         try {
           arcfaceEmbedding = await getArcFaceEmbedding(processedImageData);
         } catch (e) {
+          import('@sentry/react').then(Sentry => Sentry.captureException(e, { tags: { context: 'ArcFace_Inference' } }));
           console.warn('ArcFace inference failed:', e);
         }
       }
     } catch (err) {
+      import('@sentry/react').then(Sentry => Sentry.captureException(err, { tags: { context: 'CLIP_Inference' } }));
       console.error('Inference failed:', err);
       return null;
     }
@@ -168,9 +170,20 @@ export function useGachaAnimation() {
     // Wait for model if not ready yet
     if (!clipReady) {
       setGachaStep('preparing');
-      // Initialize CLIP and ArcFace sequentially
-      await initClipEngine((p) => setGachaProgress(p * 0.4));
-      await initArcFace();
+      // Initialize CLIP; skip ArcFace on mobile to save memory
+      try {
+        await initClipEngine((p) => setGachaProgress(p * 0.4));
+        // Only load ArcFace on desktop — mobile devices crash from memory pressure
+        const { shouldUseLiteModel } = await import('@/ml/types');
+        if (!shouldUseLiteModel()) {
+          await initArcFace();
+        } else {
+          console.log('[ML] Skipping ArcFace on mobile to save memory');
+        }
+      } catch (err) {
+        import('@sentry/react').then(Sentry => Sentry.captureException(err, { tags: { context: 'ML_Initialization' } }));
+        console.error('ML Init failed', err);
+      }
       clipReady = isClipReady();
     }
 
