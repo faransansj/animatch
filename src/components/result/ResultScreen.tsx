@@ -120,19 +120,30 @@ export default function ResultScreen() {
     }
   }, [matchResult, i18n.language, showToast, t]);
 
+  const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
   useEffect(() => {
     if (!matchResult) {
+      console.warn('[Integrity] No matchResult found on mount, redirecting to /upload');
       navigate('/upload', { replace: true });
+    } else {
+      console.log('[Integrity] ResultScreen mounted successfully. Cleaning data.');
+
+      // Aggressive cleanup: Clear high-res images immediately to free memory for the GPU
+      useUploadStore.getState().setRawImageData(null);
+      useUploadStore.getState().setProcessedImageData(null);
     }
-  }, []); // Only check on mount to avoid race conditions during state reset
+  }, [matchResult, navigate]);
 
   if (!matchResult) {
     return null;
   }
 
+  // Limit topN to save rendering memory on mobile
+  const topN = isMobile ? matchResult.topN.slice(0, 2) : matchResult.topN;
+
   const char = matchResult.character;
   const localized = useLocalizedChar(char);
-  const topN = matchResult.topN;
 
   const confidenceLabels: Record<string, string> = {
     high: t('result.confidenceHigh'),
@@ -155,10 +166,10 @@ export default function ResultScreen() {
   return (
     <motion.section
       className={styles.screen}
-      initial={{ opacity: 0 }}
+      initial={isMobile ? { opacity: 0 } : { opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: isMobile ? 0.3 : 0.5 }}
     >
       <div className={styles.bg} />
 
@@ -168,9 +179,9 @@ export default function ResultScreen() {
         {/* Heroine Card */}
         <motion.div
           className={styles.heroineCard}
-          initial={{ opacity: 0, y: 40, scale: 0.95 }}
+          initial={isMobile ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
+          transition={{ duration: isMobile ? 0.5 : 0.8, delay: isMobile ? 0.1 : 0.3 }}
         >
           <div className={styles.cardGlow} />
 
@@ -236,9 +247,9 @@ export default function ResultScreen() {
         {topN.length > 1 && (
           <motion.div
             className={styles.runnerUpSection}
-            initial={{ opacity: 0, y: 20 }}
+            initial={isMobile ? { opacity: 0 } : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
+            transition={{ duration: 0.6, delay: isMobile ? 0.2 : 0.5 }}
           >
             <h3 className={styles.runnerUpTitle}>{t('result.runnerUpTitle')}</h3>
             <div className={styles.runnerUpGrid}>

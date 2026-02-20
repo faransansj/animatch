@@ -1,46 +1,45 @@
-import * as ort from 'onnxruntime-web';
+import { sendWorkerRequest } from './workerClient';
 
 const ARCFACE_SIZE = 112;
 const ARCFACE_MEAN = 0.5;
 const ARCFACE_STD = 0.5;
 
-let arcfaceSession: ort.InferenceSession | null = null;
+let arcfaceReady = false;
 
 export async function initArcFace(): Promise<boolean> {
+  if (arcfaceReady) return true;
   try {
-    arcfaceSession = await ort.InferenceSession.create('/models/mobilefacenet-q8.onnx', {
-      executionProviders: ['wasm'],
-      graphOptimizationLevel: 'all',
-    });
+    await sendWorkerRequest('INIT_ARCFACE');
+    arcfaceReady = true;
     return true;
   } catch (e) {
-    console.warn('ArcFace model load failed:', (e as Error).message);
+    console.warn('ArcFace model load failed in worker:', (e as Error).message);
     return false;
   }
 }
 
+export async function releaseArcFace(): Promise<void> {
+  if (arcfaceReady) {
+    arcfaceReady = false;
+  }
+}
+
 export function isArcFaceReady(): boolean {
-  return arcfaceSession !== null;
+  return arcfaceReady;
 }
 
 export async function getArcFaceEmbedding(imageDataURL: string): Promise<number[]> {
-  if (!arcfaceSession) throw new Error('ArcFace model not loaded');
+  if (!arcfaceReady) throw new Error('ArcFace model not loaded');
 
   const preprocessed = await preprocessArcFace(imageDataURL);
-  const inputName = arcfaceSession.inputNames[0]!;
-  const tensor = new ort.Tensor('float32', preprocessed, [1, 3, ARCFACE_SIZE, ARCFACE_SIZE]);
-  const results = await arcfaceSession.run({ [inputName]: tensor });
-  const outputName = arcfaceSession.outputNames[0]!;
-  const raw = results[outputName]!.data as Float32Array;
 
-  // L2 normalize
-  let norm = 0;
-  for (let i = 0; i < raw.length; i++) norm += raw[i]! * raw[i]!;
-  norm = Math.sqrt(norm);
+  const embedding = await sendWorkerRequest<Float32Array>(
+    'RUN_ARCFACE',
+    preprocessed,
+    [preprocessed.buffer]
+  );
 
-  const embedding: number[] = new Array(raw.length);
-  for (let i = 0; i < raw.length; i++) embedding[i] = raw[i]! / norm;
-  return embedding;
+  return Array.from(embedding);
 }
 
 function preprocessArcFace(imageDataURL: string): Promise<Float32Array> {

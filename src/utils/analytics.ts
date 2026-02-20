@@ -8,6 +8,7 @@ interface AnalyticsPayload {
   confidence: string;
   dual_matching: boolean;
   language: string;
+  ab_variant: string;
 }
 
 export function logMatchResult(
@@ -15,6 +16,7 @@ export function logMatchResult(
   orientation: string,
   language: string,
   dualMatching: boolean,
+  abVariant = '',
 ): void {
   const payload: AnalyticsPayload = {
     orientation,
@@ -24,6 +26,7 @@ export function logMatchResult(
     confidence: result.confidence,
     dual_matching: dualMatching,
     language,
+    ab_variant: abVariant,
   };
 
   // Fire-and-forget: analytics is non-critical
@@ -34,4 +37,9 @@ export function logMatchResult(
   }).catch(() => {
     // Silently ignore analytics failures
   });
+
+  // 2. GA4: Event tracking
+  import('./telemetry').then(({ logEvent }) => {
+    logEvent('Match', 'MatchResult', result.character.heroine_name, Math.round(result.score * 100));
+  }).catch(() => { });
 }

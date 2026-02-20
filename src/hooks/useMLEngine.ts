@@ -40,27 +40,13 @@ export function useMLEngine() {
         setEmbeddingsData(data);
         setClipProgress(30);
 
-        // Load CLIP model + face detector + ArcFace in parallel
-        const [clipLoaded, faceLoaded, arcfaceLoaded] = await Promise.all([
-          initClipEngine((p) => {
-            if (!cancelled) setClipProgress(30 + p * 0.7);
-          }),
-          initFaceDetector(),
-          initArcFace(),
-        ]);
+        // Initialize ONLY face detector on startup to save memory.
+        // CLIP and ArcFace will be lazy-loaded in the Gacha sequence.
+        const faceLoaded = await initFaceDetector();
         if (cancelled) return;
-
-        if (clipLoaded) {
-          setClipReady(true);
-          setClipProgress(100);
-        }
 
         if (faceLoaded) {
           setFaceDetectorReady(true);
-        }
-
-        if (arcfaceLoaded) {
-          setArcFaceReady(true);
         }
       } catch (err) {
         console.error('ML init failed:', err);

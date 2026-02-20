@@ -1,44 +1,49 @@
-import * as ort from 'onnxruntime-web';
-import { PREPROCESS, MODEL_PATH } from './types';
+import { PREPROCESS } from './types';
 import { preprocessImage } from './preprocessing';
+import { sendWorkerRequest } from './workerClient';
 
-let modelSession: ort.InferenceSession | null = null;
+let clipReady = false;
 
 export async function initClipEngine(
   onProgress?: (progress: number) => void,
 ): Promise<boolean> {
+  if (clipReady) {
+    onProgress?.(100);
+    return true;
+  }
   try {
     onProgress?.(10);
-    modelSession = await ort.InferenceSession.create(MODEL_PATH, {
-      executionProviders: ['wasm'],
-      graphOptimizationLevel: 'all',
-    });
+    await sendWorkerRequest('INIT_CLIP');
+    clipReady = true;
     onProgress?.(100);
     return true;
   } catch (e) {
-    console.warn(`Failed to load ${MODEL_PATH}:`, (e as Error).message);
+    console.warn('Failed to load CLIP model in worker:', (e as Error).message);
     return false;
   }
 }
 
+export async function releaseClipEngine(): Promise<void> {
+  if (clipReady) {
+    clipReady = false;
+  }
+}
+
 export function isClipReady(): boolean {
-  return modelSession !== null;
+  return clipReady;
 }
 
 export async function getImageEmbedding(imageDataURL: string): Promise<number[]> {
-  if (!modelSession) throw new Error('CLIP model not loaded');
+  if (!clipReady) throw new Error('CLIP model not loaded');
 
   const preprocessed = await preprocessImage(imageDataURL);
-  const tensor = new ort.Tensor('float32', preprocessed, [1, 3, PREPROCESS.size, PREPROCESS.size]);
-  const results = await modelSession.run({ image: tensor });
-  const raw = results['embedding']!.data as Float32Array;
 
-  // L2 normalize
-  let norm = 0;
-  for (let i = 0; i < raw.length; i++) norm += raw[i]! * raw[i]!;
-  norm = Math.sqrt(norm);
+  // Send the Float32Array directly through the worker message
+  const embedding = await sendWorkerRequest<Float32Array>(
+    'RUN_CLIP',
+    preprocessed,
+    [preprocessed.buffer]
+  );
 
-  const embedding: number[] = new Array(raw.length);
-  for (let i = 0; i < raw.length; i++) embedding[i] = raw[i]! / norm;
-  return embedding;
+  return Array.from(embedding);
 }

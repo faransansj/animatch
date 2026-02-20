@@ -5,12 +5,17 @@ import { motion } from 'framer-motion';
 import LangToggle from '@/components/shared/LangToggle';
 import Footer from '@/components/shared/Footer';
 import AdBanner from '@/components/shared/AdBanner';
+import { initClipEngine } from '@/ml/clipEngine';
+import { initArcFace } from '@/ml/arcFaceEngine';
 import styles from './LandingScreen.module.css';
+
+const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
 function ParticleField() {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (isMobile) return;
     const container = ref.current;
     if (!container) return;
     container.innerHTML = '';
@@ -39,6 +44,16 @@ export default function LandingScreen() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isKo = i18n.language === 'ko';
+
+  // Background Model Pre-loading
+  useEffect(() => {
+    // Wait for the main UI to render completely before starting heavy network loads
+    const timer = setTimeout(() => {
+      // Intentionally ignore promises to just start the background fetching
+      initClipEngine().then(() => initArcFace()).catch(console.warn);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <motion.section

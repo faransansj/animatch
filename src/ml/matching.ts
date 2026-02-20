@@ -1,6 +1,7 @@
 import type { EmbeddingsData } from '@/types/character';
 import type { MatchResult, MatchCandidate, Confidence } from '@/types/match';
 import type { Orientation } from '@/types/common';
+import type { VariantConfig } from './abTest';
 
 export function cosineSimilarity(a: number[], b: number[]): number {
   let dot = 0;
@@ -63,10 +64,12 @@ export function findBestMatch(
   orientation: Orientation,
   embeddingsData: EmbeddingsData,
   hasFace = true,
+  config?: Partial<VariantConfig>,
 ): MatchResult {
   const candidates = embeddingsData.characters.filter(c => c.orientation === orientation);
 
-  const tierWeight: Record<number, number> = { 1: 1.02, 2: 1.0, 3: 0.98 };
+  const tierWeight = config?.tierWeights ?? { 1: 1.02, 2: 1.0, 3: 0.98 };
+  const spreadThresh = config?.spreadThresh ?? CLIP_SPREAD_THRESH;
 
   const scored = candidates.map(c => {
     const raw = cosineSimilarity(userEmbedding, c.embedding);
@@ -85,7 +88,7 @@ export function findBestMatch(
   const top3: MatchCandidate[] = scored.slice(0, 3).map(s => ({
     character: s.character,
     similarity: s.similarity,
-    percent: similarityToPercent(s.similarity, allRawSims, CLIP_SPREAD_THRESH, hasFace),
+    percent: similarityToPercent(s.similarity, allRawSims, spreadThresh, hasFace),
   }));
 
   const gap = scored.length > 1 ? scored[0]!.weightedScore - scored[1]!.weightedScore : 1;

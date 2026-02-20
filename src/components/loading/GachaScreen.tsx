@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useResultStore } from '@/stores/resultStore';
@@ -7,9 +7,12 @@ import { useUploadStore } from '@/stores/uploadStore';
 import { useGachaAnimation } from '@/hooks/useGachaAnimation';
 import styles from './GachaScreen.module.css';
 
+const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 function LoadingParticles() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    if (isMobile) return;
     const container = ref.current;
     if (!container) return;
     container.innerHTML = '';
@@ -29,6 +32,7 @@ function LoadingParticles() {
 
 export default function GachaScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const { processedImageData } = useUploadStore();
   const { gachaStep, gachaProgress, gachaRevealed, quoteText, matchResult } = useResultStore();
@@ -36,15 +40,17 @@ export default function GachaScreen() {
   const startedRef = useRef(false);
 
   useEffect(() => {
-    if (!processedImageData) {
+    // Only redirect if we are actually on the /loading route and data is missing
+    if (!processedImageData && location.pathname === '/loading') {
+      console.warn('[Integrity] Missing processedImageData on /loading, redirecting to /upload');
       navigate('/upload', { replace: true });
       return;
     }
-    if (!startedRef.current) {
+    if (processedImageData && !startedRef.current) {
       startedRef.current = true;
       start();
     }
-  }, [processedImageData, navigate, start]);
+  }, [processedImageData, navigate, start, location.pathname]);
 
   const stepStatus = (step: 'analyzing' | 'matching' | 'revealing' | 'done', target: string) => {
     const steps = ['analyzing', 'matching', 'revealing', 'done'];

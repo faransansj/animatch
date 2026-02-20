@@ -4,10 +4,11 @@ import { useResultStore } from '@/stores/resultStore';
 import { useMLStore } from '@/stores/mlStore';
 import { useAppStore } from '@/stores/appStore';
 import { useUploadStore } from '@/stores/uploadStore';
-import { getImageEmbedding, isClipReady } from '@/ml/clipEngine';
-import { getArcFaceEmbedding, isArcFaceReady } from '@/ml/arcFaceEngine';
+import { getImageEmbedding, isClipReady, initClipEngine, releaseClipEngine } from '@/ml/clipEngine';
+import { getArcFaceEmbedding, isArcFaceReady, initArcFace, releaseArcFace } from '@/ml/arcFaceEngine';
 import { findBestMatch, getRandomMatch } from '@/ml/matching';
 import { findBestMatchDual } from '@/ml/dualEmbedding';
+import { getActiveExperimentId, getVariantConfig, getActiveVariantLabel } from '@/ml/abTest';
 import { sleep } from '@/utils/image';
 import { logMatchResult } from '@/utils/analytics';
 import type { MatchResult } from '@/types/match';
@@ -16,7 +17,7 @@ export function useGachaAnimation() {
   const navigate = useNavigate();
   const { orientation, language, showToast } = useAppStore();
   const { embeddingsData } = useMLStore();
-  const { processedImageData, detectedFaces } = useUploadStore();
+  const { processedImageData, detectedFaces, setRawImageData, setProcessedImageData } = useUploadStore();
   const {
     setGachaStep, setGachaProgress, setMatchResult,
     setGachaRevealed, setQuoteText,
@@ -59,16 +60,17 @@ export function useGachaAnimation() {
     let arcfaceEmbedding: number[] | null = null;
 
     try {
-      // Run CLIP and ArcFace in parallel for latency hiding
-      const promises: [Promise<number[]>, Promise<number[] | null>] = [
-        getImageEmbedding(processedImageData),
-        isArcFaceReady()
-          ? getArcFaceEmbedding(processedImageData).catch(() => null)
-          : Promise.resolve(null),
-      ];
-      const [clip, arcface] = await Promise.all(promises);
-      clipEmbedding = clip;
-      arcfaceEmbedding = arcface;
+      // Run inference sequentially to keep memory usage low on mobile
+      clipEmbedding = await getImageEmbedding(processedImageData);
+
+      // Only run ArcFace if ready
+      if (isArcFaceReady()) {
+        try {
+          arcfaceEmbedding = await getArcFaceEmbedding(processedImageData);
+        } catch (e) {
+          console.warn('ArcFace inference failed:', e);
+        }
+      }
     } catch (err) {
       console.error('Inference failed:', err);
       return null;
@@ -79,9 +81,11 @@ export function useGachaAnimation() {
     // Phase 2: Dual matching (falls back to CLIP-only if no ArcFace)
     setGachaStep('matching');
     const hasFace = detectedFaces.length > 0;
+    const experimentId = getActiveExperimentId();
+    const abConfig = experimentId ? getVariantConfig(experimentId) : undefined;
     const matchResult = arcfaceEmbedding
-      ? findBestMatchDual(clipEmbedding, arcfaceEmbedding, orientation, embeddingsData, hasFace)
-      : findBestMatch(clipEmbedding, orientation, embeddingsData, hasFace);
+      ? findBestMatchDual(clipEmbedding, arcfaceEmbedding, orientation, embeddingsData, hasFace, abConfig)
+      : findBestMatch(clipEmbedding, orientation, embeddingsData, hasFace, abConfig);
     await animateProgress(75, 85, 800);
 
     // Phase 3: Reveal
@@ -164,7 +168,10 @@ export function useGachaAnimation() {
     // Wait for model if not ready yet
     if (!clipReady) {
       setGachaStep('preparing');
-      clipReady = await waitForModel(60_000);
+      // Initialize CLIP and ArcFace sequentially
+      await initClipEngine((p) => setGachaProgress(p * 0.4));
+      await initArcFace();
+      clipReady = isClipReady();
     }
 
     let result: MatchResult | null = null;
@@ -182,8 +189,12 @@ export function useGachaAnimation() {
     }
 
     if (result) {
+      // Proactively release memory before transitioning to Result page
+      await releaseClipEngine();
+      await releaseArcFace();
+
       setMatchResult(result);
-      logMatchResult(result, orientation, language, usedDualMatching);
+      logMatchResult(result, orientation, language, usedDualMatching, getActiveVariantLabel());
       navigate('/result');
     }
   }, [navigate, orientation, language, setGachaProgress, setGachaRevealed, setQuoteText, setGachaStep, setMatchResult, runMLSequence, runFallbackSequence, waitForModel]);

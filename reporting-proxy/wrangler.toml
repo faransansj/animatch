@@ -1,0 +1,11 @@
+name = "animatch-reporting-proxy"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+[vars]
+# OPENCLAW_API_URL = "https://your-openclaw-endpoint"
+# TELEGRAM_BOT_TOKEN = "your_bot_token"
+# TELEGRAM_CHAT_ID = "your_chat_id"
+
+# Note: Secret variables should be set via `wrangler secret put`
+# SENTRY_WEBHOOK_SECRET = "..."

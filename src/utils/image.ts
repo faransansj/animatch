@@ -1,5 +1,39 @@
 import type { FeedbackItem } from '@/types/common';
 
+export function resizeImage(dataURL: string, maxDim: number = 1080): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let drawW = img.width;
+      let drawH = img.height;
+
+      // If image is already smaller than max dimensions, return original data URL
+      if (drawW <= maxDim && drawH <= maxDim) {
+        resolve(dataURL);
+        return;
+      }
+
+      const scale = maxDim / Math.max(drawW, drawH);
+      drawW = Math.round(drawW * scale);
+      drawH = Math.round(drawH * scale);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = drawW;
+      canvas.height = drawH;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve(dataURL); // Fallback
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, drawW, drawH);
+      resolve(canvas.toDataURL('image/jpeg', 0.92));
+    };
+    img.onerror = () => resolve(dataURL);
+    img.src = dataURL;
+  });
+}
+
 export function runGuidelineCheck(imageData: string): Promise<FeedbackItem[]> {
   return new Promise((resolve) => {
     const img = new Image();

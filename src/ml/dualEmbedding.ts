@@ -1,6 +1,7 @@
 import type { EmbeddingsData } from '@/types/character';
 import type { MatchResult, MatchCandidate, Confidence } from '@/types/match';
 import type { Orientation } from '@/types/common';
+import type { VariantConfig } from './abTest';
 import { cosineSimilarity, similarityToPercent } from './matching';
 
 // ArcFace differentiates faces far better than CLIP (std 0.139 vs 0.049).
@@ -18,10 +19,14 @@ export function findBestMatchDual(
   orientation: Orientation,
   embeddingsData: EmbeddingsData,
   hasFace = true,
+  config?: Partial<VariantConfig>,
 ): MatchResult {
   const candidates = embeddingsData.characters.filter(c => c.orientation === orientation);
 
-  const tierWeight: Record<number, number> = { 1: 1.02, 2: 1.0, 3: 0.98 };
+  const alpha = config?.clipWeight ?? ALPHA;
+  const beta = config?.arcfaceWeight ?? BETA;
+  const tierWeight = config?.tierWeights ?? { 1: 1.02, 2: 1.0, 3: 0.98 };
+  const configSpreadThresh = config?.spreadThresh;
 
   const scored = candidates.map(c => {
     const clipSim = cosineSimilarity(clipEmbedding, c.embedding);
@@ -34,7 +39,7 @@ export function findBestMatchDual(
     }
 
     const combinedScore = useDual
-      ? ALPHA * clipSim + BETA * arcfaceSim
+      ? alpha * clipSim + beta * arcfaceSim
       : clipSim;
 
     const weight = tierWeight[c.tier] ?? 1.0;
@@ -53,7 +58,7 @@ export function findBestMatchDual(
 
   // Use the appropriate spread threshold based on whether dual matching was used
   const anyDual = scored.some(s => s.useDual);
-  const spreadThresh = anyDual ? DUAL_SPREAD_THRESH : 0.05;
+  const spreadThresh = configSpreadThresh ?? (anyDual ? DUAL_SPREAD_THRESH : 0.05);
 
   const allRawSims = scored.map(s => s.similarity);
 

@@ -16,6 +16,8 @@ export async function initFaceDetector(): Promise<boolean> {
       runningMode: 'IMAGE',
       minDetectionConfidence: 0.5,
     });
+    // For iOS Safari, GPU can sometimes crash. If it initializes but fails during first use,
+    // we already have a fallback in catch, but we might want to proactively check or limit.
     return true;
   } catch (e) {
     console.warn('Face detector init failed, trying CPU:', (e as Error).message);
@@ -43,17 +45,33 @@ export function isFaceDetectorReady(): boolean {
   return faceDetector !== null;
 }
 
-export function detectFaces(imageElement: HTMLImageElement): DetectedFace[] {
+export function detectFaces(imageElement: HTMLImageElement | HTMLCanvasElement): DetectedFace[] {
   if (!faceDetector) return [];
 
-  const result = faceDetector.detect(imageElement);
+  // If input is a large image, we should probably downscale it first for stability
+  let input: HTMLImageElement | HTMLCanvasElement = imageElement;
+  if (imageElement instanceof HTMLImageElement && (imageElement.naturalWidth > 1024 || imageElement.naturalHeight > 1024)) {
+    const scale = 1024 / Math.max(imageElement.naturalWidth, imageElement.naturalHeight);
+    const canvas = document.createElement('canvas');
+    canvas.width = imageElement.naturalWidth * scale;
+    canvas.height = imageElement.naturalHeight * scale;
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(imageElement, 0, 0, canvas.width, canvas.height);
+    input = canvas;
+  }
+
+  const result = faceDetector.detect(input);
+  // If we downscaled, we need to rescale coordinates back to original image
+  const scaleX = imageElement instanceof HTMLImageElement ? imageElement.naturalWidth / (input as HTMLCanvasElement).width : 1;
+  const scaleY = imageElement instanceof HTMLImageElement ? imageElement.naturalHeight / (input as HTMLCanvasElement).height : 1;
+
   return result.detections.map(d => {
     const bbox = d.boundingBox!;
     return {
-      x: bbox.originX,
-      y: bbox.originY,
-      width: bbox.width,
-      height: bbox.height,
+      x: bbox.originX * scaleX,
+      y: bbox.originY * scaleY,
+      width: bbox.width * scaleX,
+      height: bbox.height * scaleY,
       confidence: d.categories[0]?.score ?? 0,
     };
   });
