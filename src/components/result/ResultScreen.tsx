@@ -9,7 +9,7 @@ import { useAppStore } from '@/stores/appStore';
 import { shareToX, shareToBluesky, copyLink } from '@/utils/share';
 import { getTarotImageUrl } from '@/utils/tarot';
 import { generateResultCard } from '@/utils/resultCard';
-import type { MatchCandidate } from '@/types/match';
+import type { MatchCandidate, MatchResult } from '@/types/match';
 import type { CharacterEmbedding } from '@/types/character';
 import AdBanner from '@/components/shared/AdBanner';
 import styles from './ResultScreen.module.css';
@@ -73,6 +73,8 @@ function RunnerUpImage({ char }: { char: CharacterEmbedding }) {
     </div>
   );
 }
+
+
 
 export default function ResultScreen() {
   const navigate = useNavigate();
@@ -275,6 +277,8 @@ export default function ResultScreen() {
             </div>
           </motion.div>
         )}
+
+
 
         {/* Share */}
         <motion.div
