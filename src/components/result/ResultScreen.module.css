@@ -465,6 +465,24 @@
   font-weight: 700;
   color: var(--primary);
   flex-shrink: 0;
+  margin-right: 4px;
+}
+
+.runnerUpCheckBtn {
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.2s;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.runnerUpCard:hover .runnerUpCheckBtn {
+  background: rgba(56, 189, 248, 0.15);
 }
 
 /* Share */

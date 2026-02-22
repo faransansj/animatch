@@ -84,6 +84,7 @@ export default {
     charmTitle: '💕 연인으로서의 매력',
     animeTitle: '🎬 출처 작품',
     runnerUpTitle: '다른 후보들도 있어요',
+    checkDetails: '자세히 보기',
     rank: '{{rank}}위',
     shareTitle: '결과 공유하기',
     shareX: 'X 공유',

@@ -348,6 +348,8 @@ export default function ResultScreen() {
                     key={rc.heroine_id}
                     className={styles.runnerUpCard}
                     onClick={() => swapToRunnerUp(entry)}
+                    role="button"
+                    tabIndex={0}
                   >
                     <div className={styles.runnerUpRank}>{t('result.rank', { rank: originalRank })}</div>
                     <RunnerUpImage char={rc} />
@@ -356,6 +358,9 @@ export default function ResultScreen() {
                       <span className={styles.runnerUpAnime}>{isEn ? rc.anime_en : rc.anime}</span>
                     </div>
                     <div className={styles.runnerUpPercent}>{entry.percent}%</div>
+                    <button className={styles.runnerUpCheckBtn}>
+                      {t('result.checkDetails', '자세히 보기')}
+                    </button>
                   </div>
                 );
               })}
