@@ -68,7 +68,7 @@ ctx.addEventListener('message', async (e) => {
             case 'INIT_ARCFACE':
                 if (!arcfaceSession) {
                     try {
-                        const response = await fetch('/models/mobilefacenet-q8.onnx', { cache: 'force-cache' });
+                        const response = await fetch('/assets/models/mobilefacenet-q8.onnx', { cache: 'force-cache' });
                         const arrayBuffer = await response.arrayBuffer();
                         arcfaceSession = await ort.InferenceSession.create(arrayBuffer, {
                             executionProviders: ['wasm'],
@@ -78,7 +78,7 @@ ctx.addEventListener('message', async (e) => {
                         });
                     } catch (e) {
                         // Fallback for vite dev server
-                        arcfaceSession = await ort.InferenceSession.create('/models/mobilefacenet-q8.onnx', {
+                        arcfaceSession = await ort.InferenceSession.create('/assets/models/mobilefacenet-q8.onnx', {
                             executionProviders: ['wasm'],
                             graphOptimizationLevel: 'all',
                             executionMode: 'sequential',

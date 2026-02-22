@@ -4,8 +4,9 @@ export const PREPROCESS = {
   std: [0.26862954, 0.26130258, 0.27577711] as const,
 };
 
-export const MODEL_PATH = '/models/clip-image-encoder-q8.onnx';
-export const MODEL_PATH_LITE = '/models/clip-image-encoder-q4.onnx';
+export const MODEL_PATH = '/assets/models/clip-image-encoder-q8.onnx';
+export const MODEL_PATH_LITE = '/assets/models/clip-image-encoder-q4.onnx';
+
 
 /**
  * Detects whether the current device is a mobile/tablet or on cellular connection.
