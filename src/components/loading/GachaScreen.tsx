@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useResultStore } from '@/stores/resultStore';
 import { useUploadStore } from '@/stores/uploadStore';
 import { useGachaAnimation } from '@/hooks/useGachaAnimation';
+import { trackFunnelEvent } from '@/utils/telemetry';
 import styles from './GachaScreen.module.css';
 
 const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -48,6 +49,7 @@ export default function GachaScreen() {
     }
     if (processedImageData && !startedRef.current) {
       startedRef.current = true;
+      trackFunnelEvent('Loading Screen Viewed');
       start();
     }
   }, [processedImageData, navigate, start, location.pathname]);
@@ -57,9 +59,9 @@ export default function GachaScreen() {
       // Track abandonment if unmounted before completion
       const state = useResultStore.getState();
       if (state.gachaStep !== 'done' && state.gachaStep !== 'idle') {
-        import('@/utils/telemetry').then(({ logEvent }) => {
-          logEvent('Match', 'Abandonment', state.gachaStep);
-        });
+        trackFunnelEvent('Match Abandoned', { step: state.gachaStep });
+      } else if (state.gachaStep === 'done') {
+        trackFunnelEvent('Match Completed Successfully');
       }
     };
   }, []);

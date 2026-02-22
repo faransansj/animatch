@@ -1,11 +1,14 @@
 import * as Sentry from '@sentry/react';
 import ReactGA from 'react-ga4';
+import posthog from 'posthog-js';
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
 const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
+const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY;
+const POSTHOG_HOST = import.meta.env.VITE_POSTHOG_HOST || 'https://us.i.posthog.com';
 
 /**
- * Initialize Sentry and GA4 with PII scrubbing.
+ * Initialize Sentry, PostHog, and GA4 with PII scrubbing.
  */
 export function initTelemetry() {
     // 1. Initialize Sentry
@@ -43,22 +46,46 @@ export function initTelemetry() {
         });
     }
 
-    // 2. Initialize GA4
+    // 2. Initialize PostHog
+    if (POSTHOG_KEY) {
+        posthog.init(POSTHOG_KEY, {
+            api_host: POSTHOG_HOST,
+            capture_pageview: false, // We'll manage this if using React Router, or leave to auto-capture
+            persistence: 'localStorage',
+        });
+    }
+
+    // 3. Initialize GA4
     if (GA_MEASUREMENT_ID) {
         ReactGA.initialize(GA_MEASUREMENT_ID);
     }
 }
 
 /**
- * Log an event to GA4.
+ * Log a generic event to GA4.
  */
 export function logEvent(category: string, action: string, label?: string, value?: number) {
-    ReactGA.event({
-        category,
-        action,
-        label,
-        value,
-    });
+    if (GA_MEASUREMENT_ID) {
+        ReactGA.event({ category, action, label, value });
+    }
+}
+
+/**
+ * Track user funnel progression and drop-offs.
+ * Sends data to PostHog and GA4 simultaneously.
+ */
+export function trackFunnelEvent(eventName: string, properties?: Record<string, any>) {
+    if (POSTHOG_KEY) {
+        posthog.capture(eventName, properties);
+    }
+
+    if (GA_MEASUREMENT_ID) {
+        ReactGA.event({
+            category: 'Funnel',
+            action: eventName,
+            label: properties ? JSON.stringify(properties) : undefined,
+        });
+    }
 }
 
 /**

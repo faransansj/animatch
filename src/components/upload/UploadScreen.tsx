@@ -13,6 +13,7 @@ import { useUploadStore } from '@/stores/uploadStore';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { useFaceDetection } from '@/hooks/useFaceDetection';
 import { runGuidelineCheck } from '@/utils/image';
+import { trackFunnelEvent } from '@/utils/telemetry';
 import styles from './UploadScreen.module.css';
 
 export default function UploadScreen() {
@@ -35,12 +36,17 @@ export default function UploadScreen() {
 
   const hasImage = !!rawImageData;
 
+  useEffect(() => {
+    trackFunnelEvent('Upload Page Viewed');
+  }, []);
+
   // Auto-detect faces after upload
   useEffect(() => {
     if (rawImageData) {
+      trackFunnelEvent('Image Selected', { hasFace: detectedFaces.length > 0 });
       detect();
     }
-  }, [rawImageData, detect]);
+  }, [rawImageData, detect, detectedFaces.length]);
 
   const onFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -93,6 +99,7 @@ export default function UploadScreen() {
       // Re-run guideline check
       const feedback = await runGuidelineCheck(cropped);
       setFeedbackItems(feedback);
+      trackFunnelEvent('Image Cropped');
       showToast(t('upload.cropDone'));
     };
     sourceImg.src = rawImageData;
@@ -100,8 +107,9 @@ export default function UploadScreen() {
 
   const startAnalysis = useCallback(() => {
     if (!processedImageData) return;
+    trackFunnelEvent('Analysis Started', { orientation });
     navigate('/loading');
-  }, [processedImageData, navigate]);
+  }, [processedImageData, navigate, orientation]);
 
   return (
     <motion.section

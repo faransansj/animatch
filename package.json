@@ -21,6 +21,7 @@
     "hono": "^4.11.9",
     "i18next": "^24.2.0",
     "onnxruntime-web": "^1.21.0",
+    "posthog-js": "^1.352.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-ga4": "^2.1.0",

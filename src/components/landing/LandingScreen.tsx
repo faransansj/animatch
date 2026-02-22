@@ -7,6 +7,7 @@ import Footer from '@/components/shared/Footer';
 import AdBanner from '@/components/shared/AdBanner';
 import { initClipEngine } from '@/ml/clipEngine';
 import { initArcFace } from '@/ml/arcFaceEngine';
+import { trackFunnelEvent } from '@/utils/telemetry';
 import styles from './LandingScreen.module.css';
 
 const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -38,7 +39,7 @@ const CHARACTER_POOL = [
   { id: 1, emoji: '💙', name: '아스나', nameEn: 'Asuna', anime: 'SAO', gradient: 'linear-gradient(135deg, #667eea, #764ba2)' },
   { id: 2, emoji: '💗', name: '렘', nameEn: 'Rem', anime: 'Re:Zero', gradient: 'linear-gradient(135deg, #f093fb, #f5576c)' },
   { id: 3, emoji: '💜', name: '치카', nameEn: 'Chika', anime: '카구야님', animeEn: 'Kaguya-sama', gradient: 'linear-gradient(135deg, #4facfe, #00f2fe)' },
-  { id: 4, emoji: '🎸', name: '봇치', nameEn: 'Bocchi', anime: '봇치 더 록!', animeEn: 'Bocchi the Rock!', gradient: 'linear-gradient(135deg, #ff0844, #ffb199)' },
+  { id: 4, emoji: '🎸', name: '봇치', nameEn: 'Bocchi', anime: '봇치 더 고!', animeEn: 'Bocchi the Rock!', gradient: 'linear-gradient(135deg, #ff0844, #ffb199)' },
   { id: 5, emoji: '🧝‍♀️', name: '프리렌', nameEn: 'Frieren', anime: '장송의 프리렌', animeEn: 'Frieren', gradient: 'linear-gradient(135deg, #e0c3fc, #8ec5fc)' },
   { id: 6, emoji: '👗', name: '마린', nameEn: 'Marin', anime: '비스크 돌', animeEn: 'My Dress-Up Darling', gradient: 'linear-gradient(135deg, #ff9a9e, #fecfef)' },
   { id: 7, emoji: '💥', name: '메구밍', nameEn: 'Megumin', anime: '코노스바', animeEn: 'Konosuba', gradient: 'linear-gradient(135deg, #f83600, #f9d423)' },
@@ -64,6 +65,7 @@ export default function LandingScreen() {
   const poolIndexRef = useRef(3);
 
   useEffect(() => {
+    trackFunnelEvent('Landing Page Viewed');
     const interval = setInterval(() => {
       setDisplayedCards((prev: any[]) => {
         const next = [...prev];
@@ -91,6 +93,11 @@ export default function LandingScreen() {
     }, 2000);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleStart = () => {
+    trackFunnelEvent('Landing Page Start Clicked');
+    navigate('/upload');
+  };
 
   return (
     <motion.section
@@ -166,7 +173,7 @@ export default function LandingScreen() {
           </AnimatePresence>
         </div>
 
-        <button className={styles.ctaBtn} onClick={() => navigate('/upload')}>
+        <button className={styles.ctaBtn} onClick={handleStart}>
           <span>{t('landing.cta')}</span>
           <span className={styles.ctaArrow}>{t('landing.ctaArrow')}</span>
         </button>

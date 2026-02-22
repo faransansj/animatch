@@ -103,6 +103,9 @@ export default function ResultScreen() {
   const showToast = useAppStore(s => s.showToast);
 
   const handleRetry = useCallback(() => {
+    import('@/utils/telemetry').then(({ trackFunnelEvent }) => {
+      trackFunnelEvent('Result Screen Retry Clicked');
+    });
     navigate('/upload');
   }, [navigate]);
 
@@ -188,15 +191,20 @@ export default function ResultScreen() {
   useEffect(() => {
     const currentState = useResultStore.getState().matchResult;
     if (!currentState) {
-      console.warn('[Integrity] No matchResult found on mount, redirecting to /upload');
+      console.warn('[ResultScreen] Missing matchResult on mount, redirecting to /upload');
       navigate('/upload', { replace: true });
     } else {
-      console.log('[Integrity] ResultScreen mounted successfully. Cleaning data.');
-
-      // Aggressive cleanup: Clear high-res images immediately to free memory for the GPU
-      useUploadStore.getState().setRawImageData(null);
-      useUploadStore.getState().setProcessedImageData(null);
+      import('@/utils/telemetry').then(({ trackFunnelEvent }) => {
+        trackFunnelEvent('Result Screen Viewed', {
+          character: currentState.character.heroine_name_en,
+          anime: currentState.character.anime_en,
+          score: currentState.score
+        });
+      });
     }
+
+    // Smooth scroll to top when revealing results
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     return () => {
       // Intentionally not resetting stores here to prevent React 18 StrictMode double-mount bugs
