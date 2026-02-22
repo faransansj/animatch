@@ -101,6 +101,8 @@ export default function ResultScreen() {
   const { t, i18n } = useTranslation();
   const { matchResult, setMatchResult } = useResultStore();
   const showToast = useAppStore(s => s.showToast);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleRetry = useCallback(() => {
     import('@/utils/telemetry').then(({ trackFunnelEvent }) => {
@@ -109,81 +111,85 @@ export default function ResultScreen() {
     navigate('/upload');
   }, [navigate]);
 
-  const handleDownload = useCallback(async () => {
+  const handleDownload = useCallback(async (format: 'basic' | 'story') => {
     if (!matchResult) return;
     const c = matchResult.character;
     const isEn = i18n.language === 'en';
+    setIsGenerating(true);
+
     try {
-      const blob = await generateResultCard({
-        characterName: isEn ? c.heroine_name_en : c.heroine_name,
-        animeName: isEn ? c.anime_en : c.anime,
-        percent: matchResult.percent,
-        heroineId: c.heroine_id,
-        heroineEmoji: c.heroine_emoji,
-        heroineColor: c.heroine_color,
-        lang: isEn ? 'en' : 'ko',
-        heroineImage: c.heroine_image,
-        tags: isEn ? c.heroine_tags_en : c.heroine_tags,
-        charm: isEn ? c.heroine_charm_en : c.heroine_charm,
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `animatch-${c.heroine_name_en.toLowerCase().replace(/\s+/g, '-')}.png`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast(t('result.downloadComplete'));
-    } catch {
-      showToast(t('result.downloadError'));
-    }
-  }, [matchResult, i18n.language, showToast, t]);
+      let blob: Blob;
+      let filename: string;
 
-  const handleInstagramShare = useCallback(async () => {
-    if (!matchResult) return;
-    const c = matchResult.character;
-    const isEn = i18n.language === 'en';
-    try {
-      const blob = await generateStoryCard({
-        characterName: isEn ? c.heroine_name_en : c.heroine_name,
-        animeName: isEn ? c.anime_en : c.anime,
-        percent: matchResult.percent,
-        heroineId: c.heroine_id,
-        heroineEmoji: c.heroine_emoji,
-        heroineColor: c.heroine_color,
-        lang: isEn ? 'en' : 'ko',
-        heroineImage: c.heroine_image,
-      });
+      if (format === 'story') {
+        blob = await generateStoryCard({
+          characterName: isEn ? c.heroine_name_en : c.heroine_name,
+          animeName: isEn ? c.anime_en : c.anime,
+          percent: matchResult.percent,
+          heroineId: c.heroine_id,
+          heroineEmoji: c.heroine_emoji,
+          heroineColor: c.heroine_color,
+          lang: isEn ? 'en' : 'ko',
+          heroineImage: c.heroine_image,
+        });
+        filename = `animatch-story-${c.heroine_name_en.toLowerCase().replace(/\s+/g, '-')}.png`;
 
-      const file = new File([blob], `animatch-story-${c.heroine_id}.png`, { type: 'image/png' });
-
-      // Attempt Web Share API for native Instagram integration
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: 'AniMatch Result',
-            text: t('result.shareTextShort', { name: isEn ? c.heroine_name_en : c.heroine_name, anime: isEn ? c.anime_en : c.anime, percent: matchResult.percent }),
-          });
-          return;
-        } catch (e: any) {
-          if (e.name !== 'AbortError') {
-            console.error('Share failed', e);
+        // Try native share first for stories if on mobile
+        if (navigator.share && navigator.canShare) {
+          const file = new File([blob], filename, { type: 'image/png' });
+          if (navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                files: [file],
+                title: 'AniMatch Result',
+                text: t('result.shareTextShort', { name: isEn ? c.heroine_name_en : c.heroine_name, anime: isEn ? c.anime_en : c.anime, percent: matchResult.percent }),
+              });
+              setIsGenerating(false);
+              setIsSaveModalOpen(false);
+              return;
+            } catch (e: any) {
+              if (e.name !== 'AbortError') {
+                console.error('Share failed', e);
+              }
+            }
           }
         }
+      } else {
+        blob = await generateResultCard({
+          characterName: isEn ? c.heroine_name_en : c.heroine_name,
+          animeName: isEn ? c.anime_en : c.anime,
+          percent: matchResult.percent,
+          heroineId: c.heroine_id,
+          heroineEmoji: c.heroine_emoji,
+          heroineColor: c.heroine_color,
+          lang: isEn ? 'en' : 'ko',
+          heroineImage: c.heroine_image,
+          tags: isEn ? c.heroine_tags_en : c.heroine_tags,
+          charm: isEn ? c.heroine_charm_en : c.heroine_charm,
+        });
+        filename = `animatch-${c.heroine_name_en.toLowerCase().replace(/\s+/g, '-')}.png`;
       }
 
-      // Fallback: Download the 9:16 image
+      // Fallback/Desktop: Download the generated blob
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `animatch-story-${c.heroine_name_en.toLowerCase().replace(/\s+/g, '-')}.png`;
+      a.download = filename;
       a.click();
       URL.revokeObjectURL(url);
       showToast(t('result.downloadComplete'));
+
+      import('@/utils/telemetry').then(({ trackFunnelEvent }) => {
+        trackFunnelEvent('Result Saved', { format });
+      });
     } catch {
       showToast(t('result.downloadError'));
+    } finally {
+      setIsGenerating(false);
+      setIsSaveModalOpen(false);
     }
   }, [matchResult, i18n.language, showToast, t]);
+
 
   const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
@@ -367,11 +373,7 @@ export default function ResultScreen() {
           transition={{ duration: 0.6, delay: 0.6 }}
         >
           <h3 className={styles.shareTitle}>{t('result.shareTitle')}</h3>
-          <div className={styles.shareButtons}>
-            <button className={`${styles.shareBtn} ${styles.instagram}`} onClick={handleInstagramShare}>
-              <span className={styles.shareIcon}>📸</span>
-              <span>{t('result.shareInstagram')}</span>
-            </button>
+          <div className={styles.shareButtons} style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
             <button className={`${styles.shareBtn} ${styles.twitter}`} onClick={() => shareToX(char, matchResult.percent, i18n.language)}>
               <span className={styles.shareIcon}>𝕏</span>
               <span>{t('result.shareX')}</span>
@@ -384,7 +386,7 @@ export default function ResultScreen() {
               <span className={styles.shareIcon}>🔗</span>
               <span>{t('result.shareCopy')}</span>
             </button>
-            <button className={`${styles.shareBtn} ${styles.download}`} onClick={handleDownload}>
+            <button className={`${styles.shareBtn} ${styles.download}`} onClick={() => setIsSaveModalOpen(true)}>
               <span className={styles.shareIcon}>⬇</span>
               <span>{t('result.shareDownload')}</span>
             </button>
@@ -402,6 +404,41 @@ export default function ResultScreen() {
 
         <AdBanner />
       </main>
+
+      {/* Save Modal */}
+      {isSaveModalOpen && (
+        <div className={styles.modalOverlay} onClick={() => !isGenerating && setIsSaveModalOpen(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>{t('result.saveModalTitle')}</h3>
+            </div>
+            <div className={styles.modalBody}>
+              <button
+                className={styles.modalOptionBtn}
+                onClick={() => handleDownload('story')}
+                disabled={isGenerating}
+              >
+                {t('result.saveModalStory')}
+              </button>
+              <button
+                className={styles.modalOptionBtn}
+                onClick={() => handleDownload('basic')}
+                disabled={isGenerating}
+              >
+                {t('result.saveModalBasic')}
+              </button>
+
+              <button
+                className={styles.modalCancelBtn}
+                onClick={() => setIsSaveModalOpen(false)}
+                disabled={isGenerating}
+              >
+                {isGenerating ? t('result.downloading') : t('result.saveModalCancel')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </motion.section>
   );
 }

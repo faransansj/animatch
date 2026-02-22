@@ -418,18 +418,19 @@ TAG_MAP = {
     "편연": "Slight Affection", "요리치": "Terrible Cook", "전설": "Legend", "피겨": "Figure",
     "러시아": "Russia", "노래": "Singing", "차가움": "Coldness", "아르바이트": "Part-time Job",
     "과거": "Past", "무뚝뚝": "Blunt", "쿨": "Cool", "시점": "POV", "솔로플레이": "Solo Play", "게이머": "Gamer",
-    "리더십": "Leadership"
+    "리더십": "Leadership", "완벽남": "Perfect Guy", "군인": "Soldier", "솔직": "Honest", "원포올": "One For All", 
+    "백안": "Byakugan", "긍정": "Positive", "전국무장": "Sengoku Warlord"
 }
 
 GENRE_MAP = {
-    "순정": "Romance", "학원": "School", "일상": "Slice of Life", "판타지": "Fantasy",
+    "순정": "Sojo", "학원": "School", "일상": "Slice of Life", "판타지": "Fantasy",
     "액션": "Action", "코미디": "Comedy", "스릴러": "Thriller", "미스터리": "Mystery",
     "이세계": "Isekai", "다크판타지": "Dark Fantasy", "스포츠": "Sports", "닌자": "Ninja",
     "성장": "Growth", "피겨스케이팅": "Figure Skating", "댄스": "Dance", "테니스": "Tennis",
     "치유": "Healing", "연예": "Entertainment", "서스펜스": "Suspense", "모험": "Adventure",
     "드라마": "Drama", "가족": "Family", "SF": "Sci-Fi", "전쟁": "Military", "역사": "Historical",
     "축구": "Soccer", "히어로": "Hero", "오컬트": "Occult", "마법소녀": "Magical Girl", "범죄": "Crime",
-    "농구": "Basketball", "배구": "Volleyball", "청춘": "Youth"
+    "농구": "Basketball", "배구": "Volleyball", "청춘": "Youth", "로맨스": "Romance", "러브코미디": "RomCom"
 }
 
 def translate_list(items, mapping):
