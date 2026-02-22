@@ -60,7 +60,48 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  perspective: 1200px;
+  cursor: pointer;
+}
+
+.heroImg.isFlipped .flipInner {
+  -webkit-transform: rotateY(180deg);
+  transform: rotateY(180deg);
+}
+
+.flipInner {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: -webkit-transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+
+.flipFront,
+.flipBack {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
+  border-radius: var(--radius-lg);
+}
+
+.flipFront {
+  -webkit-transform: rotateY(0deg);
+  transform: rotateY(0deg);
+}
+
+.flipBack {
+  -webkit-transform: rotateY(180deg);
+  transform: rotateY(180deg);
 }
 
 .heroTarotImg {
@@ -95,6 +136,7 @@
   bottom: 20px;
   right: 20px;
   display: flex;
+  z-index: 10;
   flex-direction: column;
   align-items: center;
   gap: 4px;
@@ -163,6 +205,7 @@
   top: 20px;
   left: 20px;
   padding: 6px 14px;
+  z-index: 10;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;

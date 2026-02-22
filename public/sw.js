@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'animatch-v2';
+const CACHE_VERSION = 'animatch-v3';
 const MODELS_CACHE = `${CACHE_VERSION}-models`;
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const APP_CACHE = `${CACHE_VERSION}-app`;

@@ -28,33 +28,66 @@ function useLocalizedChar(char: CharacterEmbedding) {
 }
 
 function HeroImage({ char, children }: { char: CharacterEmbedding; children: React.ReactNode }) {
-  const [imgError, setImgError] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [imgState, setImgState] = useState<'tarot' | 'official' | 'emoji'>('official'); // Default to official illustration
   const tarotUrl = getTarotImageUrl(char.heroine_id);
   const fallbackBg = char.heroine_color || 'linear-gradient(135deg, #f093fb, #f5576c)';
 
+  useEffect(() => {
+    setIsFlipped(false);
+    setImgState('official');
+  }, [char.heroine_id]);
+
   return (
-    <div className={styles.heroImg} style={imgError ? { background: fallbackBg } : undefined}>
-      {!imgError ? (
-        <img
-          className={styles.heroTarotImg}
-          src={tarotUrl}
-          alt={char.heroine_name}
-          onError={() => setImgError(true)}
-        />
-      ) : (
-        <span className={styles.emojiLg}>{char.heroine_emoji || '💖'}</span>
-      )}
+    <div
+      className={`${styles.heroImg} ${isFlipped ? styles.isFlipped : ''}`}
+      onClick={() => setIsFlipped(!isFlipped)}
+    >
+      <div className={styles.flipInner}>
+        {/* Front: Anime Tarot Card Art (Shown first before flip) */}
+        <div className={styles.flipFront} style={imgState === 'emoji' ? { background: fallbackBg } : undefined}>
+          <img
+            src="/images/tarot_bg_v3.png"
+            alt="Tarot Back"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-lg)' }}
+          />
+        </div>
+        {/* Back: Official Character Image */}
+        <div className={styles.flipBack} style={{ background: fallbackBg }}>
+          {imgState === 'tarot' && (
+            <img
+              className={styles.heroTarotImg}
+              src={tarotUrl}
+              alt={char.heroine_name}
+              onError={() => setImgState(char.heroine_image ? 'official' : 'emoji')}
+            />
+          )}
+          {imgState === 'official' && char.heroine_image && (
+            <img
+              className={styles.heroTarotImg}
+              src={char.heroine_image}
+              alt={char.heroine_name}
+              style={{ objectFit: 'cover' }}
+              referrerPolicy="no-referrer"
+              onError={() => setImgState('emoji')}
+            />
+          )}
+          {imgState === 'emoji' && (
+            <span className={styles.emojiLg}>{char.heroine_emoji || '💖'}</span>
+          )}
+        </div>
+      </div>
       {children}
     </div>
   );
 }
 
 function RunnerUpImage({ char }: { char: CharacterEmbedding }) {
-  const [imgError, setImgError] = useState(false);
+  const [imgState, setImgState] = useState<'tarot' | 'official' | 'emoji'>('official');
   const tarotUrl = getTarotImageUrl(char.heroine_id);
   const fallbackBg = char.heroine_color || 'linear-gradient(135deg, #667eea, #764ba2)';
 
-  if (imgError) {
+  if (imgState === 'emoji') {
     return (
       <div className={styles.runnerUpEmoji} style={{ background: fallbackBg }}>
         <span>{char.heroine_emoji || '💕'}</span>
@@ -64,12 +97,23 @@ function RunnerUpImage({ char }: { char: CharacterEmbedding }) {
 
   return (
     <div className={styles.runnerUpEmoji}>
-      <img
-        className={styles.runnerUpTarotImg}
-        src={tarotUrl}
-        alt={char.heroine_name}
-        onError={() => setImgError(true)}
-      />
+      {imgState === 'tarot' ? (
+        <img
+          className={styles.runnerUpTarotImg}
+          src={tarotUrl}
+          alt={char.heroine_name}
+          onError={() => setImgState(char.heroine_image ? 'official' : 'emoji')}
+        />
+      ) : (
+        <img
+          className={styles.runnerUpTarotImg}
+          src={char.heroine_image}
+          alt={char.heroine_name}
+          style={{ objectFit: 'cover' }}
+          referrerPolicy="no-referrer"
+          onError={() => setImgState('emoji')}
+        />
+      )}
     </div>
   );
 }
@@ -128,9 +172,8 @@ export default function ResultScreen() {
     }
 
     return () => {
-      // Clean up global stores when exiting the ResultScreen (after exit animation completes)
-      useUploadStore.getState().reset();
-      useResultStore.getState().reset();
+      // Intentionally not resetting stores here to prevent React 18 StrictMode double-mount bugs
+      // The stores will be overwritten when starting a new analysis anyway.
     };
   }, [navigate]);
 
