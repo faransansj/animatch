@@ -245,7 +245,7 @@ export default function ResultScreen() {
   // The displayed runner-ups should be the top N characters EXCEPT the currently selected one
   const allCandidates = matchResult.topN;
   const runnerUps = allCandidates.filter((c) => c.character.heroine_id !== char.heroine_id);
-  const displayRunnerUps = isMobile ? runnerUps.slice(0, 1) : runnerUps;
+  const displayRunnerUps = runnerUps;
 
   return (
     <motion.section

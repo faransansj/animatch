@@ -248,19 +248,41 @@
   color: #facc15;
 }
 
-.cropBtn {
+.feedbackActions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.cropBtn,
+.retakeBtn {
   padding: 8px 20px;
   font-size: 13px;
   font-weight: 600;
+  border-radius: 8px;
+  transition: var(--transition);
+}
+
+.cropBtn {
   color: var(--accent);
   border: 1px solid rgba(56, 189, 248, 0.3);
-  border-radius: 8px;
   background: rgba(56, 189, 248, 0.08);
-  transition: var(--transition);
 }
 
 .cropBtn:hover {
   background: rgba(56, 189, 248, 0.15);
+}
+
+.retakeBtn {
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  background: var(--bg-card-2);
+}
+
+.retakeBtn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
 }
 
 /* Analyze Button */

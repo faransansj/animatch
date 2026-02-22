@@ -22,7 +22,7 @@ export default function UploadScreen() {
   const { orientation, setOrientation, showToast } = useAppStore();
   const {
     rawImageData, processedImageData, feedbackItems,
-    cropModalOpen, setCropModalOpen, setProcessedImageData, setFeedbackItems,
+    cropModalOpen, setCropModalOpen, setProcessedImageData, setFeedbackItems, reset,
   } = useUploadStore();
   const { handleFile, handleDataURL } = useImageUpload();
   const { detect, selectFace } = useFaceDetection();
@@ -203,9 +203,21 @@ export default function UploadScreen() {
                 </div>
               ))}
             </div>
-            <button className={styles.cropBtn} onClick={(e) => { e.stopPropagation(); setCropModalOpen(true); }}>
-              {t('upload.cropBtn')}
-            </button>
+            <div className={styles.feedbackActions}>
+              <button
+                className={styles.retakeBtn}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  reset();
+                  if (hasCamera) setCameraOpen(true);
+                }}
+              >
+                {t('upload.retakeBtn')}
+              </button>
+              <button className={styles.cropBtn} onClick={(e) => { e.stopPropagation(); setCropModalOpen(true); }}>
+                {t('upload.cropBtn')}
+              </button>
+            </div>
           </div>
         )}
 
