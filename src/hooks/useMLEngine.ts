@@ -6,10 +6,13 @@ import { initArcFace } from '@/ml/arcFaceEngine';
 import type { EmbeddingsData } from '@/types/character';
 
 async function loadEmbeddings(): Promise<EmbeddingsData> {
+  const jsonGzHash = 'sha256-qBAbQ++7nOWiRf/XyfHSTfBmI+8mbHA7cjNzg+ekbeg=';
+  const jsonHash = 'sha256-r7Pge8bjjo+9xVefCUOlH9Hck2UK2gZu5bvYIzZQqXk=';
+
   // Try gzip first
   if (typeof DecompressionStream !== 'undefined') {
     try {
-      const resp = await fetch('/embeddings.json.gz');
+      const resp = await fetch('/embeddings.json.gz', { cache: 'force-cache' });
       if (resp.ok) {
         const ds = new DecompressionStream('gzip');
         const decompressed = resp.body!.pipeThrough(ds);
@@ -20,7 +23,7 @@ async function loadEmbeddings(): Promise<EmbeddingsData> {
       // fallback
     }
   }
-  const resp = await fetch('/embeddings.json');
+  const resp = await fetch('/embeddings.json', { integrity: jsonHash });
   if (!resp.ok) throw new Error('Failed to load embeddings');
   return resp.json();
 }

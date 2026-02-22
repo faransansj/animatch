@@ -52,6 +52,18 @@ export default function GachaScreen() {
     }
   }, [processedImageData, navigate, start, location.pathname]);
 
+  useEffect(() => {
+    return () => {
+      // Track abandonment if unmounted before completion
+      const state = useResultStore.getState();
+      if (state.gachaStep !== 'done' && state.gachaStep !== 'idle') {
+        import('@/utils/telemetry').then(({ logEvent }) => {
+          logEvent('Match', 'Abandonment', state.gachaStep);
+        });
+      }
+    };
+  }, []);
+
   const stepStatus = (step: 'analyzing' | 'matching' | 'revealing' | 'done', target: string) => {
     const steps = ['analyzing', 'matching', 'revealing', 'done'];
     const current = steps.indexOf(gachaStep);

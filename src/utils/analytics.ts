@@ -40,6 +40,7 @@ export function logMatchResult(
 
   // 2. GA4: Event tracking
   import('./telemetry').then(({ logEvent }) => {
-    logEvent('Match', 'MatchResult', result.character.heroine_name, Math.round(result.score * 100));
+    const label = abVariant ? `${result.character.heroine_name} [${abVariant}]` : result.character.heroine_name;
+    logEvent('Match', 'MatchResult', label, Math.round(result.score * 100));
   }).catch(() => { });
 }

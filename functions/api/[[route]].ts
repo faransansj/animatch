@@ -131,6 +131,41 @@ app.get('/analytics/ab-report', async (c) => {
   }
 });
 
+// POST /api/analytics/feedback
+app.post('/analytics/feedback', async (c) => {
+  const ip = c.req.header('CF-Connecting-IP') ?? 'unknown';
+  if (!await checkRateLimit(c.env.KV, ip)) {
+    return c.json({ error: 'Rate limit exceeded' }, 429);
+  }
+
+  try {
+    const body = await c.req.json<{
+      orientation: string;
+      matched_character: string;
+      matched_anime: string;
+      similarity_score: number;
+      ab_variant: string;
+      rating: 'up' | 'down';
+    }>();
+
+    await c.env.DB.prepare(
+      `INSERT INTO match_feedback (orientation, matched_character, matched_anime, similarity_score, ab_variant, rating, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`
+    ).bind(
+      body.orientation,
+      body.matched_character,
+      body.matched_anime,
+      body.similarity_score,
+      body.ab_variant,
+      body.rating
+    ).run();
+
+    return c.json({ ok: true });
+  } catch {
+    return c.json({ error: 'Failed to record feedback' }, 500);
+  }
+});
+
 // GET /api/health
 app.get('/health', (c) => {
   return c.json({ status: 'ok', timestamp: new Date().toISOString() });

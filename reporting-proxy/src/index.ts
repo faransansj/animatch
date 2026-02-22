@@ -2,6 +2,7 @@ export interface Env {
     OPENCLAW_API_URL: string;
     TELEGRAM_BOT_TOKEN: string;
     TELEGRAM_CHAT_ID: string;
+    ANIMATCH_SECRET: string;
 }
 
 /**
@@ -14,6 +15,11 @@ export default {
         const url = new URL(request.url);
 
         if (url.pathname === '/sentry-webhook' && request.method === 'POST') {
+            const authHeader = request.headers.get('X-AniMatch-Secret');
+            if (!env.ANIMATCH_SECRET || authHeader !== env.ANIMATCH_SECRET) {
+                return new Response('Unauthorized', { status: 401 });
+            }
+
             try {
                 const body = await request.text();
                 const event = JSON.parse(body);
@@ -59,17 +65,34 @@ async function readStream(stream: ReadableStream) {
 }
 
 function scrubPII(data: any): any {
-    let stringified = typeof data === 'string' ? data : JSON.stringify(data);
-
     const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
     const IP_REGEX = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g;
-    const TOKEN_REGEX = /(token|auth|key|password|secret|session)["\s:]+["']([^"']+)["']/gi;
+    const SENSITIVE_KEYS = ['token', 'auth', 'key', 'password', 'secret', 'session', 'ip', 'email'];
 
-    stringified = stringified.replace(EMAIL_REGEX, '[EMAIL_REDACTED]');
-    stringified = stringified.replace(IP_REGEX, '[IP_REDACTED]');
-    stringified = stringified.replace(TOKEN_REGEX, (match, p1) => `${p1}": "[VALUE_REDACTED]"`);
+    if (typeof data === 'string') {
+        let scrubbed = data.replace(EMAIL_REGEX, '[EMAIL_REDACTED]');
+        scrubbed = scrubbed.replace(IP_REGEX, '[IP_REDACTED]');
+        return scrubbed;
+    }
 
-    return typeof data === 'string' ? stringified : JSON.parse(stringified);
+    if (Array.isArray(data)) {
+        return data.map(item => scrubPII(item));
+    }
+
+    if (data !== null && typeof data === 'object') {
+        const result: any = {};
+        for (const [key, value] of Object.entries(data)) {
+            const isSensitiveKey = SENSITIVE_KEYS.some(sk => key.toLowerCase().includes(sk));
+            if (isSensitiveKey) {
+                result[key] = '[VALUE_REDACTED]';
+            } else {
+                result[key] = scrubPII(value);
+            }
+        }
+        return result;
+    }
+
+    return data;
 }
 
 async function analyzeWithAI(data: any, env: Env, type: 'Error' | 'Analytics'): Promise<string> {

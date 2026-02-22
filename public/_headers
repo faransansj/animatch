@@ -1,6 +1,11 @@
 /*
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.sentry-cdn.com https://browser.sentry-cdn.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://s4.anilist.co; connect-src 'self' https://sentry.io https://*.sentry.io https://api.animatch.net; worker-src 'self' blob:; child-src blob:;
 
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
@@ -8,6 +13,7 @@
 /models/*
   Cache-Control: public, max-age=31536000, immutable
   Cross-Origin-Resource-Policy: same-origin
+  Content-Type: application/octet-stream
 
 /embeddings.json.gz
   Cache-Control: public, max-age=604800, stale-while-revalidate=86400

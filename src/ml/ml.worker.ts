@@ -20,14 +20,26 @@ ctx.addEventListener('message', async (e) => {
         switch (type) {
             case 'INIT_CLIP': {
                 if (!clipSession) {
-                    // Accept dynamic model path from main thread; fallback to default
                     const modelPath = (payload as string) || MODEL_PATH;
-                    clipSession = await ort.InferenceSession.create(modelPath, {
-                        executionProviders: ['wasm'],
-                        graphOptimizationLevel: 'all',
-                        executionMode: 'sequential',
-                        enableCpuMemArena: true,
-                    });
+
+                    try {
+                        const response = await fetch(modelPath, { cache: 'force-cache' });
+                        const arrayBuffer = await response.arrayBuffer();
+                        clipSession = await ort.InferenceSession.create(arrayBuffer, {
+                            executionProviders: ['wasm'],
+                            graphOptimizationLevel: 'all',
+                            executionMode: 'sequential',
+                            enableCpuMemArena: true,
+                        });
+                    } catch (e) {
+                        // Fallback for vite dev server
+                        clipSession = await ort.InferenceSession.create(modelPath, {
+                            executionProviders: ['wasm'],
+                            graphOptimizationLevel: 'all',
+                            executionMode: 'sequential',
+                            enableCpuMemArena: true,
+                        });
+                    }
                 }
                 ctx.postMessage({ id, type: 'INIT_CLIP_DONE', success: true });
                 break;
@@ -55,12 +67,24 @@ ctx.addEventListener('message', async (e) => {
 
             case 'INIT_ARCFACE':
                 if (!arcfaceSession) {
-                    arcfaceSession = await ort.InferenceSession.create('/models/mobilefacenet-q8.onnx', {
-                        executionProviders: ['wasm'],
-                        graphOptimizationLevel: 'all',
-                        executionMode: 'sequential',
-                        enableCpuMemArena: true,
-                    });
+                    try {
+                        const response = await fetch('/models/mobilefacenet-q8.onnx', { cache: 'force-cache' });
+                        const arrayBuffer = await response.arrayBuffer();
+                        arcfaceSession = await ort.InferenceSession.create(arrayBuffer, {
+                            executionProviders: ['wasm'],
+                            graphOptimizationLevel: 'all',
+                            executionMode: 'sequential',
+                            enableCpuMemArena: true,
+                        });
+                    } catch (e) {
+                        // Fallback for vite dev server
+                        arcfaceSession = await ort.InferenceSession.create('/models/mobilefacenet-q8.onnx', {
+                            executionProviders: ['wasm'],
+                            graphOptimizationLevel: 'all',
+                            executionMode: 'sequential',
+                            enableCpuMemArena: true,
+                        });
+                    }
                 }
                 ctx.postMessage({ id, type: 'INIT_ARCFACE_DONE', success: true });
                 break;

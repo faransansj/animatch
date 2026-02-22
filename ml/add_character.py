@@ -68,6 +68,36 @@ def load_image_from_url(url, timeout=10):
         return None
 
 
+def fetch_anilist_image_url(char_name):
+    """Fetch character image from AniList by name."""
+    import requests
+    query = '''
+    query ($search: String) {
+      Character(search: $search) {
+        id
+        name { full native }
+        image { large medium }
+      }
+    }
+    '''
+    try:
+        resp = requests.post(
+            'https://graphql.anilist.co',
+            json={'query': query, 'variables': {'search': char_name}},
+            headers={'Content-Type': 'application/json', 'Accept': 'application/json'},
+            timeout=10
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        if 'data' in data and data['data'] and data['data'].get('Character'):
+            char = data['data']['Character']
+            img = char.get('image', {})
+            return img.get('large') or img.get('medium')
+    except Exception as e:
+        print(f"  ⚠️ AniList fetch failed for {char_name}: {e}")
+    return None
+
+
 def truncate_embedding(embedding_list, precision=EMBEDDING_PRECISION):
     """Truncate embedding values to reduce JSON file size."""
     return [round(x, precision) for x in embedding_list]
@@ -297,12 +327,31 @@ def process_character(char_data, clip_model, clip_preprocess, clip_device, arcfa
     print(f"\n{'='*50}")
     print(f"🎌 {title} — {protag}")
 
-    # 1. DB insert
+    # 1. Fetch missing images from AniList
+    prot_img_url = char_data.get('protagonist_image')
+    if not prot_img_url and not is_audience_pov(protag):
+        search_name = char_data.get('protagonist_en') or protag
+        print(f"  🔍 Fetching protagonist image from AniList for {search_name}...")
+        prot_img_url = fetch_anilist_image_url(search_name)
+        char_data['protagonist_image'] = prot_img_url or ''
+
+    her_img_url = char_data.get('heroine_image')
+    if not her_img_url and char_data.get('heroine_ko'):
+        search_name = char_data.get('heroine_en') or char_data.get('heroine_ko')
+        print(f"  🔍 Fetching heroine image from AniList for {search_name}...")
+        her_img_url = fetch_anilist_image_url(search_name)
+        char_data['heroine_image'] = her_img_url or ''
+
+    if not char_data.get('protagonist_image') and not is_audience_pov(protag):
+        print(f"  ❌ Protagonist image missing and fetch failed. Skipping.")
+        return False
+
+    # 2. DB insert
     print("  📝 DB insert...")
     anime_id, protag_id, heroine_id = insert_character_to_db(conn, char_data, dry_run)
     print(f"     anime_id={anime_id}, protagonist_id={protag_id}, heroine_id={heroine_id}")
 
-    # 2. Download protagonist image
+    # 3. Download protagonist image
     img_url = char_data['protagonist_image']
     if is_audience_pov(char_data['protagonist_ko']):
         print(f"  ⏭️ Skipped (audience POV)")
@@ -314,7 +363,7 @@ def process_character(char_data, clip_model, clip_preprocess, clip_device, arcfa
         print(f"  ❌ Image download failed — skipping")
         return False
 
-    # 3. CLIP embedding
+    # 4. CLIP embedding
     print(f"  🔎 Generating CLIP embedding...")
     clip_emb = generate_clip_embedding(img, clip_model, clip_preprocess, clip_device)
     clip_emb = truncate_embedding(clip_emb)
@@ -369,7 +418,7 @@ def main():
 
     parser.add_argument('--protagonist-ko', type=str, help='Protagonist name (Korean)')
     parser.add_argument('--protagonist-en', type=str, help='Protagonist name (English)')
-    parser.add_argument('--protagonist-image', type=str, help='Protagonist image URL')
+    parser.add_argument('--protagonist-image', type=str, default='', help='Protagonist image URL')
     parser.add_argument('--protagonist-gender', type=str, default='male')
 
     parser.add_argument('--heroine-ko', type=str, help='Heroine name (Korean)')
@@ -397,7 +446,7 @@ def main():
         print(f"📦 Single mode: {args.title_ko}")
     else:
         parser.print_help()
-        print("\n❌ Provide either --batch or required single-character args (--title-ko, --protagonist-ko, --heroine-ko, --protagonist-image)")
+        print("\n❌ Provide either --batch or required single-character args (--title-ko, --protagonist-ko, --heroine-ko)")
         sys.exit(1)
 
     if args.dry_run:

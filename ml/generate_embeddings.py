@@ -77,7 +77,7 @@ def main():
     cursor.execute("""
         SELECT c.id, c.name_ko, c.name_en, c.image_url, c.partner_id,
                c.gender, c.role,
-               a.orientation, a.title_ko, a.title_en, a.tier, a.genre
+               a.orientation, a.title_ko, a.title_en, a.tier, a.genre, a.genre_en
         FROM characters c
         JOIN animes a ON c.anime_id = a.id
         WHERE c.role = 'protagonist'
@@ -123,8 +123,9 @@ def main():
         # Get heroine info
         cursor.execute("""
             SELECT c.id, c.name_ko, c.name_en, c.image_url,
-                   c.personality, c.charm_points, c.iconic_quote,
-                   c.tags, c.color_primary, c.emoji
+                   c.personality, c.personality_en, c.charm_points, c.charm_points_en, 
+                   c.iconic_quote, c.iconic_quote_en,
+                   c.tags, c.tags_en, c.color_primary, c.emoji
             FROM characters c
             WHERE c.id = ?
         """, (prot['partner_id'],))
@@ -144,19 +145,19 @@ def main():
             'anime': prot['title_ko'],
             'anime_en': prot['title_en'],
             'genre': json.loads(prot['genre']) if prot['genre'] else [],
-            'genre_en': json.loads(prot['genre']) if prot['genre'] else [],
+            'genre_en': json.loads(prot['genre_en']) if prot['genre_en'] else [],
             'heroine_id': heroine['id'],
             'heroine_name': heroine['name_ko'],
             'heroine_name_en': heroine['name_en'],
             'heroine_image': heroine['image_url'],
             'heroine_personality': json.loads(heroine['personality']) if heroine['personality'] else [],
-            'heroine_personality_en': json.loads(heroine['personality']) if heroine['personality'] else [],
+            'heroine_personality_en': json.loads(heroine['personality_en']) if heroine['personality_en'] else [],
             'heroine_charm': heroine['charm_points'],
-            'heroine_charm_en': heroine['charm_points'],
+            'heroine_charm_en': heroine['charm_points_en'],
             'heroine_quote': heroine['iconic_quote'],
-            'heroine_quote_en': heroine['iconic_quote'],
+            'heroine_quote_en': heroine['iconic_quote_en'],
             'heroine_tags': json.loads(heroine['tags']) if heroine['tags'] else [],
-            'heroine_tags_en': json.loads(heroine['tags']) if heroine['tags'] else [],
+            'heroine_tags_en': json.loads(heroine['tags_en']) if heroine['tags_en'] else [],
             'heroine_color': heroine['color_primary'],
             'heroine_emoji': heroine['emoji'],
             'embedding': embedding_list

@@ -32,16 +32,22 @@ const DEFAULT_CONFIG: VariantConfig = {
  */
 const EXPERIMENTS: Experiment[] = [
   {
-    id: 'matching-weights-v1',
-    active: false,
-    weights: [0.5, 0.5],
+    id: 'matching-weights-v2',
+    active: true,
+    weights: [0.34, 0.33, 0.33],
     variants: {
       control: { ...DEFAULT_CONFIG },
-      treatment_a: {
-        clipWeight: 0.4,
-        arcfaceWeight: 0.6,
-        spreadThresh: 0.12,
-        tierWeights: { 1: 1.03, 2: 1.0, 3: 0.97 },
+      variant_a_arcface_heavier: {
+        clipWeight: 0.1,
+        arcfaceWeight: 0.9,
+        spreadThresh: 0.15,
+        tierWeights: { 1: 1.02, 2: 1.0, 3: 0.98 },
+      },
+      variant_b_clip_heavier: {
+        clipWeight: 0.7,
+        arcfaceWeight: 0.3,
+        spreadThresh: 0.15,
+        tierWeights: { 1: 1.02, 2: 1.0, 3: 0.98 },
       },
     },
   },

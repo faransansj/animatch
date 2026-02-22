@@ -272,13 +272,13 @@ pnpm dev
 ~- [ ] 커뮤니티 기능 (결과 댓글)~
 ~- [ ] 푸시 알림 (신규 캐릭터 추가 시)~
 
-### Phase 7 — Mobile Architecture Optimization (Planned)
+### Phase 7 — Mobile Architecture Optimization (Complete)
 > **목표**: 모바일 환경 체감 성능 및 안정성 상향 (UI 프리징 차단 및 OOM 방지)
 
-- [ ] HTML5 Canvas 기반 업로드 이미지 즉시 리사이징 (메모리 스파이크 억제)
-- [ ] Web Worker를 이용한 ML 추론 물리적 분리 (메인 스레드 블로킹 방지)
-- [ ] Service Worker 및 Cache Storage 기반 모델 파일 영구 캐싱
-- [ ] 유휴 시간 활용 모델 백그라운드 사전 로드(Pre-load)
+- [x] HTML5 Canvas 기반 업로드 이미지 즉시 리사이징 (메모리 스파이크 억제)
+- [x] Web Worker를 이용한 ML 추론 물리적 분리 (메인 스레드 블로킹 방지)
+- [x] Service Worker 및 Cache Storage 기반 모델 파일 영구 캐싱
+- [x] 유휴 시간 활용 모델 백그라운드 사전 로드(Pre-load)
 
 ### Phase 8 — Continuous Operation
 > **목표**: 지속 운영 파이프라인

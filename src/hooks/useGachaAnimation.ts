@@ -92,7 +92,9 @@ export function useGachaAnimation() {
 
     // Phase 3: Reveal
     setGachaStep('revealing');
-    const quote = matchResult.character.heroine_quote || '...';
+    const quote = language === 'en'
+      ? (matchResult.character.heroine_quote_en || '...')
+      : (matchResult.character.heroine_quote || '...');
     await typeQuote(quote);
     await animateProgress(85, 95, 600);
 
@@ -120,7 +122,9 @@ export function useGachaAnimation() {
     await animateProgress(65, 80, 1200);
 
     setGachaStep('revealing');
-    const quote = matchResult.character.heroine_quote || '...';
+    const quote = language === 'en'
+      ? (matchResult.character.heroine_quote_en || '...')
+      : (matchResult.character.heroine_quote || '...');
     await typeQuote(quote);
     await animateProgress(80, 95, 800);
 

@@ -80,21 +80,11 @@ export default function ResultScreen() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { matchResult, setMatchResult } = useResultStore();
-  const uploadReset = useUploadStore(s => s.reset);
-  const resultReset = useResultStore(s => s.reset);
   const showToast = useAppStore(s => s.showToast);
 
   const handleRetry = useCallback(() => {
-    uploadReset();
-    resultReset();
     navigate('/upload');
-  }, [navigate, uploadReset, resultReset]);
-
-  const handleHome = useCallback(() => {
-    uploadReset();
-    resultReset();
-    navigate('/');
-  }, [navigate, uploadReset, resultReset]);
+  }, [navigate]);
 
   const handleDownload = useCallback(async () => {
     if (!matchResult) return;
@@ -125,7 +115,8 @@ export default function ResultScreen() {
   const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   useEffect(() => {
-    if (!matchResult) {
+    const currentState = useResultStore.getState().matchResult;
+    if (!currentState) {
       console.warn('[Integrity] No matchResult found on mount, redirecting to /upload');
       navigate('/upload', { replace: true });
     } else {
@@ -135,7 +126,13 @@ export default function ResultScreen() {
       useUploadStore.getState().setRawImageData(null);
       useUploadStore.getState().setProcessedImageData(null);
     }
-  }, [matchResult, navigate]);
+
+    return () => {
+      // Clean up global stores when exiting the ResultScreen (after exit animation completes)
+      useUploadStore.getState().reset();
+      useResultStore.getState().reset();
+    };
+  }, [navigate]);
 
   if (!matchResult) {
     return null;
@@ -309,14 +306,7 @@ export default function ResultScreen() {
         </motion.div>
 
         <div className={styles.actionButtons}>
-          <Link
-            to="/"
-            className={styles.homeBtn}
-            onClick={() => {
-              uploadReset();
-              resultReset();
-            }}
-          >
+          <Link to="/" className={styles.homeBtn}>
             {t('common.backToHome')}
           </Link>
           <button className={styles.retryBtn} onClick={handleRetry}>
