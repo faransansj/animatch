@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
+import { Helmet } from 'react-helmet-async';
 import Header from '@/components/shared/Header';
 import { useResultStore } from '@/stores/resultStore';
 import { useUploadStore } from '@/stores/uploadStore';
@@ -52,7 +53,7 @@ function HeroImage({ char, children }: { char: CharacterEmbedding; children: Rea
             <img
               className={styles.heroTarotImg}
               src={char.heroine_image}
-              alt={char.heroine_name}
+              alt={'AniMatch character result: ' + char.heroine_name}
               style={{ objectFit: 'cover' }}
               referrerPolicy="no-referrer"
               onError={() => setImgState('emoji')}
@@ -85,7 +86,7 @@ function RunnerUpImage({ char }: { char: CharacterEmbedding }) {
       <img
         className={styles.runnerUpTarotImg}
         src={char.heroine_image}
-        alt={char.heroine_name}
+        alt={'AniMatch character runner-up: ' + char.heroine_name}
         style={{ objectFit: 'cover' }}
         referrerPolicy="no-referrer"
         onError={() => setImgState('emoji')}
@@ -255,6 +256,10 @@ export default function ResultScreen() {
       exit={{ opacity: 0 }}
       transition={{ duration: isMobile ? 0.3 : 0.5 }}
     >
+      <Helmet>
+        <title>{localized.name} - AniMatch {t('result.badge')}</title>
+        <meta name="description" content={`AniMatch Result: ${localized.name} from ${localized.anime}. ${localized.charm}`} />
+      </Helmet>
       <div className={styles.bg} />
 
       <Header backTo="/" backLabel={t('common.backToHome')} />
