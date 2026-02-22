@@ -174,3 +174,125 @@ export async function generateResultCard(options: ResultCardOptions): Promise<Bl
     );
   });
 }
+
+/**
+ * Generate a 1080x1920 (9:16) Instagram Story optimized canvas.
+ * This is designed to take up the full screen height with beautiful gradients and centered content.
+ */
+export async function generateStoryCard(options: ResultCardOptions): Promise<Blob> {
+  await document.fonts.ready;
+
+  // Instagram Story dimensions
+  const W = 1080;
+  const H = 1920;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d')!;
+
+  // 1. Background gradient (Vibrant full screen)
+  const [c1, c2] = parseGradientColors(options.heroineColor);
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, c1);
+  bg.addColorStop(1, c2);
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Darker overlay so text pops in Stories
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.6)';
+  ctx.fillRect(0, 0, W, H);
+
+  // 2. Header Text
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#C084FC';
+  ctx.font = `bold 42px "Pretendard Variable", "Outfit", sans-serif`;
+  ctx.fillText(options.lang === 'ko' ? '💕 나와 가장 닮은 주인공은?' : '💕 My Anime Perfect Match?', W / 2, 280);
+
+  // 3. Tarot image
+  const imgW = 760;
+  const imgH = 1013; // 3:4 ratio approx
+  const imgX = (W - imgW) / 2;
+  const imgY = 360; // Top aligned
+
+  try {
+    const imgUrl = options.heroineImage || getTarotImageUrl(options.heroineId);
+    const img = await loadImage(imgUrl);
+    // Rounded clip
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(imgX, imgY, imgW, imgH, 36);
+    ctx.clip();
+    // Cover fit
+    const scale = Math.max(imgW / img.width, imgH / img.height);
+    const sw = img.width * scale;
+    const sh = img.height * scale;
+    ctx.drawImage(img, imgX - (sw - imgW) / 2, imgY - (sh - imgH) / 2, sw, sh);
+    ctx.restore();
+
+    // Subtle border glow
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.roundRect(imgX, imgY, imgW, imgH, 36);
+    ctx.stroke();
+  } catch {
+    // Emoji fallback
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+    roundRect(ctx, imgX, imgY, imgW, imgH, 36);
+    ctx.font = `240px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText(options.heroineEmoji || '💖', W / 2, imgY + imgH / 2);
+  }
+
+  // 4. Character Info Block
+  const infoY = imgY + imgH + 120;
+
+  // Character name
+  ctx.textBaseline = 'alphabetic';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = `bold 64px "Pretendard Variable", "Outfit", sans-serif`;
+  ctx.fillText(options.characterName, W / 2, infoY);
+
+  // Anime title
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = `36px "Pretendard Variable", "Outfit", sans-serif`;
+  ctx.fillText(options.animeName, W / 2, infoY + 60);
+
+  // 5. Match percentage badge
+  const percentY = infoY + 160;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+  // Badge bg
+  ctx.beginPath();
+  ctx.roundRect((W - 360) / 2, percentY - 60, 360, 90, 45);
+  ctx.fill();
+
+  // Badge border
+  ctx.strokeStyle = 'rgba(255, 107, 157, 0.5)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Percentage text
+  ctx.fillStyle = '#FF6B9D';
+  ctx.font = `bold 42px "Pretendard Variable", "Outfit", sans-serif`;
+  const matchLabel = options.lang === 'ko' ? '매칭' : 'Match';
+  ctx.fillText(`${options.percent}% ${matchLabel}`, W / 2, percentY);
+
+  // 6. Branding / Footer
+  const footerY = 1780;
+  ctx.fillStyle = '#CBD5E1';
+  ctx.font = `24px "Outfit", sans-serif`;
+  ctx.fillText('animatch.social', W / 2, footerY);
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => (blob ? resolve(blob) : reject(new Error('Canvas toBlob failed'))),
+      'image/png', // Must use PNG to ensure crisp lines or JPEG if we want smaller payloads for sharing
+      1.0,
+    );
+  });
+}

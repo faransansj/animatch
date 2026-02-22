@@ -7,7 +7,7 @@ import { useResultStore } from '@/stores/resultStore';
 import { useUploadStore } from '@/stores/uploadStore';
 import { useAppStore } from '@/stores/appStore';
 import { shareToX, shareToBluesky, copyLink } from '@/utils/share';
-import { generateResultCard } from '@/utils/resultCard';
+import { generateResultCard, generateStoryCard } from '@/utils/resultCard';
 import type { MatchCandidate, MatchResult } from '@/types/match';
 import type { CharacterEmbedding } from '@/types/character';
 import AdBanner from '@/components/shared/AdBanner';
@@ -135,7 +135,55 @@ export default function ResultScreen() {
     }
   }, [matchResult, i18n.language, showToast, t]);
 
+  const handleInstagramShare = useCallback(async () => {
+    if (!matchResult) return;
+    const c = matchResult.character;
+    const isEn = i18n.language === 'en';
+    try {
+      const blob = await generateStoryCard({
+        characterName: isEn ? c.heroine_name_en : c.heroine_name,
+        animeName: isEn ? c.anime_en : c.anime,
+        percent: matchResult.percent,
+        heroineId: c.heroine_id,
+        heroineEmoji: c.heroine_emoji,
+        heroineColor: c.heroine_color,
+        lang: isEn ? 'en' : 'ko',
+        heroineImage: c.heroine_image,
+      });
+
+      const file = new File([blob], `animatch-story-${c.heroine_id}.png`, { type: 'image/png' });
+
+      // Attempt Web Share API for native Instagram integration
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'AniMatch Result',
+            text: t('result.shareTextShort', { name: isEn ? c.heroine_name_en : c.heroine_name, anime: isEn ? c.anime_en : c.anime, percent: matchResult.percent }),
+          });
+          return;
+        } catch (e: any) {
+          if (e.name !== 'AbortError') {
+            console.error('Share failed', e);
+          }
+        }
+      }
+
+      // Fallback: Download the 9:16 image
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `animatch-story-${c.heroine_name_en.toLowerCase().replace(/\s+/g, '-')}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast(t('result.downloadComplete'));
+    } catch {
+      showToast(t('result.downloadError'));
+    }
+  }, [matchResult, i18n.language, showToast, t]);
+
   const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 
   useEffect(() => {
     const currentState = useResultStore.getState().matchResult;
@@ -312,6 +360,10 @@ export default function ResultScreen() {
         >
           <h3 className={styles.shareTitle}>{t('result.shareTitle')}</h3>
           <div className={styles.shareButtons}>
+            <button className={`${styles.shareBtn} ${styles.instagram}`} onClick={handleInstagramShare}>
+              <span className={styles.shareIcon}>📸</span>
+              <span>{t('result.shareInstagram')}</span>
+            </button>
             <button className={`${styles.shareBtn} ${styles.twitter}`} onClick={() => shareToX(char, matchResult.percent, i18n.language)}>
               <span className={styles.shareIcon}>𝕏</span>
               <span>{t('result.shareX')}</span>

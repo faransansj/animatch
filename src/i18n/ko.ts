@@ -88,6 +88,7 @@ export default {
     shareTitle: '결과 공유하기',
     shareX: 'X 공유',
     shareBluesky: 'Bluesky',
+    shareInstagram: '스토리',
     shareCopy: '링크 복사',
     shareDownload: '저장',
     linkCopied: '🔗 링크가 복사되었습니다!',

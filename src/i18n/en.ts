@@ -88,6 +88,7 @@ export default {
     shareTitle: 'Share Results',
     shareX: 'Share on X',
     shareBluesky: 'Bluesky',
+    shareInstagram: 'Story',
     shareCopy: 'Copy Link',
     shareDownload: 'Save',
     linkCopied: '🔗 Link copied!',
