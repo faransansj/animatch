@@ -358,9 +358,6 @@ export default function ResultScreen() {
                       <span className={styles.runnerUpAnime}>{isEn ? rc.anime_en : rc.anime}</span>
                     </div>
                     <div className={styles.runnerUpPercent}>{entry.percent}%</div>
-                    <button className={styles.runnerUpCheckBtn}>
-                      {t('result.checkDetails', '자세히 보기')}
-                    </button>
                   </div>
                 );
               })}

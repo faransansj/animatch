@@ -251,8 +251,9 @@
 .feedbackActions {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin-top: 8px;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
 }
 
 .cropBtn,
@@ -262,6 +263,10 @@
   font-weight: 600;
   border-radius: 8px;
   transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .cropBtn {
@@ -271,17 +276,17 @@
 }
 
 .cropBtn:hover {
-  background: rgba(56, 189, 248, 0.15);
+  background: rgba(56, 189, 248, 0.18);
 }
 
 .retakeBtn {
   color: var(--text);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .retakeBtn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.18);
 }
 
 /* Analyze Button */
