@@ -8,11 +8,14 @@ interface ResultCardOptions {
   heroineEmoji: string;
   heroineColor: string;
   lang: 'ko' | 'en';
+  heroineImage?: string;
+  tags?: string[];
+  charm?: string;
 }
 
 const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 const W = isMobile ? 720 : 1080;
-const H = isMobile ? 900 : 1350;
+const H = isMobile ? 1000 : 1500;
 const S = W / 1080; // scale factor for coordinates/fonts
 
 function parseGradientColors(css: string): [string, string] {
@@ -63,7 +66,8 @@ export async function generateResultCard(options: ResultCardOptions): Promise<Bl
   const imgY = Math.round(50 * S);
 
   try {
-    const img = await loadImage(getTarotImageUrl(options.heroineId));
+    const imgUrl = options.heroineImage || getTarotImageUrl(options.heroineId);
+    const img = await loadImage(imgUrl);
     // Rounded clip
     ctx.save();
     ctx.beginPath();
@@ -105,11 +109,31 @@ export async function generateResultCard(options: ResultCardOptions): Promise<Bl
   ctx.font = `${Math.round(28 * S)}px "Pretendard Variable", "Outfit", sans-serif`;
   ctx.fillText(options.animeName, W / 2, Math.round(1035 * S));
 
+  // 4.5. Tags & Charm
+  if (options.tags && options.tags.length > 0) {
+    ctx.fillStyle = '#C084FC';
+    ctx.font = `${Math.round(24 * S)}px "Pretendard Variable", "Outfit", sans-serif`;
+    const tagText = options.tags.map(t => `#${t}`).join(' ');
+    ctx.fillText(tagText, W / 2, Math.round(1085 * S));
+  }
+
+  if (options.charm) {
+    ctx.fillStyle = '#E2E8F0';
+    ctx.font = `italic ${Math.round(24 * S)}px "Pretendard Variable", "Outfit", sans-serif`;
+    // Simple truncation if context measurement is too wide
+    let charmText = `"${options.charm}"`;
+    if (ctx.measureText(charmText).width > W - (100 * S)) {
+      let truncated = options.charm.substring(0, 35) + '...';
+      charmText = `"${truncated}"`;
+    }
+    ctx.fillText(charmText, W / 2, Math.round(1130 * S));
+  }
+
   // 5. Match percentage bar
   const barW = Math.round(600 * S);
   const barH = Math.round(28 * S);
   const barX = (W - barW) / 2;
-  const barY = Math.round(1075 * S);
+  const barY = Math.round(1185 * S);
   // Bar background
   ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
   roundRect(ctx, barX, barY, barW, barH, Math.round(14 * S));
@@ -130,17 +154,17 @@ export async function generateResultCard(options: ResultCardOptions): Promise<Bl
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(Math.round(240 * S), Math.round(1180 * S));
-  ctx.lineTo(Math.round(840 * S), Math.round(1180 * S));
+  ctx.moveTo(Math.round(240 * S), Math.round(1320 * S));
+  ctx.lineTo(Math.round(840 * S), Math.round(1320 * S));
   ctx.stroke();
 
   // 7. Branding
   ctx.fillStyle = '#FF6B9D';
   ctx.font = `bold ${Math.round(26 * S)}px "Outfit", sans-serif`;
-  ctx.fillText('AniMatch', W / 2, Math.round(1225 * S));
+  ctx.fillText('AniMatch', W / 2, Math.round(1375 * S));
   ctx.fillStyle = '#64748B';
   ctx.font = `${Math.round(20 * S)}px "Outfit", sans-serif`;
-  ctx.fillText('animatch.social', W / 2, Math.round(1260 * S));
+  ctx.fillText('animatch.social', W / 2, Math.round(1415 * S));
 
   return new Promise((resolve, reject) => {
     canvas.toBlob(

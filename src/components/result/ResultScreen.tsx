@@ -7,7 +7,6 @@ import { useResultStore } from '@/stores/resultStore';
 import { useUploadStore } from '@/stores/uploadStore';
 import { useAppStore } from '@/stores/appStore';
 import { shareToX, shareToBluesky, copyLink } from '@/utils/share';
-import { getTarotImageUrl } from '@/utils/tarot';
 import { generateResultCard } from '@/utils/resultCard';
 import type { MatchCandidate, MatchResult } from '@/types/match';
 import type { CharacterEmbedding } from '@/types/character';
@@ -29,8 +28,7 @@ function useLocalizedChar(char: CharacterEmbedding) {
 
 function HeroImage({ char, children }: { char: CharacterEmbedding; children: React.ReactNode }) {
   const [isFlipped, setIsFlipped] = useState(false);
-  const [imgState, setImgState] = useState<'tarot' | 'official' | 'emoji'>('official'); // Default to official illustration
-  const tarotUrl = getTarotImageUrl(char.heroine_id);
+  const [imgState, setImgState] = useState<'official' | 'emoji'>('official'); // Default to official illustration
   const fallbackBg = char.heroine_color || 'linear-gradient(135deg, #f093fb, #f5576c)';
 
   useEffect(() => {
@@ -44,24 +42,12 @@ function HeroImage({ char, children }: { char: CharacterEmbedding; children: Rea
       onClick={() => setIsFlipped(!isFlipped)}
     >
       <div className={styles.flipInner}>
-        {/* Front: Anime Tarot Card Art (Shown first before flip) */}
-        <div className={styles.flipFront} style={imgState === 'emoji' ? { background: fallbackBg } : undefined}>
-          <img
-            src="/images/tarot_bg_v3.png"
-            alt="Tarot Back"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-lg)' }}
-          />
+        {/* Front: Emoji Fallback (Shown first before flip) */}
+        <div className={styles.flipFront} style={{ background: fallbackBg }}>
+          <span className={styles.emojiLg}>{char.heroine_emoji || '💖'}</span>
         </div>
         {/* Back: Official Character Image */}
         <div className={styles.flipBack} style={{ background: fallbackBg }}>
-          {imgState === 'tarot' && (
-            <img
-              className={styles.heroTarotImg}
-              src={tarotUrl}
-              alt={char.heroine_name}
-              onError={() => setImgState(char.heroine_image ? 'official' : 'emoji')}
-            />
-          )}
           {imgState === 'official' && char.heroine_image && (
             <img
               className={styles.heroTarotImg}
@@ -83,11 +69,10 @@ function HeroImage({ char, children }: { char: CharacterEmbedding; children: Rea
 }
 
 function RunnerUpImage({ char }: { char: CharacterEmbedding }) {
-  const [imgState, setImgState] = useState<'tarot' | 'official' | 'emoji'>('official');
-  const tarotUrl = getTarotImageUrl(char.heroine_id);
+  const [imgState, setImgState] = useState<'official' | 'emoji'>('official');
   const fallbackBg = char.heroine_color || 'linear-gradient(135deg, #667eea, #764ba2)';
 
-  if (imgState === 'emoji') {
+  if (imgState === 'emoji' || !char.heroine_image) {
     return (
       <div className={styles.runnerUpEmoji} style={{ background: fallbackBg }}>
         <span>{char.heroine_emoji || '💕'}</span>
@@ -97,23 +82,14 @@ function RunnerUpImage({ char }: { char: CharacterEmbedding }) {
 
   return (
     <div className={styles.runnerUpEmoji}>
-      {imgState === 'tarot' ? (
-        <img
-          className={styles.runnerUpTarotImg}
-          src={tarotUrl}
-          alt={char.heroine_name}
-          onError={() => setImgState(char.heroine_image ? 'official' : 'emoji')}
-        />
-      ) : (
-        <img
-          className={styles.runnerUpTarotImg}
-          src={char.heroine_image}
-          alt={char.heroine_name}
-          style={{ objectFit: 'cover' }}
-          referrerPolicy="no-referrer"
-          onError={() => setImgState('emoji')}
-        />
-      )}
+      <img
+        className={styles.runnerUpTarotImg}
+        src={char.heroine_image}
+        alt={char.heroine_name}
+        style={{ objectFit: 'cover' }}
+        referrerPolicy="no-referrer"
+        onError={() => setImgState('emoji')}
+      />
     </div>
   );
 }
@@ -143,6 +119,9 @@ export default function ResultScreen() {
         heroineEmoji: c.heroine_emoji,
         heroineColor: c.heroine_color,
         lang: isEn ? 'en' : 'ko',
+        heroineImage: c.heroine_image,
+        tags: isEn ? c.heroine_tags_en : c.heroine_tags,
+        charm: isEn ? c.heroine_charm_en : c.heroine_charm,
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -181,9 +160,6 @@ export default function ResultScreen() {
     return null;
   }
 
-  // Limit topN to save rendering memory on mobile
-  const topN = isMobile ? matchResult.topN.slice(0, 2) : matchResult.topN;
-
   const char = matchResult.character;
   const localized = useLocalizedChar(char);
 
@@ -194,16 +170,20 @@ export default function ResultScreen() {
   };
 
   const swapToRunnerUp = (entry: MatchCandidate) => {
-    const newTopN = [entry, ...topN.filter(t => t !== entry)];
+    // Keep the entire topN list intact in state, just change the primary viewed character
     setMatchResult({
       ...matchResult,
       character: entry.character,
       percent: entry.percent,
       score: entry.similarity,
-      topN: newTopN,
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // The displayed runner-ups should be the top N characters EXCEPT the currently selected one
+  const allCandidates = matchResult.topN;
+  const runnerUps = allCandidates.filter((c) => c.character.heroine_id !== char.heroine_id);
+  const displayRunnerUps = isMobile ? runnerUps.slice(0, 1) : runnerUps;
 
   return (
     <motion.section
@@ -286,7 +266,7 @@ export default function ResultScreen() {
         </motion.div>
 
         {/* Runner-ups */}
-        {topN.length > 1 && (
+        {displayRunnerUps.length > 0 && (
           <motion.div
             className={styles.runnerUpSection}
             initial={isMobile ? { opacity: 0 } : { opacity: 0, y: 20 }}
@@ -295,16 +275,19 @@ export default function ResultScreen() {
           >
             <h3 className={styles.runnerUpTitle}>{t('result.runnerUpTitle')}</h3>
             <div className={styles.runnerUpGrid}>
-              {topN.slice(1).map((entry, idx) => {
+              {displayRunnerUps.map((entry) => {
                 const rc = entry.character;
                 const isEn = i18n.language === 'en';
+                // Find original rank from allCandidates
+                const originalRank = allCandidates.findIndex((c) => c.character.heroine_id === rc.heroine_id) + 1;
+
                 return (
                   <div
-                    key={idx}
+                    key={rc.heroine_id}
                     className={styles.runnerUpCard}
                     onClick={() => swapToRunnerUp(entry)}
                   >
-                    <div className={styles.runnerUpRank}>{t('result.rank', { rank: idx + 2 })}</div>
+                    <div className={styles.runnerUpRank}>{t('result.rank', { rank: originalRank })}</div>
                     <RunnerUpImage char={rc} />
                     <div className={styles.runnerUpInfo}>
                       <span className={styles.runnerUpName}>{isEn ? rc.heroine_name_en : rc.heroine_name}</span>
