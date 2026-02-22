@@ -5,4 +5,4 @@ Disallow: /models/
 Disallow: /loading
 Disallow: /result
 
-Sitemap: https://animatch.social/sitemap.xml
+Sitemap: https://animatch.midori-lab.com/sitemap.xml
