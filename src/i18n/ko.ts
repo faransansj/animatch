@@ -42,6 +42,7 @@ export default {
     cropTooSmall: '크롭 영역이 너무 작아요',
     cropSelectArea: '크롭 영역을 드래그해서 선택해주세요',
     cropDone: '✂️ 크롭 완료!',
+    retakeBtn: '📷 재촬영',
     feedbackBright: '조명이 적절해요',
     feedbackDark: '사진이 어두워요 - 밝은 사진 권장',
     feedbackGoodRatio: '구도가 좋아요',

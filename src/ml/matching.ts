@@ -118,14 +118,28 @@ export function getRandomMatch(
   embeddingsData: EmbeddingsData,
 ): MatchResult {
   const candidates = embeddingsData.characters.filter(c => c.orientation === orientation);
-  const randomChar = candidates[Math.floor(Math.random() * candidates.length)]!;
-  const percent = Math.round(55 + Math.random() * 25);
+
+  // Shuffle and pick top 3
+  const shuffled = [...candidates].sort(() => 0.5 - Math.random());
+  const selected = shuffled.slice(0, 3);
+
+  const top1Percent = Math.round(55 + Math.random() * 25);
+  const top2Percent = Math.max(50, top1Percent - Math.round(3 + Math.random() * 10));
+  const top3Percent = Math.max(50, top2Percent - Math.round(3 + Math.random() * 10));
+
+  const percents = [top1Percent, top2Percent, top3Percent];
+
+  const topN = selected.map((char, index) => ({
+    character: char,
+    similarity: 0,
+    percent: percents[index]!,
+  }));
 
   return {
-    character: randomChar,
+    character: topN[0]!.character,
     score: 0,
-    percent,
+    percent: topN[0]!.percent,
     confidence: 'low',
-    topN: [{ character: randomChar, similarity: 0, percent }],
+    topN,
   };
 }
