@@ -1,26 +1,223 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://animatch.midori-lab.com/</loc>
-    <lastmod>2026-02-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/" />
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://animatch.midori-lab.com/?lang=ko</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/" />
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://animatch.midori-lab.com/?lang=en</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/" />
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://animatch.midori-lab.com/?lang=ja</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/" />
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://animatch.midori-lab.com/?lang=zh-TW</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/" />
+    <lastmod>2026-02-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://animatch.midori-lab.com/upload</loc>
-    <lastmod>2026-02-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/upload?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/upload?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/upload?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/upload?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/upload" />
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://animatch.midori-lab.com/upload?lang=ko</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/upload?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/upload?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/upload?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/upload?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/upload" />
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://animatch.midori-lab.com/upload?lang=en</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/upload?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/upload?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/upload?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/upload?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/upload" />
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://animatch.midori-lab.com/upload?lang=ja</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/upload?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/upload?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/upload?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/upload?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/upload" />
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://animatch.midori-lab.com/upload?lang=zh-TW</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/upload?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/upload?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/upload?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/upload?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/upload" />
+    <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://animatch.midori-lab.com/privacy</loc>
-    <lastmod>2026-02-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/privacy?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/privacy?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/privacy?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/privacy?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/privacy" />
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://animatch.midori-lab.com/privacy?lang=ko</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/privacy?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/privacy?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/privacy?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/privacy?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/privacy" />
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://animatch.midori-lab.com/privacy?lang=en</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/privacy?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/privacy?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/privacy?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/privacy?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/privacy" />
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://animatch.midori-lab.com/privacy?lang=ja</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/privacy?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/privacy?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/privacy?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/privacy?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/privacy" />
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://animatch.midori-lab.com/privacy?lang=zh-TW</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/privacy?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/privacy?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/privacy?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/privacy?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/privacy" />
+    <lastmod>2026-02-26</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://animatch.midori-lab.com/terms</loc>
-    <lastmod>2026-02-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/terms?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/terms?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/terms?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/terms?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/terms" />
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://animatch.midori-lab.com/terms?lang=ko</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/terms?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/terms?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/terms?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/terms?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/terms" />
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://animatch.midori-lab.com/terms?lang=en</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/terms?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/terms?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/terms?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/terms?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/terms" />
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://animatch.midori-lab.com/terms?lang=ja</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/terms?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/terms?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/terms?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/terms?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/terms" />
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://animatch.midori-lab.com/terms?lang=zh-TW</loc>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://animatch.midori-lab.com/terms?lang=ko" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://animatch.midori-lab.com/terms?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://animatch.midori-lab.com/terms?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://animatch.midori-lab.com/terms?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://animatch.midori-lab.com/terms" />
+    <lastmod>2026-02-26</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

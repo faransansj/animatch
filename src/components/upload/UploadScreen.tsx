@@ -2,7 +2,7 @@ import { useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Helmet } from 'react-helmet-async';
+import SEO from '@/components/shared/SEO';
 import ReactCrop, { type Crop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { useState } from 'react';
@@ -120,10 +120,10 @@ export default function UploadScreen() {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.5 }}
     >
-      <Helmet>
-        <title>{t('upload.title')} - AniMatch</title>
-        <meta name="description" content={t('upload.subtitle')} />
-      </Helmet>
+      <SEO
+        title={`${t('upload.title')} - AniMatch`}
+        description={t('upload.subtitle')}
+      />
       <Header backTo="/" />
 
       <main className={styles.content}>

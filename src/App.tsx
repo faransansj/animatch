@@ -7,6 +7,7 @@ import ResultScreen from '@/components/result/ResultScreen';
 import Toast from '@/components/shared/Toast';
 import PrivacyPolicy from '@/components/legal/PrivacyPolicy';
 import TermsOfService from '@/components/legal/TermsOfService';
+import SEO from '@/components/shared/SEO';
 import { useMLEngine } from '@/hooks/useMLEngine';
 
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
 
   return (
     <>
+      <SEO />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<LandingScreen />} />

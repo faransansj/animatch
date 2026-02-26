@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Helmet } from 'react-helmet-async';
+import SEO from '@/components/shared/SEO';
 import LangToggle from '@/components/shared/LangToggle';
 import Footer from '@/components/shared/Footer';
 import AdBanner from '@/components/shared/AdBanner';
@@ -55,6 +55,8 @@ export default function LandingScreen() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isKo = i18n.language === 'ko';
+  const isJa = i18n.language === 'ja';
+  const isZh = i18n.language === 'zh-TW';
 
   const [displayedCards, setDisplayedCards] = useState(() => {
     return [
@@ -108,10 +110,7 @@ export default function LandingScreen() {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.5 }}
     >
-      <Helmet>
-        <title>{isKo ? 'AniMatch - 나와 닮은 애니 주인공 연인 찾기' : 'AniMatch - Find Your Anime Partner'}</title>
-        <meta name="description" content={isKo ? 'AI가 당신의 얼굴을 분석해 운명의 애니메이션 연인을 매칭해드립니다.' : 'AI-powered anime character matching. Find your destined anime partner.'} />
-      </Helmet>
+      <SEO />
       <div className={styles.bg}>
         <ParticleField />
         <div className={`${styles.glowOrb} ${styles.orb1}`} />
@@ -134,6 +133,16 @@ export default function LandingScreen() {
               {t('landing.titleLine1')}<br />
               <span className={styles.gradientText}>{t('landing.titleHighlight')}</span>{t('landing.titleLine2')}<br />
               {t('landing.titleLine3')}
+            </>
+          ) : isJa ? (
+            <>
+              {t('landing.titleLine1')}<br />
+              <span className={styles.gradientText}>{t('landing.titleHighlight')}</span>{t('landing.titleLine2')}
+            </>
+          ) : isZh ? (
+            <>
+              {t('landing.titleLine1')}<br />
+              <span className={styles.gradientText}>{t('landing.titleHighlight')}</span>{t('landing.titleLine2')}
             </>
           ) : (
             <>

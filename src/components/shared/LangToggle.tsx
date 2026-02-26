@@ -6,7 +6,7 @@ export default function LangToggle() {
   const { i18n } = useTranslation();
   const { language, setLanguage } = useAppStore();
 
-  const toggle = (lang: 'ko' | 'en') => {
+  const toggle = (lang: 'ko' | 'en' | 'ja' | 'zh-TW') => {
     setLanguage(lang);
     i18n.changeLanguage(lang);
   };
@@ -24,6 +24,18 @@ export default function LangToggle() {
         onClick={() => toggle('en')}
       >
         EN
+      </button>
+      <button
+        className={`${styles.btn} ${language === 'ja' ? styles.active : ''}`}
+        onClick={() => toggle('ja')}
+      >
+        日本語
+      </button>
+      <button
+        className={`${styles.btn} ${language === 'zh-TW' ? styles.active : ''}`}
+        onClick={() => toggle('zh-TW')}
+      >
+        繁體
       </button>
     </div>
   );

@@ -7,7 +7,7 @@ interface ResultCardOptions {
   heroineId: number;
   heroineEmoji: string;
   heroineColor: string;
-  lang: 'ko' | 'en';
+  lang: string;
   heroineImage?: string;
   tags?: string[];
   charm?: string;

@@ -1,5 +1,5 @@
 export type Orientation = 'male' | 'female';
-export type Language = 'ko' | 'en';
+export type Language = 'ko' | 'en' | 'ja' | 'zh-TW';
 
 export interface FeedbackItem {
   pass: boolean;

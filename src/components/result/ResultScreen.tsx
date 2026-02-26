@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Helmet } from 'react-helmet-async';
+import SEO from '@/components/shared/SEO';
 import Header from '@/components/shared/Header';
 import { useResultStore } from '@/stores/resultStore';
 import { useUploadStore } from '@/stores/uploadStore';
@@ -16,14 +16,33 @@ import styles from './ResultScreen.module.css';
 
 function useLocalizedChar(char: CharacterEmbedding) {
   const { i18n } = useTranslation();
-  const isEn = i18n.language === 'en';
+
+  const lang = i18n.language; // 'ko' | 'en' | 'ja' | 'zh-TW'
+
   return {
-    name: isEn ? char.heroine_name_en : char.heroine_name,
-    anime: isEn ? char.anime_en : char.anime,
-    tags: isEn ? char.heroine_tags_en : char.heroine_tags,
-    personality: isEn ? char.heroine_personality_en : char.heroine_personality,
-    charm: isEn ? char.heroine_charm_en : char.heroine_charm,
-    genre: isEn ? char.genre_en : char.genre,
+    name: lang === 'ja' && char.heroine_name_ja ? char.heroine_name_ja :
+      lang === 'zh-TW' && char.heroine_name_zh_tw ? char.heroine_name_zh_tw :
+        lang === 'ko' ? char.heroine_name : char.heroine_name_en,
+
+    anime: lang === 'ja' && char.anime_ja ? char.anime_ja :
+      lang === 'zh-TW' && char.anime_zh_tw ? char.anime_zh_tw :
+        lang === 'ko' && char.anime ? char.anime : char.anime_en,
+
+    tags: lang === 'ja' && char.heroine_tags_ja ? char.heroine_tags_ja :
+      lang === 'zh-TW' && char.heroine_tags_zh_tw ? char.heroine_tags_zh_tw :
+        lang === 'ko' ? char.heroine_tags : char.heroine_tags_en,
+
+    personality: lang === 'ja' && char.heroine_personality_ja ? char.heroine_personality_ja :
+      lang === 'zh-TW' && char.heroine_personality_zh_tw ? char.heroine_personality_zh_tw :
+        lang === 'ko' ? char.heroine_personality : char.heroine_personality_en,
+
+    charm: lang === 'ja' && char.heroine_charm_ja ? char.heroine_charm_ja :
+      lang === 'zh-TW' && char.heroine_charm_zh_tw ? char.heroine_charm_zh_tw :
+        lang === 'ko' ? char.heroine_charm : char.heroine_charm_en,
+
+    genre: lang === 'ja' && char.genre_ja ? char.genre_ja :
+      lang === 'zh-TW' && char.genre_zh_tw ? char.genre_zh_tw :
+        lang === 'ko' ? char.genre : char.genre_en,
   };
 }
 
@@ -115,22 +134,31 @@ export default function ResultScreen() {
   const handleDownload = useCallback(async (format: 'basic' | 'story') => {
     if (!matchResult) return;
     const c = matchResult.character;
-    const isEn = i18n.language === 'en';
+    const isKo = i18n.language === 'ko';
     setIsGenerating(true);
 
     try {
       let blob: Blob;
       let filename: string;
 
+      const lang = i18n.language; // 'ko' | 'en' | 'ja' | 'zh-TW'
+      let nativeName = lang === 'ja' && c.heroine_name_ja ? c.heroine_name_ja :
+        lang === 'zh-TW' && c.heroine_name_zh_tw ? c.heroine_name_zh_tw :
+          lang === 'ko' ? c.heroine_name : c.heroine_name_en;
+
+      let nativeAnime = lang === 'ja' && c.anime_ja ? c.anime_ja :
+        lang === 'zh-TW' && c.anime_zh_tw ? c.anime_zh_tw :
+          lang === 'ko' && c.anime ? c.anime : c.anime_en;
+
       if (format === 'story') {
         blob = await generateStoryCard({
-          characterName: isEn ? c.heroine_name_en : c.heroine_name,
-          animeName: isEn ? c.anime_en : c.anime,
+          characterName: nativeName,
+          animeName: nativeAnime,
           percent: matchResult.percent,
           heroineId: c.heroine_id,
           heroineEmoji: c.heroine_emoji,
           heroineColor: c.heroine_color,
-          lang: isEn ? 'en' : 'ko',
+          lang: i18n.language,
           heroineImage: c.heroine_image,
         });
         filename = `animatch-story-${c.heroine_name_en.toLowerCase().replace(/\s+/g, '-')}.png`;
@@ -143,7 +171,7 @@ export default function ResultScreen() {
               await navigator.share({
                 files: [file],
                 title: 'AniMatch Result',
-                text: t('result.shareTextShort', { name: isEn ? c.heroine_name_en : c.heroine_name, anime: isEn ? c.anime_en : c.anime, percent: matchResult.percent }),
+                text: t('result.shareTextShort', { name: nativeName, anime: nativeAnime, percent: matchResult.percent }),
               });
               setIsGenerating(false);
               setIsSaveModalOpen(false);
@@ -156,17 +184,25 @@ export default function ResultScreen() {
           }
         }
       } else {
+        let nativeTags = lang === 'ja' && c.heroine_tags_ja ? c.heroine_tags_ja :
+          lang === 'zh-TW' && c.heroine_tags_zh_tw ? c.heroine_tags_zh_tw :
+            lang === 'ko' ? c.heroine_tags : c.heroine_tags_en;
+
+        let nativeCharm = lang === 'ja' && c.heroine_charm_ja ? c.heroine_charm_ja :
+          lang === 'zh-TW' && c.heroine_charm_zh_tw ? c.heroine_charm_zh_tw :
+            lang === 'ko' ? c.heroine_charm : c.heroine_charm_en;
+
         blob = await generateResultCard({
-          characterName: isEn ? c.heroine_name_en : c.heroine_name,
-          animeName: isEn ? c.anime_en : c.anime,
+          characterName: nativeName,
+          animeName: nativeAnime,
           percent: matchResult.percent,
           heroineId: c.heroine_id,
           heroineEmoji: c.heroine_emoji,
           heroineColor: c.heroine_color,
-          lang: isEn ? 'en' : 'ko',
+          lang: i18n.language,
           heroineImage: c.heroine_image,
-          tags: isEn ? c.heroine_tags_en : c.heroine_tags,
-          charm: isEn ? c.heroine_charm_en : c.heroine_charm,
+          tags: nativeTags,
+          charm: nativeCharm,
         });
         filename = `animatch-${c.heroine_name_en.toLowerCase().replace(/\s+/g, '-')}.png`;
       }
@@ -201,10 +237,21 @@ export default function ResultScreen() {
       console.warn('[ResultScreen] Missing matchResult on mount, redirecting to /upload');
       navigate('/upload', { replace: true });
     } else {
+      const lang = i18n.language; // 'ko' | 'en' | 'ja' | 'zh-TW'
+      const c = currentState.character;
+
+      let nativeName = lang === 'ja' && c.heroine_name_ja ? c.heroine_name_ja :
+        lang === 'zh-TW' && c.heroine_name_zh_tw ? c.heroine_name_zh_tw :
+          lang === 'ko' ? c.heroine_name : c.heroine_name_en;
+
+      let nativeAnime = lang === 'ja' && c.anime_ja ? c.anime_ja :
+        lang === 'zh-TW' && c.anime_zh_tw ? c.anime_zh_tw :
+          lang === 'ko' && c.anime ? c.anime : c.anime_en;
+
       import('@/utils/telemetry').then(({ trackFunnelEvent }) => {
         trackFunnelEvent('Result Screen Viewed', {
-          character: currentState.character.heroine_name_en,
-          anime: currentState.character.anime_en,
+          character: nativeName,
+          anime: nativeAnime,
           score: currentState.score
         });
       });
@@ -256,10 +303,10 @@ export default function ResultScreen() {
       exit={{ opacity: 0 }}
       transition={{ duration: isMobile ? 0.3 : 0.5 }}
     >
-      <Helmet>
-        <title>{localized.name} - AniMatch {t('result.badge')}</title>
-        <meta name="description" content={`AniMatch Result: ${localized.name} from ${localized.anime}. ${localized.charm}`} />
-      </Helmet>
+      <SEO
+        title={`${localized.name} - AniMatch ${t('result.badge')}`}
+        description={`AniMatch Result: ${localized.name} from ${localized.anime}. ${localized.charm}`}
+      />
       <div className={styles.bg} />
 
       <Header backTo="/" backLabel={t('common.backToHome')} />
@@ -344,7 +391,16 @@ export default function ResultScreen() {
             <div className={styles.runnerUpGrid}>
               {displayRunnerUps.map((entry) => {
                 const rc = entry.character;
-                const isEn = i18n.language === 'en';
+                const lang = i18n.language;
+
+                let nativeName = lang === 'ja' && rc.heroine_name_ja ? rc.heroine_name_ja :
+                  lang === 'zh-TW' && rc.heroine_name_zh_tw ? rc.heroine_name_zh_tw :
+                    lang === 'ko' ? rc.heroine_name : rc.heroine_name_en;
+
+                let nativeAnime = lang === 'ja' && rc.anime_ja ? rc.anime_ja :
+                  lang === 'zh-TW' && rc.anime_zh_tw ? rc.anime_zh_tw :
+                    lang === 'ko' && rc.anime ? rc.anime : rc.anime_en;
+
                 // Find original rank from allCandidates
                 const originalRank = allCandidates.findIndex((c) => c.character.heroine_id === rc.heroine_id) + 1;
 
@@ -359,8 +415,8 @@ export default function ResultScreen() {
                     <div className={styles.runnerUpRank}>{t('result.rank', { rank: originalRank })}</div>
                     <RunnerUpImage char={rc} />
                     <div className={styles.runnerUpInfo}>
-                      <span className={styles.runnerUpName}>{isEn ? rc.heroine_name_en : rc.heroine_name}</span>
-                      <span className={styles.runnerUpAnime}>{isEn ? rc.anime_en : rc.anime}</span>
+                      <span className={styles.runnerUpName}>{nativeName}</span>
+                      <span className={styles.runnerUpAnime}>{nativeAnime}</span>
                     </div>
                     <div className={styles.runnerUpPercent}>{entry.percent}%</div>
                   </div>
