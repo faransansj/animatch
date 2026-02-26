@@ -24,16 +24,16 @@ function parseGradientColors(css: string): [string, string] {
 }
 
 function getMatchLabel(lang: string) {
-  if (lang === 'ko') return '매칭';
-  if (lang === 'ja') return '一致';
-  if (lang === 'zh-TW') return '匹配';
+  if (lang.startsWith('ko')) return '매칭';
+  if (lang.startsWith('ja')) return '一致';
+  if (lang.startsWith('zh')) return '匹配';
   return 'Match';
 }
 
 function getHeaderLabel(lang: string) {
-  if (lang === 'ko') return '💕 나와 가장 닮은 주인공은?';
-  if (lang === 'ja') return '💕 私に一番似ている主人公は？';
-  if (lang === 'zh-TW') return '💕 與我最相似的主角是？';
+  if (lang.startsWith('ko')) return '💕 나와 가장 닮은 주인공은?';
+  if (lang.startsWith('ja')) return '💕 私に一番似ている主人公は？';
+  if (lang.startsWith('zh')) return '💕 與我最相似的主角是？';
   return '💕 My Anime Perfect Match?';
 }
 
@@ -158,7 +158,6 @@ export async function generateResultCard(options: ResultCardOptions): Promise<Bl
   ctx.fillStyle = fillGrad;
   roundRect(ctx, barX, barY, barW * (options.percent / 100), barH, Math.round(14 * S));
 
-  // Percentage text
   ctx.fillStyle = '#F1F5F9';
   ctx.font = `bold ${Math.round(28 * S)}px "Pretendard Variable", "Outfit", sans-serif`;
   const matchLabel = getMatchLabel(options.lang);

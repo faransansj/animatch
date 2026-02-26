@@ -6,7 +6,8 @@ import styles from './PrivacyPolicy.module.css'; // Reuse PrivacyPolicy styles f
 export default function TermsOfService() {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation();
-    const isKo = i18n.language === 'ko';
+    const lang = i18n.language || 'en';
+    const isKo = lang.startsWith('ko');
 
     return (
         <motion.section

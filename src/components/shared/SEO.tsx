@@ -10,10 +10,11 @@ interface SEOProps {
 export default function SEO({ title, description }: SEOProps) {
     const { i18n } = useTranslation();
     const location = useLocation();
-    const isKo = i18n.language === 'ko';
+    const lang = i18n.language || 'en';
+    const isKo = lang.startsWith('ko');
 
-    const isJa = i18n.language === 'ja';
-    const isZh = i18n.language === 'zh-TW';
+    const isJa = lang.startsWith('ja');
+    const isZh = lang.startsWith('zh');
 
     const defaultTitle = isKo
         ? 'AniMatch - 나와 닮은 애니 주인공 연인 찾기'

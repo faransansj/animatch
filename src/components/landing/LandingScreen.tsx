@@ -54,9 +54,10 @@ const CHARACTER_POOL = [
 export default function LandingScreen() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const isKo = i18n.language === 'ko';
-  const isJa = i18n.language === 'ja';
-  const isZh = i18n.language === 'zh-TW';
+  const lang = i18n.language || 'en';
+  const isKo = lang.startsWith('ko');
+  const isJa = lang.startsWith('ja');
+  const isZh = lang.startsWith('zh');
 
   const [displayedCards, setDisplayedCards] = useState(() => {
     return [

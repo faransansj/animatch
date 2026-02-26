@@ -1,12 +1,11 @@
-const CACHE_VERSION = 'animatch-v3';
+const CACHE_VERSION = 'animatch-v4';
 const MODELS_CACHE = `${CACHE_VERSION}-models`;
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const APP_CACHE = `${CACHE_VERSION}-app`;
 
 // Resources to pre-cache on install (small, critical files)
 const PRECACHE_URLS = [
-    '/',
-    '/index.html',
+    // '/index.html', let browser handle HTML caching
 ];
 
 // Cache-first: large, rarely-changing binaries
@@ -20,13 +19,11 @@ function isCacheFirstResource(url) {
     );
 }
 
-// Stale-while-revalidate: app shell & fonts
+// Stale-while-revalidate: fonts and specific assets
 function isStaleWhileRevalidate(url) {
     const path = url.pathname;
     const host = url.hostname;
     return (
-        path === '/' ||
-        path === '/index.html' ||
         path.endsWith('.css') ||
         host.includes('fonts.googleapis.com') ||
         host.includes('fonts.gstatic.com') ||

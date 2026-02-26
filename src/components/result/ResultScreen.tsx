@@ -17,32 +17,35 @@ import styles from './ResultScreen.module.css';
 function useLocalizedChar(char: CharacterEmbedding) {
   const { i18n } = useTranslation();
 
-  const lang = i18n.language; // 'ko' | 'en' | 'ja' | 'zh-TW'
+  const lang = i18n.language || 'en';
+  const isJa = lang.startsWith('ja');
+  const isZh = lang.startsWith('zh');
+  const isKo = lang.startsWith('ko');
 
   return {
-    name: lang === 'ja' && char.heroine_name_ja ? char.heroine_name_ja :
-      lang === 'zh-TW' && char.heroine_name_zh_tw ? char.heroine_name_zh_tw :
-        lang === 'ko' ? char.heroine_name : char.heroine_name_en,
+    name: isJa && char.heroine_name_ja ? char.heroine_name_ja :
+      isZh && char.heroine_name_zh_tw ? char.heroine_name_zh_tw :
+        isKo ? char.heroine_name : char.heroine_name_en,
 
-    anime: lang === 'ja' && char.anime_ja ? char.anime_ja :
-      lang === 'zh-TW' && char.anime_zh_tw ? char.anime_zh_tw :
-        lang === 'ko' && char.anime ? char.anime : char.anime_en,
+    anime: isJa && char.anime_ja ? char.anime_ja :
+      isZh && char.anime_zh_tw ? char.anime_zh_tw :
+        isKo && char.anime ? char.anime : char.anime_en,
 
-    tags: lang === 'ja' && char.heroine_tags_ja ? char.heroine_tags_ja :
-      lang === 'zh-TW' && char.heroine_tags_zh_tw ? char.heroine_tags_zh_tw :
-        lang === 'ko' ? char.heroine_tags : char.heroine_tags_en,
+    tags: isJa && char.heroine_tags_ja ? char.heroine_tags_ja :
+      isZh && char.heroine_tags_zh_tw ? char.heroine_tags_zh_tw :
+        isKo ? char.heroine_tags : char.heroine_tags_en,
 
-    personality: lang === 'ja' && char.heroine_personality_ja ? char.heroine_personality_ja :
-      lang === 'zh-TW' && char.heroine_personality_zh_tw ? char.heroine_personality_zh_tw :
-        lang === 'ko' ? char.heroine_personality : char.heroine_personality_en,
+    personality: isJa && char.heroine_personality_ja ? char.heroine_personality_ja :
+      isZh && char.heroine_personality_zh_tw ? char.heroine_personality_zh_tw :
+        isKo ? char.heroine_personality : char.heroine_personality_en,
 
-    charm: lang === 'ja' && char.heroine_charm_ja ? char.heroine_charm_ja :
-      lang === 'zh-TW' && char.heroine_charm_zh_tw ? char.heroine_charm_zh_tw :
-        lang === 'ko' ? char.heroine_charm : char.heroine_charm_en,
+    charm: isJa && char.heroine_charm_ja ? char.heroine_charm_ja :
+      isZh && char.heroine_charm_zh_tw ? char.heroine_charm_zh_tw :
+        isKo ? char.heroine_charm : char.heroine_charm_en,
 
-    genre: lang === 'ja' && char.genre_ja ? char.genre_ja :
-      lang === 'zh-TW' && char.genre_zh_tw ? char.genre_zh_tw :
-        lang === 'ko' ? char.genre : char.genre_en,
+    genre: isJa && char.genre_ja ? char.genre_ja :
+      isZh && char.genre_zh_tw ? char.genre_zh_tw :
+        isKo ? char.genre : char.genre_en,
   };
 }
 
@@ -134,21 +137,25 @@ export default function ResultScreen() {
   const handleDownload = useCallback(async (format: 'basic' | 'story') => {
     if (!matchResult) return;
     const c = matchResult.character;
-    const isKo = i18n.language === 'ko';
+    const isKo = i18n.language?.startsWith('ko');
     setIsGenerating(true);
 
     try {
       let blob: Blob;
       let filename: string;
 
-      const lang = i18n.language; // 'ko' | 'en' | 'ja' | 'zh-TW'
-      let nativeName = lang === 'ja' && c.heroine_name_ja ? c.heroine_name_ja :
-        lang === 'zh-TW' && c.heroine_name_zh_tw ? c.heroine_name_zh_tw :
-          lang === 'ko' ? c.heroine_name : c.heroine_name_en;
+      const lang = i18n.language || 'en';
+      const isJa = lang.startsWith('ja');
+      const isZh = lang.startsWith('zh');
+      const isKo = lang.startsWith('ko');
 
-      let nativeAnime = lang === 'ja' && c.anime_ja ? c.anime_ja :
-        lang === 'zh-TW' && c.anime_zh_tw ? c.anime_zh_tw :
-          lang === 'ko' && c.anime ? c.anime : c.anime_en;
+      let nativeName = isJa && c.heroine_name_ja ? c.heroine_name_ja :
+        isZh && c.heroine_name_zh_tw ? c.heroine_name_zh_tw :
+          isKo ? c.heroine_name : c.heroine_name_en;
+
+      let nativeAnime = isJa && c.anime_ja ? c.anime_ja :
+        isZh && c.anime_zh_tw ? c.anime_zh_tw :
+          isKo && c.anime ? c.anime : c.anime_en;
 
       if (format === 'story') {
         blob = await generateStoryCard({
@@ -184,13 +191,13 @@ export default function ResultScreen() {
           }
         }
       } else {
-        let nativeTags = lang === 'ja' && c.heroine_tags_ja ? c.heroine_tags_ja :
-          lang === 'zh-TW' && c.heroine_tags_zh_tw ? c.heroine_tags_zh_tw :
-            lang === 'ko' ? c.heroine_tags : c.heroine_tags_en;
+        let nativeTags = isJa && c.heroine_tags_ja ? c.heroine_tags_ja :
+          isZh && c.heroine_tags_zh_tw ? c.heroine_tags_zh_tw :
+            isKo ? c.heroine_tags : c.heroine_tags_en;
 
-        let nativeCharm = lang === 'ja' && c.heroine_charm_ja ? c.heroine_charm_ja :
-          lang === 'zh-TW' && c.heroine_charm_zh_tw ? c.heroine_charm_zh_tw :
-            lang === 'ko' ? c.heroine_charm : c.heroine_charm_en;
+        let nativeCharm = isJa && c.heroine_charm_ja ? c.heroine_charm_ja :
+          isZh && c.heroine_charm_zh_tw ? c.heroine_charm_zh_tw :
+            isKo ? c.heroine_charm : c.heroine_charm_en;
 
         blob = await generateResultCard({
           characterName: nativeName,
@@ -237,16 +244,20 @@ export default function ResultScreen() {
       console.warn('[ResultScreen] Missing matchResult on mount, redirecting to /upload');
       navigate('/upload', { replace: true });
     } else {
-      const lang = i18n.language; // 'ko' | 'en' | 'ja' | 'zh-TW'
+      const lang = i18n.language || 'en';
       const c = currentState.character;
 
-      let nativeName = lang === 'ja' && c.heroine_name_ja ? c.heroine_name_ja :
-        lang === 'zh-TW' && c.heroine_name_zh_tw ? c.heroine_name_zh_tw :
-          lang === 'ko' ? c.heroine_name : c.heroine_name_en;
+      const isJa = lang.startsWith('ja');
+      const isZh = lang.startsWith('zh');
+      const isKo = lang.startsWith('ko');
 
-      let nativeAnime = lang === 'ja' && c.anime_ja ? c.anime_ja :
-        lang === 'zh-TW' && c.anime_zh_tw ? c.anime_zh_tw :
-          lang === 'ko' && c.anime ? c.anime : c.anime_en;
+      let nativeName = isJa && c.heroine_name_ja ? c.heroine_name_ja :
+        isZh && c.heroine_name_zh_tw ? c.heroine_name_zh_tw :
+          isKo ? c.heroine_name : c.heroine_name_en;
+
+      let nativeAnime = isJa && c.anime_ja ? c.anime_ja :
+        isZh && c.anime_zh_tw ? c.anime_zh_tw :
+          isKo && c.anime ? c.anime : c.anime_en;
 
       import('@/utils/telemetry').then(({ trackFunnelEvent }) => {
         trackFunnelEvent('Result Screen Viewed', {
@@ -391,15 +402,18 @@ export default function ResultScreen() {
             <div className={styles.runnerUpGrid}>
               {displayRunnerUps.map((entry) => {
                 const rc = entry.character;
-                const lang = i18n.language;
+                const lang = i18n.language || 'en';
+                const isJa = lang.startsWith('ja');
+                const isZh = lang.startsWith('zh');
+                const isKo = lang.startsWith('ko');
 
-                let nativeName = lang === 'ja' && rc.heroine_name_ja ? rc.heroine_name_ja :
-                  lang === 'zh-TW' && rc.heroine_name_zh_tw ? rc.heroine_name_zh_tw :
-                    lang === 'ko' ? rc.heroine_name : rc.heroine_name_en;
+                let nativeName = isJa && rc.heroine_name_ja ? rc.heroine_name_ja :
+                  isZh && rc.heroine_name_zh_tw ? rc.heroine_name_zh_tw :
+                    isKo ? rc.heroine_name : rc.heroine_name_en;
 
-                let nativeAnime = lang === 'ja' && rc.anime_ja ? rc.anime_ja :
-                  lang === 'zh-TW' && rc.anime_zh_tw ? rc.anime_zh_tw :
-                    lang === 'ko' && rc.anime ? rc.anime : rc.anime_en;
+                let nativeAnime = isJa && rc.anime_ja ? rc.anime_ja :
+                  isZh && rc.anime_zh_tw ? rc.anime_zh_tw :
+                    isKo && rc.anime ? rc.anime : rc.anime_en;
 
                 // Find original rank from allCandidates
                 const originalRank = allCandidates.findIndex((c) => c.character.heroine_id === rc.heroine_id) + 1;
