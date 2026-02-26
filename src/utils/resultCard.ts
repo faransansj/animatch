@@ -23,6 +23,20 @@ function parseGradientColors(css: string): [string, string] {
   return m && m.length >= 2 ? [m[0] as string, m[1] as string] : ['#1a1040', '#0F172A'];
 }
 
+function getMatchLabel(lang: string) {
+  if (lang === 'ko') return '매칭';
+  if (lang === 'ja') return '一致';
+  if (lang === 'zh-TW') return '匹配';
+  return 'Match';
+}
+
+function getHeaderLabel(lang: string) {
+  if (lang === 'ko') return '💕 나와 가장 닮은 주인공은?';
+  if (lang === 'ja') return '💕 私に一番似ている主人公は？';
+  if (lang === 'zh-TW') return '💕 與我最相似的主角是？';
+  return '💕 My Anime Perfect Match?';
+}
+
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -147,7 +161,7 @@ export async function generateResultCard(options: ResultCardOptions): Promise<Bl
   // Percentage text
   ctx.fillStyle = '#F1F5F9';
   ctx.font = `bold ${Math.round(28 * S)}px "Pretendard Variable", "Outfit", sans-serif`;
-  const matchLabel = options.lang === 'ko' ? '매칭' : 'Match';
+  const matchLabel = getMatchLabel(options.lang);
   ctx.fillText(`${options.percent}% ${matchLabel}`, W / 2, barY + barH + Math.round(42 * S));
 
   // 6. Divider
@@ -208,7 +222,7 @@ export async function generateStoryCard(options: ResultCardOptions): Promise<Blo
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = '#C084FC';
   ctx.font = `bold 42px "Pretendard Variable", "Outfit", sans-serif`;
-  ctx.fillText(options.lang === 'ko' ? '💕 나와 가장 닮은 주인공은?' : '💕 My Anime Perfect Match?', W / 2, 280);
+  ctx.fillText(getHeaderLabel(options.lang), W / 2, 280);
 
   // 3. Tarot image
   const imgW = 760;
@@ -279,7 +293,7 @@ export async function generateStoryCard(options: ResultCardOptions): Promise<Blo
   // Percentage text
   ctx.fillStyle = '#FF6B9D';
   ctx.font = `bold 42px "Pretendard Variable", "Outfit", sans-serif`;
-  const matchLabel = options.lang === 'ko' ? '매칭' : 'Match';
+  const matchLabel = getMatchLabel(options.lang);
   ctx.fillText(`${options.percent}% ${matchLabel}`, W / 2, percentY);
 
   // 6. Branding / Footer

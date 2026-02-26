@@ -92,9 +92,11 @@ export function useGachaAnimation() {
 
     // Phase 3: Reveal
     setGachaStep('revealing');
-    const quote = language === 'en'
-      ? (matchResult.character.heroine_quote_en || '...')
-      : (matchResult.character.heroine_quote || '...');
+    let quote = matchResult.character.heroine_quote_en || '...';
+    if (language === 'ko') quote = matchResult.character.heroine_quote || '...';
+    else if (language === 'ja' && matchResult.character.heroine_quote_ja) quote = matchResult.character.heroine_quote_ja;
+    else if (language === 'zh-TW' && matchResult.character.heroine_quote_zh_tw) quote = matchResult.character.heroine_quote_zh_tw;
+
     await typeQuote(quote);
     await animateProgress(85, 95, 600);
 
@@ -122,9 +124,11 @@ export function useGachaAnimation() {
     await animateProgress(65, 80, 1200);
 
     setGachaStep('revealing');
-    const quote = language === 'en'
-      ? (matchResult.character.heroine_quote_en || '...')
-      : (matchResult.character.heroine_quote || '...');
+    let quote = matchResult.character.heroine_quote_en || '...';
+    if (language === 'ko') quote = matchResult.character.heroine_quote || '...';
+    else if (language === 'ja' && matchResult.character.heroine_quote_ja) quote = matchResult.character.heroine_quote_ja;
+    else if (language === 'zh-TW' && matchResult.character.heroine_quote_zh_tw) quote = matchResult.character.heroine_quote_zh_tw;
+
     await typeQuote(quote);
     await animateProgress(80, 95, 800);
 
