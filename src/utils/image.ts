@@ -50,7 +50,11 @@ export function runGuidelineCheck(imageData: string): Promise<FeedbackItem[]> {
       const canvas = document.createElement('canvas');
       canvas.width = drawW;
       canvas.height = drawH;
-      const ctx = canvas.getContext('2d')!;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve([]);
+        return;
+      }
       ctx.drawImage(img, 0, 0, drawW, drawH);
       const data = ctx.getImageData(0, 0, drawW, drawH).data;
 
@@ -59,7 +63,7 @@ export function runGuidelineCheck(imageData: string): Promise<FeedbackItem[]> {
       const sampleStep = 40;
       let sampleCount = 0;
       for (let i = 0; i < data.length; i += 4 * sampleStep) {
-        totalBrightness += (data[i]! * 0.299 + data[i + 1]! * 0.587 + data[i + 2]! * 0.114);
+        totalBrightness += ((data[i] ?? 0) * 0.299 + (data[i + 1] ?? 0) * 0.587 + (data[i + 2] ?? 0) * 0.114);
         sampleCount++;
       }
       const avgBrightness = totalBrightness / sampleCount;
@@ -82,7 +86,7 @@ export function runGuidelineCheck(imageData: string): Promise<FeedbackItem[]> {
         for (let x = cx - checkRadius; x < cx + checkRadius; x += 3) {
           if (x < 0 || y < 0 || x >= drawW || y >= drawH) continue;
           const idx = (y * drawW + x) * 4;
-          const r = data[idx]!, g = data[idx + 1]!, b = data[idx + 2]!;
+          const r = data[idx] ?? 0, g = data[idx + 1] ?? 0, b = data[idx + 2] ?? 0;
           if (r > 80 && g > 50 && b > 30 && r > g && r > b && (r - g) > 10) {
             skinPixels++;
           }

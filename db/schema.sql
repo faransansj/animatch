@@ -1,7 +1,10 @@
 -- ============================================================
 -- AniMatch Character Database Schema
 -- Cloudflare D1 Compatible (SQLite)
--- Version: 1.0.0
+-- Version: 1.1.0  (2026-02-27 — synced with migrations/)
+-- ============================================================
+-- NOTE: This file is a reference document only.
+--       All changes must also be applied via a numbered migration in migrations/.
 -- ============================================================
 
 -- 작품 테이블
@@ -56,28 +59,40 @@ CREATE INDEX IF NOT EXISTS idx_characters_partner ON characters(partner_id);
 CREATE INDEX IF NOT EXISTS idx_animes_orientation ON animes(orientation);
 CREATE INDEX IF NOT EXISTS idx_animes_tier ON animes(tier);
 
--- 분석 로그 테이블 (향후 사용)
+-- 분석 로그 테이블
+-- Applied via: migrations/0001_initial.sql + 0002_ab_testing.sql
 CREATE TABLE IF NOT EXISTS analysis_logs (
-  id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  session_id    TEXT NOT NULL,
-  orientation   TEXT NOT NULL,
-  matched_protagonist_id  INTEGER REFERENCES characters(id),
-  matched_heroine_id      INTEGER REFERENCES characters(id),
-  match_score   REAL,
-  user_agent    TEXT,
-  created_at    TEXT DEFAULT (datetime('now'))
+  id                INTEGER PRIMARY KEY AUTOINCREMENT,
+  orientation       TEXT NOT NULL,
+  matched_character TEXT NOT NULL,
+  matched_anime     TEXT NOT NULL,
+  similarity_score  REAL NOT NULL,
+  confidence        TEXT NOT NULL,
+  dual_matching     INTEGER NOT NULL DEFAULT 0,
+  language          TEXT NOT NULL DEFAULT 'ko',
+  user_agent        TEXT NOT NULL DEFAULT '',
+  ab_variant        TEXT NOT NULL DEFAULT '',  -- added in 0002_ab_testing.sql
+  created_at        TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_logs_created ON analysis_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_analysis_created_at  ON analysis_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_analysis_character   ON analysis_logs(matched_character);
+CREATE INDEX IF NOT EXISTS idx_analysis_anime       ON analysis_logs(matched_anime);
+CREATE INDEX IF NOT EXISTS idx_analysis_ab_variant  ON analysis_logs(ab_variant);
 
--- 매칭 평가 피드백 테이블 (A/B 테스트 및 알고리즘 조정용)
+-- 매칭 평가 피드백 테이블
+-- Applied via: migrations/0003_match_feedback.sql
 CREATE TABLE IF NOT EXISTS match_feedback (
   id                INTEGER PRIMARY KEY AUTOINCREMENT,
   orientation       TEXT NOT NULL,
   matched_character TEXT NOT NULL,
   matched_anime     TEXT NOT NULL,
   similarity_score  REAL,
-  ab_variant        TEXT,
+  ab_variant        TEXT NOT NULL DEFAULT '',
   rating            TEXT CHECK(rating IN ('up', 'down')),
-  created_at        TEXT DEFAULT (datetime('now'))
+  created_at        TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+CREATE INDEX IF NOT EXISTS idx_feedback_created_at  ON match_feedback(created_at);
+CREATE INDEX IF NOT EXISTS idx_feedback_rating      ON match_feedback(rating);
+CREATE INDEX IF NOT EXISTS idx_feedback_orientation ON match_feedback(orientation);

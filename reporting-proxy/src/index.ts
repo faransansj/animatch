@@ -30,7 +30,8 @@ export default {
 
                 return new Response('OK', { status: 200 });
             } catch (err) {
-                return new Response(`Error: ${err}`, { status: 500 });
+                console.error('[sentry-webhook] handler error:', err);
+                return new Response('Internal error', { status: 500 });
             }
         }
 
@@ -53,15 +54,9 @@ export default {
     }
 };
 
-async function readStream(stream: ReadableStream) {
-    const reader = stream.getReader();
-    let result = '';
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        result += new TextDecoder().decode(value);
-    }
-    return result;
+/** Read a ReadableStream to string using the built-in Response API */
+async function readStream(stream: ReadableStream): Promise<string> {
+    return new Response(stream).text();
 }
 
 function scrubPII(data: any): any {

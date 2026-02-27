@@ -24,3 +24,6 @@ Thumbs.db
 
 # Cloudflare
 .wrangler/
+
+# Local SQLite DB files — never commit real data
+*.db

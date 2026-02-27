@@ -1,62 +1,160 @@
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import { createMiddleware } from 'hono/factory';
+import { z } from 'zod';
+
+// ── Environment Bindings ──────────────────────────────────────────────────────
 
 interface Env {
   DB: D1Database;
   KV: KVNamespace;
+  REPORTING_PROXY_URL?: string;
+  ANIMATCH_SECRET?: string;
 }
 
 const app = new Hono<{ Bindings: Env }>().basePath('/api');
 
-// Global Error Handler
-app.onError((err, c) => {
-  console.error(`[Hono Error] ${err.message}`);
+// ── CORS middleware ───────────────────────────────────────────────────────────
 
-  // Forward to secure proxy if configured
-  // Non-blocking fire-and-forget
-  const proxyUrl = 'https://animatch-reporting-proxy.midori.workers.dev/sentry-webhook'; // Placeholder
-  fetch(proxyUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      level: 'error',
-      message: err.message,
-      stack: err.stack,
-      path: c.req.path,
-    }),
-  }).catch(() => { });
+const ALLOWED_ORIGIN = 'https://animatch.midori-lab.com';
+
+app.use('*', cors({
+  origin: (origin) => {
+    if (!origin || origin === ALLOWED_ORIGIN || origin.startsWith('http://localhost')) {
+      return origin ?? ALLOWED_ORIGIN;
+    }
+    return '';
+  },
+  allowMethods: ['GET', 'POST', 'OPTIONS'],
+  allowHeaders: ['Content-Type'],
+  maxAge: 86400,
+}));
+
+// ── Zod Schemas ───────────────────────────────────────────────────────────────
+
+const MAX_STR = 200;
+
+const AnalyticsLogSchema = z.object({
+  orientation: z.enum(['male', 'female']),
+  matched_character: z.string().min(1).max(MAX_STR),
+  matched_anime: z.string().min(1).max(MAX_STR),
+  similarity_score: z.number().min(0).max(1),
+  confidence: z.string().min(1).max(MAX_STR),
+  dual_matching: z.boolean(),
+  language: z.string().min(1).max(MAX_STR),
+  ab_variant: z.string().max(50).optional().default(''),
+});
+
+const FeedbackSchema = z.object({
+  orientation: z.enum(['male', 'female']),
+  matched_character: z.string().min(1).max(MAX_STR),
+  matched_anime: z.string().min(1).max(MAX_STR),
+  similarity_score: z.number().min(0).max(1).optional(),
+  ab_variant: z.string().max(50).optional().default(''),
+  rating: z.enum(['up', 'down']),
+});
+
+type AnalyticsLog = z.infer<typeof AnalyticsLogSchema>;
+type Feedback = z.infer<typeof FeedbackSchema>;
+
+/** Parse and validate JSON body with Zod. Returns parsed data or a 400 Response. */
+async function parseBody<T>(c: { req: { json: () => Promise<unknown> }; json: (data: unknown, status: number) => Response }, schema: z.ZodType<T>): Promise<T | Response> {
+  let raw: unknown;
+  try {
+    raw = await c.req.json();
+  } catch {
+    return c.json({ error: 'Invalid JSON body' }, 400);
+  }
+
+  const result = schema.safeParse(raw);
+  if (!result.success) {
+    const fieldErrors = result.error.flatten().fieldErrors;
+    return c.json({ error: 'Validation failed', details: fieldErrors }, 400);
+  }
+  return result.data;
+}
+
+// ── Global Error Handler ──────────────────────────────────────────────────────
+
+app.onError((err, c) => {
+  console.error(`[Hono Error] ${err.message}`, err.stack);
+
+  const proxyUrl = c.env.REPORTING_PROXY_URL;
+  if (proxyUrl) {
+    const reportPromise = fetch(proxyUrl + '/sentry-webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-AniMatch-Secret': c.env.ANIMATCH_SECRET ?? '',
+      },
+      body: JSON.stringify({
+        level: 'error',
+        message: err.message,
+        stack: err.stack,
+        path: c.req.path,
+      }),
+    }).catch(() => { });
+
+    c.executionCtx.waitUntil(reportPromise);
+  }
 
   return c.json({ error: 'Internal Server Error' }, 500);
 });
 
-// Rate limiting middleware
+// ── Rate limiting middleware ──────────────────────────────────────────────────
+// Sliding-window approach: stores JSON {count, windowStart} in KV.
+
+const RATE_LIMIT_MAX = 30;
+const RATE_LIMIT_WINDOW_SEC = 60;
+
+interface RateLimitEntry {
+  count: number;
+  windowStart: number;
+}
+
 async function checkRateLimit(kv: KVNamespace, ip: string): Promise<boolean> {
   const key = `rl:${ip}`;
-  const current = await kv.get(key);
-  const count = current ? parseInt(current, 10) : 0;
-  if (count >= 30) return false;
-  await kv.put(key, String(count + 1), { expirationTtl: 60 });
+  const now = Date.now();
+  const raw = await kv.get(key);
+
+  let entry: RateLimitEntry = { count: 0, windowStart: now };
+
+  if (raw) {
+    try {
+      entry = JSON.parse(raw) as RateLimitEntry;
+    } catch {
+      entry = { count: 0, windowStart: now };
+    }
+    if (now - entry.windowStart >= RATE_LIMIT_WINDOW_SEC * 1000) {
+      entry = { count: 0, windowStart: now };
+    }
+  }
+
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+
+  entry.count += 1;
+  const elapsed = Math.floor((now - entry.windowStart) / 1000);
+  const ttl = Math.max(RATE_LIMIT_WINDOW_SEC - elapsed + 5, 10);
+  await kv.put(key, JSON.stringify(entry), { expirationTtl: ttl });
   return true;
 }
 
-// POST /api/analytics/log
-app.post('/analytics/log', async (c) => {
+const rateLimitMiddleware = createMiddleware<{ Bindings: Env }>(async (c, next) => {
   const ip = c.req.header('CF-Connecting-IP') ?? 'unknown';
   if (!await checkRateLimit(c.env.KV, ip)) {
     return c.json({ error: 'Rate limit exceeded' }, 429);
   }
+  await next();
+});
+
+// ── POST /api/analytics/log ──────────────────────────────────────────────────
+
+app.post('/analytics/log', rateLimitMiddleware, async (c) => {
+  const parsed = await parseBody(c, AnalyticsLogSchema);
+  if (parsed instanceof Response) return parsed;
+  const body = parsed as AnalyticsLog;
 
   try {
-    const body = await c.req.json<{
-      orientation: string;
-      matched_character: string;
-      matched_anime: string;
-      similarity_score: number;
-      confidence: string;
-      dual_matching: boolean;
-      language: string;
-      ab_variant?: string;
-    }>();
-
     await c.env.DB.prepare(
       `INSERT INTO analysis_logs (orientation, matched_character, matched_anime, similarity_score, confidence, dual_matching, language, user_agent, ab_variant, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`
@@ -68,8 +166,8 @@ app.post('/analytics/log', async (c) => {
       body.confidence,
       body.dual_matching ? 1 : 0,
       body.language,
-      c.req.header('User-Agent') ?? '',
-      body.ab_variant ?? '',
+      (c.req.header('User-Agent') ?? '').slice(0, 500),
+      body.ab_variant,
     ).run();
 
     return c.json({ ok: true });
@@ -78,13 +176,9 @@ app.post('/analytics/log', async (c) => {
   }
 });
 
-// GET /api/analytics/trending
-app.get('/analytics/trending', async (c) => {
-  const ip = c.req.header('CF-Connecting-IP') ?? 'unknown';
-  if (!await checkRateLimit(c.env.KV, ip)) {
-    return c.json({ error: 'Rate limit exceeded' }, 429);
-  }
+// ── GET /api/analytics/trending ──────────────────────────────────────────────
 
+app.get('/analytics/trending', rateLimitMiddleware, async (c) => {
   try {
     const result = await c.env.DB.prepare(
       `SELECT matched_character, matched_anime, COUNT(*) as count, ROUND(AVG(similarity_score), 2) as avg_score
@@ -101,13 +195,9 @@ app.get('/analytics/trending', async (c) => {
   }
 });
 
-// GET /api/analytics/ab-report
-app.get('/analytics/ab-report', async (c) => {
-  const ip = c.req.header('CF-Connecting-IP') ?? 'unknown';
-  if (!await checkRateLimit(c.env.KV, ip)) {
-    return c.json({ error: 'Rate limit exceeded' }, 429);
-  }
+// ── GET /api/analytics/ab-report ─────────────────────────────────────────────
 
+app.get('/analytics/ab-report', rateLimitMiddleware, async (c) => {
   try {
     const result = await c.env.DB.prepare(
       `SELECT
@@ -131,23 +221,14 @@ app.get('/analytics/ab-report', async (c) => {
   }
 });
 
-// POST /api/analytics/feedback
-app.post('/analytics/feedback', async (c) => {
-  const ip = c.req.header('CF-Connecting-IP') ?? 'unknown';
-  if (!await checkRateLimit(c.env.KV, ip)) {
-    return c.json({ error: 'Rate limit exceeded' }, 429);
-  }
+// ── POST /api/analytics/feedback ─────────────────────────────────────────────
+
+app.post('/analytics/feedback', rateLimitMiddleware, async (c) => {
+  const parsed = await parseBody(c, FeedbackSchema);
+  if (parsed instanceof Response) return parsed;
+  const body = parsed as Feedback;
 
   try {
-    const body = await c.req.json<{
-      orientation: string;
-      matched_character: string;
-      matched_anime: string;
-      similarity_score: number;
-      ab_variant: string;
-      rating: 'up' | 'down';
-    }>();
-
     await c.env.DB.prepare(
       `INSERT INTO match_feedback (orientation, matched_character, matched_anime, similarity_score, ab_variant, rating, created_at)
        VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`
@@ -155,9 +236,9 @@ app.post('/analytics/feedback', async (c) => {
       body.orientation,
       body.matched_character,
       body.matched_anime,
-      body.similarity_score,
+      body.similarity_score ?? null,
       body.ab_variant,
-      body.rating
+      body.rating,
     ).run();
 
     return c.json({ ok: true });
@@ -166,7 +247,8 @@ app.post('/analytics/feedback', async (c) => {
   }
 });
 
-// GET /api/health
+// ── GET /api/health ──────────────────────────────────────────────────────────
+
 app.get('/health', (c) => {
   return c.json({ status: 'ok', timestamp: new Date().toISOString() });
 });

@@ -17,10 +17,14 @@ export function initTelemetry() {
             dsn: SENTRY_DSN,
             integrations: [
                 Sentry.browserTracingIntegration(),
-                Sentry.replayIntegration(),
+                Sentry.replayIntegration({
+                    // Security: block user-uploaded images from being recorded
+                    maskAllText: true,
+                    blockAllMedia: true,
+                }),
             ],
-            // Performance Monitoring
-            tracesSampleRate: 1.0,
+            // Performance Monitoring (1.0 = 100% which exhausts quota fast; use 0.1 in production)
+            tracesSampleRate: import.meta.env.PROD ? 0.1 : 1.0,
             // Session Replay
             replaysSessionSampleRate: 0.1,
             replaysOnErrorSampleRate: 1.0,
