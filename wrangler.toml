@@ -22,6 +22,7 @@ id = "a8c4a36e06224fdc8c2764f8e2e38b6f"
 # Environment variables
 [vars]
 REPORTING_PROXY_URL = "https://animatch-reporting-proxy.midori.workers.dev"
+ALLOWED_ORIGIN = "https://animatch.midori-lab.com"
 
 # Worker Secret Bindings (set via CLI, never in this file):
 #   wrangler secret put ANIMATCH_SECRET

@@ -28,6 +28,7 @@ export async function initClipEngine(
 export async function releaseClipEngine(): Promise<void> {
   if (clipReady) {
     clipReady = false;
+    try { await sendWorkerRequest('RELEASE'); } catch { /* worker may already be terminated */ }
   }
 }
 

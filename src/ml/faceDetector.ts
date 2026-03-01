@@ -6,7 +6,7 @@ let faceDetector: FaceDetector | null = null;
 export async function initFaceDetector(): Promise<boolean> {
   try {
     const vision = await FilesetResolver.forVisionTasks(
-      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
+      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.32/wasm'
     );
     faceDetector = await FaceDetector.createFromOptions(vision, {
       baseOptions: {
@@ -23,7 +23,7 @@ export async function initFaceDetector(): Promise<boolean> {
     console.warn('Face detector init failed, trying CPU:', (e as Error).message);
     try {
       const vision = await FilesetResolver.forVisionTasks(
-        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.32/wasm'
       );
       faceDetector = await FaceDetector.createFromOptions(vision, {
         baseOptions: {

@@ -10,18 +10,20 @@ interface Env {
   KV: KVNamespace;
   REPORTING_PROXY_URL?: string;
   ANIMATCH_SECRET?: string;
+  ALLOWED_ORIGIN?: string;
 }
 
 const app = new Hono<{ Bindings: Env }>().basePath('/api');
 
 // ── CORS middleware ───────────────────────────────────────────────────────────
 
-const ALLOWED_ORIGIN = 'https://animatch.midori-lab.com';
+const DEFAULT_ORIGIN = 'https://animatch.midori-lab.com';
 
 app.use('*', cors({
-  origin: (origin) => {
-    if (!origin || origin === ALLOWED_ORIGIN || origin.startsWith('http://localhost')) {
-      return origin ?? ALLOWED_ORIGIN;
+  origin: (origin, c) => {
+    const allowed = (c as any).env?.ALLOWED_ORIGIN ?? DEFAULT_ORIGIN;
+    if (!origin || origin === allowed || origin.startsWith('http://localhost')) {
+      return origin ?? allowed;
     }
     return '';
   },

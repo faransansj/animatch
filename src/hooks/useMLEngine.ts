@@ -29,7 +29,7 @@ async function loadEmbeddings(): Promise<EmbeddingsData> {
 }
 
 export function useMLEngine() {
-  const { setEmbeddingsData, setClipReady, setClipProgress, setFaceDetectorReady, setArcFaceReady } = useMLStore();
+  const { setEmbeddingsData, setClipProgress, setFaceDetectorReady } = useMLStore();
 
   useEffect(() => {
     let cancelled = false;
@@ -58,5 +58,5 @@ export function useMLEngine() {
 
     init();
     return () => { cancelled = true; };
-  }, [setEmbeddingsData, setClipReady, setClipProgress, setFaceDetectorReady, setArcFaceReady]);
+  }, [setEmbeddingsData, setClipProgress, setFaceDetectorReady]);
 }

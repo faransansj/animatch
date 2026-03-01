@@ -119,8 +119,12 @@ export function getRandomMatch(
 ): MatchResult {
   const candidates = embeddingsData.characters.filter(c => c.orientation === orientation);
 
-  // Shuffle and pick top 3
-  const shuffled = [...candidates].sort(() => 0.5 - Math.random());
+  // Fisher-Yates shuffle for uniform distribution
+  const shuffled = [...candidates];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j]!, shuffled[i]!];
+  }
   const selected = shuffled.slice(0, 3);
 
   const top1Percent = Math.round(55 + Math.random() * 25);

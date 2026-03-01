@@ -1,4 +1,5 @@
 import { getTarotImageUrl } from './tarot';
+import { isMobile } from './device';
 
 interface ResultCardOptions {
   characterName: string;
@@ -13,9 +14,30 @@ interface ResultCardOptions {
   charm?: string;
 }
 
-const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-const W = isMobile ? 720 : 1080;
-const H = isMobile ? 1000 : 1500;
+const Y_POS = {
+  IMG: 50,
+  NAME: 990,
+  ANIME: 1035,
+  TAGS: 1085,
+  CHARM: 1130,
+  BAR: 1185,
+  BAR_LABEL: 1227, // BAR + 42
+  DIVIDER: 1320,
+  BRAND: 1375,
+  FOOTER: 1415,
+};
+
+const STORY_Y_POS = {
+  HEADER: 280,
+  IMG: 360,
+  INFO: 1493, // imgY + imgH + 120 (360 + 1013 + 120)
+  ANIME: 1553, // infoY + 60
+  PERCENT: 1653, // infoY + 160
+  FOOTER: 1780,
+};
+
+const W = isMobile() ? 720 : 1080;
+const H = isMobile() ? 1000 : 1500;
 const S = W / 1080; // scale factor for coordinates/fonts
 
 function parseGradientColors(css: string): [string, string] {
@@ -77,7 +99,7 @@ export async function generateResultCard(options: ResultCardOptions): Promise<Bl
   const imgW = Math.round(660 * S);
   const imgH = Math.round(880 * S);
   const imgX = (W - imgW) / 2;
-  const imgY = Math.round(50 * S);
+  const imgY = Math.round(Y_POS.IMG * S);
 
   try {
     const imgUrl = options.heroineImage || getTarotImageUrl(options.heroineId);
@@ -116,19 +138,19 @@ export async function generateResultCard(options: ResultCardOptions): Promise<Bl
   ctx.textAlign = 'center';
   ctx.fillStyle = '#F1F5F9';
   ctx.font = `bold ${Math.round(48 * S)}px "Pretendard Variable", "Outfit", sans-serif`;
-  ctx.fillText(options.characterName, W / 2, Math.round(990 * S));
+  ctx.fillText(options.characterName, W / 2, Math.round(Y_POS.NAME * S));
 
   // 4. Anime title
   ctx.fillStyle = '#94A3B8';
   ctx.font = `${Math.round(28 * S)}px "Pretendard Variable", "Outfit", sans-serif`;
-  ctx.fillText(options.animeName, W / 2, Math.round(1035 * S));
+  ctx.fillText(options.animeName, W / 2, Math.round(Y_POS.ANIME * S));
 
   // 4.5. Tags & Charm
   if (options.tags && options.tags.length > 0) {
     ctx.fillStyle = '#C084FC';
     ctx.font = `${Math.round(24 * S)}px "Pretendard Variable", "Outfit", sans-serif`;
     const tagText = options.tags.map(t => `#${t}`).join(' ');
-    ctx.fillText(tagText, W / 2, Math.round(1085 * S));
+    ctx.fillText(tagText, W / 2, Math.round(Y_POS.TAGS * S));
   }
 
   if (options.charm) {
@@ -140,14 +162,14 @@ export async function generateResultCard(options: ResultCardOptions): Promise<Bl
       let truncated = options.charm.substring(0, 35) + '...';
       charmText = `"${truncated}"`;
     }
-    ctx.fillText(charmText, W / 2, Math.round(1130 * S));
+    ctx.fillText(charmText, W / 2, Math.round(Y_POS.CHARM * S));
   }
 
   // 5. Match percentage bar
   const barW = Math.round(600 * S);
   const barH = Math.round(28 * S);
   const barX = (W - barW) / 2;
-  const barY = Math.round(1185 * S);
+  const barY = Math.round(Y_POS.BAR * S);
   // Bar background
   ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
   roundRect(ctx, barX, barY, barW, barH, Math.round(14 * S));
@@ -161,29 +183,37 @@ export async function generateResultCard(options: ResultCardOptions): Promise<Bl
   ctx.fillStyle = '#F1F5F9';
   ctx.font = `bold ${Math.round(28 * S)}px "Pretendard Variable", "Outfit", sans-serif`;
   const matchLabel = getMatchLabel(options.lang);
-  ctx.fillText(`${options.percent}% ${matchLabel}`, W / 2, barY + barH + Math.round(42 * S));
+  ctx.fillText(`${options.percent}% ${matchLabel}`, W / 2, Math.round(Y_POS.BAR_LABEL * S));
 
   // 6. Divider
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(Math.round(240 * S), Math.round(1320 * S));
-  ctx.lineTo(Math.round(840 * S), Math.round(1320 * S));
+  ctx.moveTo(Math.round(240 * S), Math.round(Y_POS.DIVIDER * S));
+  ctx.lineTo(Math.round(840 * S), Math.round(Y_POS.DIVIDER * S));
   ctx.stroke();
 
   // 7. Branding
   ctx.fillStyle = '#FF6B9D';
   ctx.font = `bold ${Math.round(26 * S)}px "Outfit", sans-serif`;
-  ctx.fillText('AniMatch', W / 2, Math.round(1375 * S));
+  ctx.fillText('AniMatch', W / 2, Math.round(Y_POS.BRAND * S));
   ctx.fillStyle = '#64748B';
   ctx.font = `${Math.round(20 * S)}px "Outfit", sans-serif`;
-  ctx.fillText('animatch.social', W / 2, Math.round(1415 * S));
+  ctx.fillText('animatch.social', W / 2, Math.round(Y_POS.FOOTER * S));
 
   return new Promise((resolve, reject) => {
+    // Prefer WebP for smaller file sizes; fall back to PNG if unsupported
     canvas.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error('Canvas toBlob failed'))),
-      'image/png',
-      1.0,
+      (blob) => {
+        if (blob) return resolve(blob);
+        // WebP not supported — retry as PNG
+        canvas.toBlob(
+          (pngBlob) => (pngBlob ? resolve(pngBlob) : reject(new Error('Canvas toBlob failed'))),
+          'image/png',
+        );
+      },
+      'image/webp',
+      0.85,
     );
   });
 }
@@ -221,13 +251,13 @@ export async function generateStoryCard(options: ResultCardOptions): Promise<Blo
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = '#C084FC';
   ctx.font = `bold 42px "Pretendard Variable", "Outfit", sans-serif`;
-  ctx.fillText(getHeaderLabel(options.lang), W / 2, 280);
+  ctx.fillText(getHeaderLabel(options.lang), W / 2, STORY_Y_POS.HEADER);
 
   // 3. Tarot image
   const imgW = 760;
   const imgH = 1013; // 3:4 ratio approx
   const imgX = (W - imgW) / 2;
-  const imgY = 360; // Top aligned
+  const imgY = STORY_Y_POS.IMG;
 
   try {
     const imgUrl = options.heroineImage || getTarotImageUrl(options.heroineId);
@@ -262,26 +292,23 @@ export async function generateStoryCard(options: ResultCardOptions): Promise<Blo
   }
 
   // 4. Character Info Block
-  const infoY = imgY + imgH + 120;
-
   // Character name
   ctx.textBaseline = 'alphabetic';
   ctx.textAlign = 'center';
   ctx.fillStyle = '#FFFFFF';
   ctx.font = `bold 64px "Pretendard Variable", "Outfit", sans-serif`;
-  ctx.fillText(options.characterName, W / 2, infoY);
+  ctx.fillText(options.characterName, W / 2, STORY_Y_POS.INFO);
 
   // Anime title
   ctx.fillStyle = '#94A3B8';
   ctx.font = `36px "Pretendard Variable", "Outfit", sans-serif`;
-  ctx.fillText(options.animeName, W / 2, infoY + 60);
+  ctx.fillText(options.animeName, W / 2, STORY_Y_POS.ANIME);
 
   // 5. Match percentage badge
-  const percentY = infoY + 160;
   ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
   // Badge bg
   ctx.beginPath();
-  ctx.roundRect((W - 360) / 2, percentY - 60, 360, 90, 45);
+  ctx.roundRect((W - 360) / 2, STORY_Y_POS.PERCENT - 60, 360, 90, 45);
   ctx.fill();
 
   // Badge border
@@ -293,19 +320,26 @@ export async function generateStoryCard(options: ResultCardOptions): Promise<Blo
   ctx.fillStyle = '#FF6B9D';
   ctx.font = `bold 42px "Pretendard Variable", "Outfit", sans-serif`;
   const matchLabel = getMatchLabel(options.lang);
-  ctx.fillText(`${options.percent}% ${matchLabel}`, W / 2, percentY);
+  ctx.fillText(`${options.percent}% ${matchLabel}`, W / 2, STORY_Y_POS.PERCENT);
 
   // 6. Branding / Footer
-  const footerY = 1780;
   ctx.fillStyle = '#CBD5E1';
   ctx.font = `24px "Outfit", sans-serif`;
-  ctx.fillText('animatch.social', W / 2, footerY);
+  ctx.fillText('animatch.social', W / 2, STORY_Y_POS.FOOTER);
 
   return new Promise((resolve, reject) => {
+    // Prefer WebP for smaller file sizes; fall back to PNG if unsupported
     canvas.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error('Canvas toBlob failed'))),
-      'image/png', // Must use PNG to ensure crisp lines or JPEG if we want smaller payloads for sharing
-      1.0,
+      (blob) => {
+        if (blob) return resolve(blob);
+        // WebP not supported — retry as PNG
+        canvas.toBlob(
+          (pngBlob) => (pngBlob ? resolve(pngBlob) : reject(new Error('Canvas toBlob failed'))),
+          'image/png',
+        );
+      },
+      'image/webp',
+      0.85,
     );
   });
 }

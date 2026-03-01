@@ -21,6 +21,7 @@ export async function initArcFace(): Promise<boolean> {
 export async function releaseArcFace(): Promise<void> {
   if (arcfaceReady) {
     arcfaceReady = false;
+    try { await sendWorkerRequest('RELEASE'); } catch { /* worker may already be terminated */ }
   }
 }
 
@@ -43,7 +44,7 @@ export async function getArcFaceEmbedding(imageDataURL: string): Promise<number[
 }
 
 function preprocessArcFace(imageDataURL: string): Promise<Float32Array> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
@@ -74,6 +75,7 @@ function preprocessArcFace(imageDataURL: string): Promise<Float32Array> {
 
       resolve(float32);
     };
+    img.onerror = () => reject(new Error('ArcFace preprocessing: image load failed'));
     img.src = imageDataURL;
   });
 }

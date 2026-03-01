@@ -9,6 +9,8 @@ import { useState } from 'react';
 import Header from '@/components/shared/Header';
 import MultiFaceSelector from '@/components/upload/MultiFaceSelector';
 import CameraCapture from '@/components/upload/CameraCapture';
+import CropModal from '@/components/upload/CropModal';
+import GuidelineFeedback from '@/components/upload/GuidelineFeedback';
 import { useAppStore } from '@/stores/appStore';
 import { useUploadStore } from '@/stores/uploadStore';
 import { useImageUpload } from '@/hooks/useImageUpload';
@@ -44,10 +46,9 @@ export default function UploadScreen() {
   // Auto-detect faces after upload
   useEffect(() => {
     if (rawImageData) {
-      trackFunnelEvent('Image Selected', { hasFace: detectedFaces.length > 0 });
       detect();
     }
-  }, [rawImageData, detect, detectedFaces.length]);
+  }, [rawImageData, detect]);
 
   const onFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -198,32 +199,20 @@ export default function UploadScreen() {
         )}
 
         {/* Guideline Feedback */}
-        {hasImage && feedbackItems.length > 0 && (
-          <div className={styles.feedback}>
-            <div className={styles.feedbackItems}>
-              {feedbackItems.map((item, i) => (
-                <div key={i} className={`${styles.feedbackItem} ${item.pass ? styles.pass : styles.warn}`}>
-                  <span>{item.pass ? '✅' : '⚠️'}</span>
-                  <span>{t(item.pass ? item.passText : item.failText)}</span>
-                </div>
-              ))}
-            </div>
-            <div className={styles.feedbackActions}>
-              <button
-                className={styles.retakeBtn}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  reset();
-                  if (hasCamera) setCameraOpen(true);
-                }}
-              >
-                {t('upload.retakeBtn')}
-              </button>
-              <button className={styles.cropBtn} onClick={(e) => { e.stopPropagation(); setCropModalOpen(true); }}>
-                {t('upload.cropBtn')}
-              </button>
-            </div>
-          </div>
+        {hasImage && (
+          <GuidelineFeedback
+            feedbackItems={feedbackItems}
+            hasCamera={hasCamera}
+            onRetake={(e?: React.MouseEvent) => {
+              e?.stopPropagation();
+              reset();
+              if (hasCamera) setCameraOpen(true);
+            }}
+            onCrop={(e?: React.MouseEvent) => {
+              e?.stopPropagation();
+              setCropModalOpen(true);
+            }}
+          />
         )}
 
         {/* Multi-face selector */}
@@ -273,30 +262,15 @@ export default function UploadScreen() {
         />
       )}
 
-      {/* Crop Modal */}
-      {cropModalOpen && rawImageData && (
-        <div className={styles.cropModal} onClick={() => setCropModalOpen(false)}>
-          <div className={styles.cropModalContent} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.cropModalHeader}>
-              <h3>{t('upload.cropTitle')}</h3>
-              <button className={styles.cropClose} onClick={() => setCropModalOpen(false)}>✕</button>
-            </div>
-            <div className={styles.cropArea}>
-              <ReactCrop crop={crop} onChange={c => setCrop(c)}>
-                <img ref={cropImgRef} src={rawImageData} alt="crop" style={{ maxWidth: '100%' }} />
-              </ReactCrop>
-            </div>
-            <div className={styles.cropActions}>
-              <button className={styles.cropCancel} onClick={() => setCropModalOpen(false)}>
-                {t('upload.cropCancel')}
-              </button>
-              <button className={styles.cropApply} onClick={applyCrop}>
-                {t('upload.cropApply')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <CropModal
+        cropModalOpen={cropModalOpen}
+        setCropModalOpen={setCropModalOpen}
+        rawImageData={rawImageData}
+        crop={crop}
+        setCrop={setCrop}
+        cropImgRef={cropImgRef}
+        applyCrop={applyCrop}
+      />
     </motion.section>
   );
 }

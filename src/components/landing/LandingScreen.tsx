@@ -9,15 +9,16 @@ import AdBanner from '@/components/shared/AdBanner';
 import { initClipEngine } from '@/ml/clipEngine';
 import { initArcFace } from '@/ml/arcFaceEngine';
 import { trackFunnelEvent } from '@/utils/telemetry';
+import { isMobile } from '@/utils/device';
 import styles from './LandingScreen.module.css';
 
-const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 
 function ParticleField() {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (isMobile) return;
+    if (isMobile()) return;
     const container = ref.current;
     if (!container) return;
     container.innerHTML = '';
@@ -59,7 +60,9 @@ export default function LandingScreen() {
   const isJa = lang.startsWith('ja');
   const isZh = lang.startsWith('zh');
 
-  const [displayedCards, setDisplayedCards] = useState(() => {
+  type DisplayCard = Omit<typeof CHARACTER_POOL[0], 'id'> & { id: string };
+
+  const [displayedCards, setDisplayedCards] = useState<DisplayCard[]>(() => {
     return [
       { ...CHARACTER_POOL[0]!, id: `${CHARACTER_POOL[0]!.id}-initial-0` },
       { ...CHARACTER_POOL[1]!, id: `${CHARACTER_POOL[1]!.id}-initial-1` },
@@ -71,7 +74,7 @@ export default function LandingScreen() {
   useEffect(() => {
     trackFunnelEvent('Landing Page Viewed');
     const interval = setInterval(() => {
-      setDisplayedCards((prev: any[]) => {
+      setDisplayedCards((prev) => {
         const next = [...prev];
         next.shift(); // Remove the leftmost card
 
@@ -172,7 +175,7 @@ export default function LandingScreen() {
 
         <div className={styles.exampleCards}>
           <AnimatePresence mode="popLayout">
-            {displayedCards.map((card: any, index: number) => {
+            {displayedCards.map((card, index: number) => {
               // 0 = left, 1 = center, 2 = right
               const isCenter = index === 1;
               const xPos = index === 0 ? -100 : index === 2 ? 100 : 0;

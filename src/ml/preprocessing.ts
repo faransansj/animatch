@@ -1,7 +1,7 @@
 import { PREPROCESS } from './types';
 
 export function preprocessImage(imageDataURL: string): Promise<Float32Array> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
@@ -32,6 +32,7 @@ export function preprocessImage(imageDataURL: string): Promise<Float32Array> {
 
       resolve(float32);
     };
+    img.onerror = () => reject(new Error('CLIP preprocessing: image load failed'));
     img.src = imageDataURL;
   });
 }

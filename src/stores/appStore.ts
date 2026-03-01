@@ -11,6 +11,8 @@ interface AppState {
   hideToast: () => void;
 }
 
+let toastTimer: ReturnType<typeof setTimeout> | null = null;
+
 export const useAppStore = create<AppState>((set) => ({
   language: 'ko',
   orientation: 'male',
@@ -18,8 +20,16 @@ export const useAppStore = create<AppState>((set) => ({
   setLanguage: (language) => set({ language }),
   setOrientation: (orientation) => set({ orientation }),
   showToast: (msg) => {
+    if (toastTimer) clearTimeout(toastTimer);
     set({ toastMessage: msg });
-    setTimeout(() => set({ toastMessage: null }), 2500);
+    toastTimer = setTimeout(() => {
+      set({ toastMessage: null });
+      toastTimer = null;
+    }, 2500);
   },
-  hideToast: () => set({ toastMessage: null }),
+  hideToast: () => {
+    if (toastTimer) clearTimeout(toastTimer);
+    set({ toastMessage: null });
+    toastTimer = null;
+  },
 }));

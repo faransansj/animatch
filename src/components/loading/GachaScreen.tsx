@@ -6,14 +6,15 @@ import { useResultStore } from '@/stores/resultStore';
 import { useUploadStore } from '@/stores/uploadStore';
 import { useGachaAnimation } from '@/hooks/useGachaAnimation';
 import { trackFunnelEvent } from '@/utils/telemetry';
+import { isMobile } from '@/utils/device';
 import styles from './GachaScreen.module.css';
 
-const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 
 function LoadingParticles() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (isMobile) return;
+    if (isMobile()) return;
     const container = ref.current;
     if (!container) return;
     container.innerHTML = '';

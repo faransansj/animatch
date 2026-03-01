@@ -1,21 +1,15 @@
 import type { CharacterEmbedding } from '@/types/character';
+import { getLocalizedChar } from './localize';
 
 function getShareUrl(heroineId: number): string {
   return `${window.location.origin}?match=${heroineId}`;
 }
 
 export function shareToX(char: CharacterEmbedding, percent: number, lang: string) {
+  const { name, anime } = getLocalizedChar(char, lang);
+  const isKo = lang.startsWith('ko');
   const isJa = lang.startsWith('ja');
   const isZh = lang.startsWith('zh');
-  const isKo = lang.startsWith('ko');
-
-  const name = isJa && char.heroine_name_ja ? char.heroine_name_ja :
-    isZh && char.heroine_name_zh_tw ? char.heroine_name_zh_tw :
-      isKo ? char.heroine_name : char.heroine_name_en;
-
-  const anime = isJa && char.anime_ja ? char.anime_ja :
-    isZh && char.anime_zh_tw ? char.anime_zh_tw :
-      isKo && char.anime ? char.anime : char.anime_en;
 
   let text = '';
   if (isKo) {
@@ -34,17 +28,10 @@ export function shareToX(char: CharacterEmbedding, percent: number, lang: string
 
 export function shareToBluesky(char: CharacterEmbedding, percent: number, lang: string) {
   const shareUrl = getShareUrl(char.heroine_id);
+  const { name, anime } = getLocalizedChar(char, lang);
+  const isKo = lang.startsWith('ko');
   const isJa = lang.startsWith('ja');
   const isZh = lang.startsWith('zh');
-  const isKo = lang.startsWith('ko');
-
-  const name = isJa && char.heroine_name_ja ? char.heroine_name_ja :
-    isZh && char.heroine_name_zh_tw ? char.heroine_name_zh_tw :
-      isKo ? char.heroine_name : char.heroine_name_en;
-
-  const anime = isJa && char.anime_ja ? char.anime_ja :
-    isZh && char.anime_zh_tw ? char.anime_zh_tw :
-      isKo && char.anime ? char.anime : char.anime_en;
 
   let text = '';
   if (isKo) {
@@ -63,3 +50,4 @@ export function shareToBluesky(char: CharacterEmbedding, percent: number, lang: 
 export function copyLink(heroineId: number, onSuccess: () => void) {
   navigator.clipboard.writeText(getShareUrl(heroineId)).then(onSuccess);
 }
+

@@ -13,6 +13,7 @@ import { useLocalizedChar } from '@/hooks/useLocalizedChar';
 import type { MatchCandidate, MatchResult } from '@/types/match';
 import type { CharacterEmbedding } from '@/types/character';
 import AdBanner from '@/components/shared/AdBanner';
+import { getLocalizedChar } from '@/utils/localize';
 import styles from './ResultScreen.module.css';
 
 function HeroImage({ char, children }: { char: CharacterEmbedding; children: React.ReactNode }) {
@@ -103,7 +104,6 @@ export default function ResultScreen() {
   const handleDownload = useCallback(async (format: 'basic' | 'story') => {
     if (!matchResult) return;
     const c = matchResult.character;
-    const isKo = i18n.language?.startsWith('ko');
     setIsGenerating(true);
 
     try {
@@ -111,17 +111,9 @@ export default function ResultScreen() {
       let filename: string;
 
       const lang = i18n.language || 'en';
-      const isJa = lang.startsWith('ja');
-      const isZh = lang.startsWith('zh');
-      const isKo = lang.startsWith('ko');
-
-      let nativeName = isJa && c.heroine_name_ja ? c.heroine_name_ja :
-        isZh && c.heroine_name_zh_tw ? c.heroine_name_zh_tw :
-          isKo ? c.heroine_name : c.heroine_name_en;
-
-      let nativeAnime = isJa && c.anime_ja ? c.anime_ja :
-        isZh && c.anime_zh_tw ? c.anime_zh_tw :
-          isKo && c.anime ? c.anime : c.anime_en;
+      const localized = getLocalizedChar(c, lang);
+      const nativeName = localized.name;
+      const nativeAnime = localized.anime;
 
       if (format === 'story') {
         blob = await generateStoryCard({
@@ -134,11 +126,11 @@ export default function ResultScreen() {
           lang: i18n.language,
           heroineImage: c.heroine_image,
         });
-        filename = `animatch-story-${c.heroine_name_en.toLowerCase().replace(/\s+/g, '-')}.png`;
+        filename = `animatch-story-${c.heroine_name_en.toLowerCase().replace(/\s+/g, '-')}.webp`;
 
         // Try native share first for stories if on mobile
         if (navigator.share && navigator.canShare) {
-          const file = new File([blob], filename, { type: 'image/png' });
+          const file = new File([blob], filename, { type: 'image/webp' });
           if (navigator.canShare({ files: [file] })) {
             try {
               await navigator.share({
@@ -157,13 +149,8 @@ export default function ResultScreen() {
           }
         }
       } else {
-        let nativeTags = isJa && c.heroine_tags_ja ? c.heroine_tags_ja :
-          isZh && c.heroine_tags_zh_tw ? c.heroine_tags_zh_tw :
-            isKo ? c.heroine_tags : c.heroine_tags_en;
-
-        let nativeCharm = isJa && c.heroine_charm_ja ? c.heroine_charm_ja :
-          isZh && c.heroine_charm_zh_tw ? c.heroine_charm_zh_tw :
-            isKo ? c.heroine_charm : c.heroine_charm_en;
+        const nativeTags = localized.tags;
+        const nativeCharm = localized.charm;
 
         blob = await generateResultCard({
           characterName: nativeName,
@@ -177,7 +164,7 @@ export default function ResultScreen() {
           tags: nativeTags,
           charm: nativeCharm,
         });
-        filename = `animatch-${c.heroine_name_en.toLowerCase().replace(/\s+/g, '-')}.png`;
+        filename = `animatch-${c.heroine_name_en.toLowerCase().replace(/\s+/g, '-')}.webp`;
       }
 
       // Fallback/Desktop: Download the generated blob
@@ -212,23 +199,12 @@ export default function ResultScreen() {
     } else {
       const lang = i18n.language || 'en';
       const c = currentState.character;
-
-      const isJa = lang.startsWith('ja');
-      const isZh = lang.startsWith('zh');
-      const isKo = lang.startsWith('ko');
-
-      let nativeName = isJa && c.heroine_name_ja ? c.heroine_name_ja :
-        isZh && c.heroine_name_zh_tw ? c.heroine_name_zh_tw :
-          isKo ? c.heroine_name : c.heroine_name_en;
-
-      let nativeAnime = isJa && c.anime_ja ? c.anime_ja :
-        isZh && c.anime_zh_tw ? c.anime_zh_tw :
-          isKo && c.anime ? c.anime : c.anime_en;
+      const localized = getLocalizedChar(c, lang);
 
       import('@/utils/telemetry').then(({ trackFunnelEvent }) => {
         trackFunnelEvent('Result Screen Viewed', {
-          character: nativeName,
-          anime: nativeAnime,
+          character: localized.name,
+          anime: localized.anime,
           score: currentState.score
         });
       });
@@ -243,12 +219,14 @@ export default function ResultScreen() {
     };
   }, [navigate]);
 
+  const fallbackChar = matchResult?.character ?? {} as any;
+  const localized = useLocalizedChar(fallbackChar);
+
   if (!matchResult) {
     return null;
   }
 
   const char = matchResult.character;
-  const localized = useLocalizedChar(char);
 
   const confidenceLabels: Record<string, string> = {
     high: t('result.confidenceHigh'),
@@ -369,17 +347,7 @@ export default function ResultScreen() {
               {displayRunnerUps.map((entry) => {
                 const rc = entry.character;
                 const lang = i18n.language || 'en';
-                const isJa = lang.startsWith('ja');
-                const isZh = lang.startsWith('zh');
-                const isKo = lang.startsWith('ko');
-
-                let nativeName = isJa && rc.heroine_name_ja ? rc.heroine_name_ja :
-                  isZh && rc.heroine_name_zh_tw ? rc.heroine_name_zh_tw :
-                    isKo ? rc.heroine_name : rc.heroine_name_en;
-
-                let nativeAnime = isJa && rc.anime_ja ? rc.anime_ja :
-                  isZh && rc.anime_zh_tw ? rc.anime_zh_tw :
-                    isKo && rc.anime ? rc.anime : rc.anime_en;
+                const rcLocalized = getLocalizedChar(rc, lang);
 
                 // Find original rank from allCandidates
                 const originalRank = allCandidates.findIndex((c) => c.character.heroine_id === rc.heroine_id) + 1;
@@ -395,8 +363,8 @@ export default function ResultScreen() {
                     <div className={styles.runnerUpRank}>{t('result.rank', { rank: originalRank })}</div>
                     <RunnerUpImage char={rc} />
                     <div className={styles.runnerUpInfo}>
-                      <span className={styles.runnerUpName}>{nativeName}</span>
-                      <span className={styles.runnerUpAnime}>{nativeAnime}</span>
+                      <span className={styles.runnerUpName}>{rcLocalized.name}</span>
+                      <span className={styles.runnerUpAnime}>{rcLocalized.anime}</span>
                     </div>
                     <div className={styles.runnerUpPercent}>{entry.percent}%</div>
                   </div>

@@ -112,6 +112,8 @@ ctx.addEventListener('message', async (e) => {
             }
 
             case 'RELEASE':
+                if (clipSession) { await clipSession.release(); }
+                if (arcfaceSession) { await arcfaceSession.release(); }
                 clipSession = null;
                 arcfaceSession = null;
                 ctx.postMessage({ id, type: 'RELEASE_DONE', success: true });

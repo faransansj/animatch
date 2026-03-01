@@ -11,6 +11,7 @@ import { findBestMatchDual } from '@/ml/dualEmbedding';
 import { getActiveExperimentId, getVariantConfig, getActiveVariantLabel } from '@/ml/abTest';
 import { sleep } from '@/utils/image';
 import { logMatchResult } from '@/utils/analytics';
+import { getLocalizedChar } from '@/utils/localize';
 import type { MatchResult } from '@/types/match';
 
 export function useGachaAnimation() {
@@ -92,10 +93,7 @@ export function useGachaAnimation() {
 
     // Phase 3: Reveal
     setGachaStep('revealing');
-    let quote = matchResult.character.heroine_quote_en || '...';
-    if (language === 'ko') quote = matchResult.character.heroine_quote || '...';
-    else if (language === 'ja' && matchResult.character.heroine_quote_ja) quote = matchResult.character.heroine_quote_ja;
-    else if (language === 'zh-TW' && matchResult.character.heroine_quote_zh_tw) quote = matchResult.character.heroine_quote_zh_tw;
+    const quote = getLocalizedChar(matchResult.character, language).quote || '...';
 
     await typeQuote(quote);
     await animateProgress(85, 95, 600);
@@ -124,10 +122,7 @@ export function useGachaAnimation() {
     await animateProgress(65, 80, 1200);
 
     setGachaStep('revealing');
-    let quote = matchResult.character.heroine_quote_en || '...';
-    if (language === 'ko') quote = matchResult.character.heroine_quote || '...';
-    else if (language === 'ja' && matchResult.character.heroine_quote_ja) quote = matchResult.character.heroine_quote_ja;
-    else if (language === 'zh-TW' && matchResult.character.heroine_quote_zh_tw) quote = matchResult.character.heroine_quote_zh_tw;
+    const quote = getLocalizedChar(matchResult.character, language).quote || '...';
 
     await typeQuote(quote);
     await animateProgress(80, 95, 800);
@@ -213,6 +208,10 @@ export function useGachaAnimation() {
       // Proactively release memory before transitioning to Result page
       await releaseClipEngine();
       await releaseArcFace();
+
+      // Security: clear user's face photo from memory immediately
+      setRawImageData(null);
+      setProcessedImageData(null);
 
       setMatchResult(result);
       logMatchResult(result, orientation, language, usedDualMatching, getActiveVariantLabel());
