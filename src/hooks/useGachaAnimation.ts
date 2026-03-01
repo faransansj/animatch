@@ -209,13 +209,17 @@ export function useGachaAnimation() {
       await releaseClipEngine();
       await releaseArcFace();
 
-      // Security: clear user's face photo from memory immediately
-      setRawImageData(null);
-      setProcessedImageData(null);
-
       setMatchResult(result);
       logMatchResult(result, orientation, language, usedDualMatching, getActiveVariantLabel());
       navigate('/result');
+
+      // Security: clear user's face photo from memory AFTER navigation commits.
+      // Must be deferred — if cleared before navigate, GachaScreen's integrity
+      // guard detects null processedImageData and redirects to /upload.
+      setTimeout(() => {
+        setRawImageData(null);
+        setProcessedImageData(null);
+      }, 0);
     }
   }, [navigate, orientation, language, setGachaProgress, setGachaRevealed, setQuoteText, setGachaStep, setMatchResult, runMLSequence, runFallbackSequence, waitForModel]);
 
