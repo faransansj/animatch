@@ -4,6 +4,8 @@ import LandingScreen from '@/components/landing/LandingScreen';
 import UploadScreen from '@/components/upload/UploadScreen';
 import GachaScreen from '@/components/loading/GachaScreen';
 import ResultScreen from '@/components/result/ResultScreen';
+import CharacterBrowse from '@/components/characters/CharacterBrowse';
+import CharacterDetail from '@/components/characters/CharacterDetail';
 import Toast from '@/components/shared/Toast';
 import PrivacyPolicy from '@/components/legal/PrivacyPolicy';
 import TermsOfService from '@/components/legal/TermsOfService';
@@ -25,6 +27,8 @@ export default function App() {
           <Route path="/upload" element={<UploadScreen />} />
           <Route path="/loading" element={<GachaScreen />} />
           <Route path="/result" element={<ResultScreen />} />
+          <Route path="/characters" element={<CharacterBrowse />} />
+          <Route path="/characters/:id" element={<CharacterDetail />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
         </Routes>
@@ -33,3 +37,4 @@ export default function App() {
     </>
   );
 }
+

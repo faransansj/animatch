@@ -1,0 +1,390 @@
+/* ===== Screen ===== */
+.screen {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: radial-gradient(ellipse at top, #1a1040, var(--bg-dark));
+}
+
+.content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 24px max(60px, env(safe-area-inset-bottom));
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    gap: 24px;
+}
+
+/* ===== Heroine Card ===== */
+.heroineCard {
+    width: 100%;
+    display: flex;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+}
+
+.cardGlow {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, transparent, var(--glow-pink), transparent, var(--glow-purple), transparent);
+    animation: cardGlowSpin 6s linear infinite;
+    opacity: 0.15;
+}
+
+@keyframes cardGlowSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===== Hero Image (Flip Card) ===== */
+.heroImg {
+    flex: 0 0 380px;
+    min-height: 480px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    perspective: 1200px;
+    cursor: pointer;
+}
+
+.heroImg.isFlipped .flipInner {
+    -webkit-transform: rotateY(180deg);
+    transform: rotateY(180deg);
+}
+
+.flipInner {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transition: -webkit-transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+}
+
+.flipFront,
+.flipBack {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+}
+
+.flipFront {
+    -webkit-transform: rotateY(0deg);
+    transform: rotateY(0deg);
+}
+
+.flipBack {
+    -webkit-transform: rotateY(180deg);
+    transform: rotateY(180deg);
+}
+
+.heroTarotImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    inset: 0;
+}
+
+.emojiLg {
+    font-size: 100px;
+    filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.3));
+    animation: heroBounce 3s ease-in-out infinite;
+}
+
+@keyframes heroBounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* ===== Info Panel ===== */
+.infoPanel {
+    flex: 1;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+}
+
+.cardHeader {
+    text-align: center;
+}
+
+.cardBadge {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--primary-light);
+}
+
+.nameArea {
+    padding: 0 0 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.heroineName {
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.heroineAnime {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+}
+
+.tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.tag {
+    padding: 4px 10px;
+    background: rgba(192, 132, 252, 0.15);
+    border: 1px solid rgba(192, 132, 252, 0.2);
+    border-radius: 12px;
+    font-size: 12px;
+    color: var(--secondary-light);
+}
+
+/* ===== Detail Sections ===== */
+.details {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.detailSection {
+    background: var(--bg-card-2);
+    border-radius: var(--radius);
+    padding: 18px;
+}
+
+.detailTitle {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.personalityList {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.personalityList li {
+    font-size: 14px;
+    color: var(--text-dim);
+    padding-left: 16px;
+    position: relative;
+}
+
+.personalityList li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+}
+
+.charm {
+    border: 1px solid rgba(255, 107, 157, 0.15);
+    background: rgba(255, 107, 157, 0.05);
+}
+
+.charmText {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    font-style: italic;
+}
+
+.animeInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.animeTitleText {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.animeGenre {
+    font-size: 13px;
+    color: var(--text-dim);
+}
+
+/* ===== Action Buttons ===== */
+.actionButtons {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    max-width: 400px;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+.listBtn,
+.tryBtn {
+    flex: 1;
+    padding: 14px 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-dim);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.listBtn {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.listBtn:hover,
+.tryBtn:hover {
+    border-color: var(--text-dim);
+    color: var(--text);
+    transform: translateY(-2px);
+}
+
+.listBtn:active,
+.tryBtn:active {
+    transform: translateY(0);
+}
+
+/* ===== Loading & Empty ===== */
+.loadingState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 80px 0;
+    color: var(--text-dim);
+    position: relative;
+    z-index: 10;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 80px 0;
+    color: var(--text-dim);
+    position: relative;
+    z-index: 10;
+}
+
+.emptyIcon {
+    font-size: 48px;
+    opacity: 0.5;
+}
+
+.backBtn {
+    padding: 10px 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.backBtn:hover {
+    border-color: var(--primary);
+    color: var(--text);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .heroineCard {
+        flex-direction: column;
+    }
+
+    .heroImg {
+        flex: none;
+        min-height: 320px;
+        width: 100%;
+    }
+
+    .infoPanel {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .heroImg {
+        min-height: 280px;
+    }
+
+    .emojiLg {
+        font-size: 72px;
+    }
+
+    .nameArea {
+        text-align: center;
+    }
+
+    .tags {
+        justify-content: center;
+    }
+}
