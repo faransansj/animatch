@@ -59,6 +59,9 @@ export default {
         cameraError: '無法使用相機',
         cameraPermission: '請允許相機權限',
         consentLabel: '我已年滿14歲並同意隱私權政策',
+        disabledNoImage: '請先上傳照片',
+        disabledNoConsent: '請同意隱私權政策',
+        disabledBoth: '需要上傳照片並同意',
     },
     loading: {
         step1: '分析臉部特徵',

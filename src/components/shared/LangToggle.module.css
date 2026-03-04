@@ -7,12 +7,26 @@
 }
 
 .btn {
-  padding: 6px 12px;
+  padding: 8px 14px;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
   color: var(--text-dim);
   transition: var(--transition);
+  min-height: 36px;
+  min-width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
 }
 
 .active {

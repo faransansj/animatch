@@ -58,6 +58,9 @@ export default {
     cameraError: 'Camera not available',
     cameraPermission: 'Please allow camera access',
     consentLabel: 'I am 14+ and agree to the Privacy Policy',
+    disabledNoImage: 'Please upload a photo first',
+    disabledNoConsent: 'Please agree to the Privacy Policy',
+    disabledBoth: 'Photo upload and consent are required',
     retakeBtn: '📷 Retake',
   },
   loading: {

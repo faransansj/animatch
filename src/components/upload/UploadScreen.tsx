@@ -39,6 +39,15 @@ export default function UploadScreen() {
 
   const hasImage = !!rawImageData;
 
+  // Build disabled reason for analyze button tooltip (#6)
+  const analyzeDisabledReason = !hasImage && !hasConsent
+    ? t('upload.disabledBoth')
+    : !hasImage
+      ? t('upload.disabledNoImage')
+      : !hasConsent
+        ? t('upload.disabledNoConsent')
+        : undefined;
+
   useEffect(() => {
     trackFunnelEvent('Upload Page Viewed');
   }, []);
@@ -241,6 +250,7 @@ export default function UploadScreen() {
           className={styles.analyzeBtn}
           disabled={!hasImage || !hasConsent}
           onClick={startAnalysis}
+          title={analyzeDisabledReason}
         >
           <span>{t('upload.analyze')}</span>
           <span>{t('upload.analyzeIcon')}</span>

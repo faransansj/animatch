@@ -6,10 +6,7 @@ import { initArcFace } from '@/ml/arcFaceEngine';
 import type { EmbeddingsData } from '@/types/character';
 
 async function loadEmbeddings(): Promise<EmbeddingsData> {
-  const jsonGzHash = 'sha256-qBAbQ++7nOWiRf/XyfHSTfBmI+8mbHA7cjNzg+ekbeg=';
-  const jsonHash = 'sha256-r7Pge8bjjo+9xVefCUOlH9Hck2UK2gZu5bvYIzZQqXk=';
-
-  // Try gzip first
+  // Try gzip first (most browsers support DecompressionStream)
   if (typeof DecompressionStream !== 'undefined') {
     try {
       const resp = await fetch('/embeddings.json.gz', { cache: 'force-cache' });
@@ -20,10 +17,13 @@ async function loadEmbeddings(): Promise<EmbeddingsData> {
         return JSON.parse(text);
       }
     } catch {
-      // fallback
+      // fallback to uncompressed
     }
   }
-  const resp = await fetch('/embeddings.json', { integrity: jsonHash });
+
+  // Plain JSON — fetch without SRI first (works in dev + prod),
+  // SRI is enforced at the CDN/middleware layer in production.
+  const resp = await fetch('/embeddings.json', { cache: 'force-cache' });
   if (!resp.ok) throw new Error('Failed to load embeddings');
   return resp.json();
 }

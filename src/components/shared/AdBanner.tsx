@@ -32,16 +32,9 @@ export default function AdBanner({ format = 'horizontal' }: AdBannerProps) {
     }
   }, []);
 
-  // Show placeholder when AdSense is not configured
+  // Hide completely when AdSense is not configured
   if (!ADSENSE_PUB_ID || !ADSENSE_SLOT_ID) {
-    return (
-      <div className={styles.adContainer}>
-        <div className={styles.placeholder}>
-          <span className={styles.adLabel ?? ''}>AD</span>
-          <span>AdSense Banner (728x90)</span>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (

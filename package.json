@@ -11,7 +11,10 @@
     "cf:dev": "wrangler pages dev dist",
     "deploy": "pnpm build && rm -rf dist/models && wrangler pages deploy dist",
     "deploy:models": "wrangler r2 object put animatch-models/clip-image-encoder-q8.onnx --file public/models/clip-image-encoder-q8.onnx --remote && wrangler r2 object put animatch-models/mobilefacenet-q8.onnx --file public/models/mobilefacenet-q8.onnx --remote",
-    "deploy:db": "wrangler d1 migrations apply animatch-db --remote"
+    "deploy:db": "wrangler d1 migrations apply animatch-db --remote",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.6",
@@ -39,8 +42,11 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.0",
+    "@vitest/coverage-v8": "^4.0.18",
+    "jsdom": "^28.1.0",
     "typescript": "~5.7.0",
     "vite": "^6.0.0",
+    "vitest": "^4.0.18",
     "wrangler": "^4.66.0"
   }
 }

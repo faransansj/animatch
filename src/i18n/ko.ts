@@ -59,6 +59,9 @@ export default {
     cameraError: '카메라를 사용할 수 없어요',
     cameraPermission: '카메라 권한을 허용해주세요',
     consentLabel: '만 14세 이상이며 개인정보처리방침에 동의합니다',
+    disabledNoImage: '사진을 먼저 업로드해주세요',
+    disabledNoConsent: '개인정보처리방침에 동의해주세요',
+    disabledBoth: '사진 업로드 및 동의가 필요합니다',
   },
   loading: {
     step1: '얼굴 특징 분석',

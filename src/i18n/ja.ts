@@ -59,6 +59,9 @@ export default {
         cameraError: 'カメラを使用できません',
         cameraPermission: 'カメラの権限を許可してください',
         consentLabel: '14歳以上であり、プライバシーポリシーに同意します',
+        disabledNoImage: '写真をアップロードしてください',
+        disabledNoConsent: 'プライバシーポリシーに同意してください',
+        disabledBoth: '写真のアップロードと同意が必要です',
     },
     loading: {
         step1: '顔の特徴を分析',
