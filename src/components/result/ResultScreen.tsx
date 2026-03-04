@@ -18,13 +18,32 @@ import styles from './ResultScreen.module.css';
 
 function HeroImage({ char, children }: { char: CharacterEmbedding; children: React.ReactNode }) {
   const [isFlipped, setIsFlipped] = useState(false);
-  const [imgState, setImgState] = useState<'official' | 'emoji'>('official'); // Default to official illustration
+  const [imgState, setImgState] = useState<'loading' | 'official' | 'emoji'>('loading');
   const fallbackBg = char.heroine_color || 'linear-gradient(135deg, #f093fb, #f5576c)';
 
   useEffect(() => {
     setIsFlipped(false);
-    setImgState('official');
-  }, [char.heroine_id]);
+    let isMounted = true;
+
+    if (!char.heroine_image) {
+      setImgState('emoji');
+      return;
+    }
+
+    setImgState('loading');
+    const img = new Image();
+    img.crossOrigin = 'anonymous'; // Important for canvas tainted state downstream
+    img.referrerPolicy = 'no-referrer'; // Critical to bypass Anilist 403 Forbidden
+    img.onload = () => {
+      if (isMounted) setImgState('official');
+    };
+    img.onerror = () => {
+      if (isMounted) setImgState('emoji');
+    };
+    img.src = char.heroine_image;
+
+    return () => { isMounted = false; };
+  }, [char.heroine_id, char.heroine_image]);
 
   return (
     <div
@@ -44,11 +63,12 @@ function HeroImage({ char, children }: { char: CharacterEmbedding; children: Rea
               src={char.heroine_image}
               alt={'AniMatch character result: ' + char.heroine_name}
               style={{ objectFit: 'cover', WebkitTransform: 'translateZ(0)', transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
+              crossOrigin="anonymous"
               referrerPolicy="no-referrer"
               onError={() => setImgState('emoji')}
             />
           )}
-          {imgState === 'emoji' && (
+          {(imgState === 'emoji' || imgState === 'loading') && (
             <span className={styles.emojiLg}>{char.heroine_emoji || '💖'}</span>
           )}
         </div>
@@ -60,14 +80,33 @@ function HeroImage({ char, children }: { char: CharacterEmbedding; children: Rea
 
 
 function RunnerUpImage({ char }: { char: CharacterEmbedding }) {
-  const [imgState, setImgState] = useState<'official' | 'emoji'>('official');
+  const [imgState, setImgState] = useState<'loading' | 'official' | 'emoji'>('loading');
   const fallbackBg = char.heroine_color || 'linear-gradient(135deg, #667eea, #764ba2)';
 
   useEffect(() => {
-    setImgState('official');
-  }, [char.heroine_id]);
+    let isMounted = true;
 
-  if (imgState === 'emoji' || !char.heroine_image) {
+    if (!char.heroine_image) {
+      setImgState('emoji');
+      return;
+    }
+
+    setImgState('loading');
+    const img = new Image();
+    img.crossOrigin = 'anonymous'; // Important for canvas layout downstream
+    img.referrerPolicy = 'no-referrer'; // Critical for Anilist CDNs
+    img.onload = () => {
+      if (isMounted) setImgState('official');
+    };
+    img.onerror = () => {
+      if (isMounted) setImgState('emoji');
+    };
+    img.src = char.heroine_image;
+
+    return () => { isMounted = false; };
+  }, [char.heroine_id, char.heroine_image]);
+
+  if (imgState === 'emoji' || imgState === 'loading' || !char.heroine_image) {
     return (
       <div className={styles.runnerUpEmoji} style={{ background: fallbackBg }}>
         <span>{char.heroine_emoji || '💕'}</span>
@@ -82,6 +121,7 @@ function RunnerUpImage({ char }: { char: CharacterEmbedding }) {
         src={char.heroine_image}
         alt={'AniMatch character runner-up: ' + char.heroine_name}
         style={{ objectFit: 'cover', WebkitTransform: 'translateZ(0)', transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
+        crossOrigin="anonymous"
         referrerPolicy="no-referrer"
         onError={() => setImgState('emoji')}
       />
