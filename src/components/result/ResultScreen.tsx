@@ -213,11 +213,14 @@ export default function ResultScreen() {
     // Smooth scroll to top when revealing results
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
+    // Safely clear memory of the uploaded photo now that the transition is complete
+    useUploadStore.getState().reset();
+
     return () => {
       // Intentionally not resetting stores here to prevent React 18 StrictMode double-mount bugs
       // The stores will be overwritten when starting a new analysis anyway.
     };
-  }, [navigate]);
+  }, [navigate, i18n.language]);
 
   const fallbackChar = matchResult?.character ?? {} as any;
   const localized = useLocalizedChar(fallbackChar);
