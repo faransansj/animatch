@@ -31,6 +31,11 @@ function HeroImage({ char, children }: { char: CharacterEmbedding; children: Rea
       className={`${styles.heroImg} ${isFlipped ? styles.isFlipped : ''}`}
       onClick={() => setIsFlipped(!isFlipped)}
     >
+      {/* Force preload to prevent Safari from stalling the load on non-visible backfaces */}
+      {char.heroine_image && (
+        <link rel="preload" as="image" href={char.heroine_image} />
+      )}
+
       <div className={styles.flipInner}>
         {/* Front: Emoji Fallback (Shown first before flip) */}
         <div className={styles.flipFront} style={{ background: fallbackBg }}>
@@ -43,7 +48,7 @@ function HeroImage({ char, children }: { char: CharacterEmbedding; children: Rea
               className={styles.heroTarotImg}
               src={char.heroine_image}
               alt={'AniMatch character result: ' + char.heroine_name}
-              style={{ objectFit: 'cover' }}
+              style={{ objectFit: 'cover', WebkitTransform: 'translateZ(0)', transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
               referrerPolicy="no-referrer"
               onError={() => setImgState('emoji')}
             />
@@ -58,9 +63,14 @@ function HeroImage({ char, children }: { char: CharacterEmbedding; children: Rea
   );
 }
 
+
 function RunnerUpImage({ char }: { char: CharacterEmbedding }) {
   const [imgState, setImgState] = useState<'official' | 'emoji'>('official');
   const fallbackBg = char.heroine_color || 'linear-gradient(135deg, #667eea, #764ba2)';
+
+  useEffect(() => {
+    setImgState('official');
+  }, [char.heroine_id]);
 
   if (imgState === 'emoji' || !char.heroine_image) {
     return (
@@ -72,11 +82,15 @@ function RunnerUpImage({ char }: { char: CharacterEmbedding }) {
 
   return (
     <div className={styles.runnerUpEmoji}>
+      {/* Force preload to ensure rapid viewing if swapped */}
+      {char.heroine_image && (
+        <link rel="preload" as="image" href={char.heroine_image} />
+      )}
       <img
         className={styles.runnerUpTarotImg}
         src={char.heroine_image}
         alt={'AniMatch character runner-up: ' + char.heroine_name}
-        style={{ objectFit: 'cover' }}
+        style={{ objectFit: 'cover', WebkitTransform: 'translateZ(0)', transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
         referrerPolicy="no-referrer"
         onError={() => setImgState('emoji')}
       />
