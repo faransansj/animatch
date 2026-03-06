@@ -62,7 +62,7 @@ function HeroImage({ char, children }: { char: CharacterEmbedding; children: Rea
               className={styles.heroTarotImg}
               src={char.heroine_image}
               alt={'AniMatch character result: ' + char.heroine_name}
-              style={{ objectFit: 'cover', WebkitTransform: 'translateZ(0)', transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
+              style={{ objectFit: 'cover' }}
               crossOrigin="anonymous"
               referrerPolicy="no-referrer"
               onError={() => setImgState('emoji')}
@@ -120,7 +120,7 @@ function RunnerUpImage({ char }: { char: CharacterEmbedding }) {
         className={styles.runnerUpTarotImg}
         src={char.heroine_image}
         alt={'AniMatch character runner-up: ' + char.heroine_name}
-        style={{ objectFit: 'cover', WebkitTransform: 'translateZ(0)', transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
+        style={{ objectFit: 'cover' }}
         crossOrigin="anonymous"
         referrerPolicy="no-referrer"
         onError={() => setImgState('emoji')}
