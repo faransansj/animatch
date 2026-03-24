@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
+import html2canvas from 'html2canvas';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -7,7 +8,7 @@ import Header from '@/components/shared/Header';
 import { useResultStore } from '@/stores/resultStore';
 import { useUploadStore } from '@/stores/uploadStore';
 import { useAppStore } from '@/stores/appStore';
-import { shareToX, shareToBluesky, copyLink } from '@/utils/share';
+import { shareToX, shareToBluesky, copyLink, shareToKakao } from '@/utils/share';
 import { generateResultCard, generateStoryCard } from '@/utils/resultCard';
 import { useLocalizedChar } from '@/hooks/useLocalizedChar';
 import type { MatchCandidate, MatchResult } from '@/types/match';
@@ -138,6 +139,7 @@ export default function ResultScreen() {
   const showToast = useAppStore(s => s.showToast);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const handleRetry = useCallback(() => {
     import('@/utils/telemetry').then(({ trackFunnelEvent }) => {
@@ -194,22 +196,19 @@ export default function ResultScreen() {
           }
         }
       } else {
-        const nativeTags = localized.tags;
-        const nativeCharm = localized.charm;
-
-        blob = await generateResultCard({
-          characterName: nativeName,
-          animeName: nativeAnime,
-          percent: matchResult.percent,
-          heroineId: c.heroine_id,
-          heroineEmoji: c.heroine_emoji,
-          heroineColor: c.heroine_color,
-          lang: i18n.language,
-          heroineImage: c.heroine_image,
-          tags: nativeTags,
-          charm: nativeCharm,
+        if (!cardRef.current) return;
+        
+        const canvas = await html2canvas(cardRef.current, {
+          useCORS: true,
+          scale: 2,
+          backgroundColor: '#0F172A', // Match theme bg
+          logging: false,
         });
-        filename = `animatch-${c.heroine_name_en.toLowerCase().replace(/\s+/g, '-')}.webp`;
+        
+        blob = await new Promise((resolve, reject) => {
+          canvas.toBlob((b) => b ? resolve(b) : reject(), 'image/png');
+        });
+        filename = `animatch-${c.heroine_name_en.toLowerCase().replace(/\s+/g, '-')}.png`;
       }
 
       // Fallback/Desktop: Download the generated blob
@@ -222,7 +221,7 @@ export default function ResultScreen() {
       showToast(t('result.downloadComplete'));
 
       import('@/utils/telemetry').then(({ trackFunnelEvent }) => {
-        trackFunnelEvent('Result Saved', { format });
+        trackFunnelEvent('image_saved', { character: nativeName, format });
       });
     } catch {
       showToast(t('result.downloadError'));
@@ -247,7 +246,7 @@ export default function ResultScreen() {
       const localized = getLocalizedChar(c, lang);
 
       import('@/utils/telemetry').then(({ trackFunnelEvent }) => {
-        trackFunnelEvent('Result Screen Viewed', {
+        trackFunnelEvent('result_viewed', {
           character: localized.name,
           anime: localized.anime,
           score: currentState.score
@@ -317,7 +316,8 @@ export default function ResultScreen() {
       <main className={styles.content}>
         {/* Heroine Card */}
         <motion.div
-          className={styles.heroineCard}
+           ref={cardRef}
+           className={styles.heroineCard}
           initial={isMobile ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: isMobile ? 0.5 : 0.8, delay: isMobile ? 0.1 : 0.3 }}
@@ -379,6 +379,10 @@ export default function ResultScreen() {
                 </div>
               </div>
             </div>
+
+            <div className={styles.watermark}>
+              animatch.midori-lab.com
+            </div>
           </div>
         </motion.div>
 
@@ -432,16 +436,32 @@ export default function ResultScreen() {
           transition={{ duration: 0.6, delay: 0.6 }}
         >
           <h3 className={styles.shareTitle}>{t('result.shareTitle')}</h3>
-          <div className={styles.shareButtons} style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-            <button className={`${styles.shareBtn} ${styles.twitter}`} onClick={() => shareToX(char, matchResult.percent, i18n.language)}>
+          <div className={styles.shareButtons} style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+            <button className={`${styles.shareBtn} ${styles.twitter}`} onClick={() => {
+              shareToX(char, matchResult.percent, i18n.language);
+              import('@/utils/telemetry').then(({ trackFunnelEvent }) => trackFunnelEvent('share_click', { method: 'twitter', character: localized.name }));
+            }}>
               <span className={styles.shareIcon}>𝕏</span>
               <span>{t('result.shareX')}</span>
             </button>
-            <button className={`${styles.shareBtn} ${styles.bluesky}`} onClick={() => shareToBluesky(char, matchResult.percent, i18n.language)}>
+            <button className={`${styles.shareBtn} ${styles.kakao}`} onClick={() => {
+              shareToKakao(char, matchResult.percent, i18n.language);
+              import('@/utils/telemetry').then(({ trackFunnelEvent }) => trackFunnelEvent('share_click', { method: 'kakao', character: localized.name }));
+            }}>
+              <span className={styles.shareIcon}>💬</span>
+              <span>{t('result.shareKakao')}</span>
+            </button>
+            <button className={`${styles.shareBtn} ${styles.bluesky}`} onClick={() => {
+              shareToBluesky(char, matchResult.percent, i18n.language);
+              import('@/utils/telemetry').then(({ trackFunnelEvent }) => trackFunnelEvent('share_click', { method: 'bluesky', character: localized.name }));
+            }}>
               <span className={styles.shareIcon}>🦋</span>
               <span>{t('result.shareBluesky')}</span>
             </button>
-            <button className={`${styles.shareBtn} ${styles.copy}`} onClick={() => copyLink(char.heroine_id, () => showToast(t('result.linkCopied')))}>
+            <button className={`${styles.shareBtn} ${styles.copy}`} onClick={() => {
+              copyLink(char.heroine_id, matchResult.percent, () => showToast(t('result.linkCopied')));
+              import('@/utils/telemetry').then(({ trackFunnelEvent }) => trackFunnelEvent('share_click', { method: 'copy', character: localized.name }));
+            }}>
               <span className={styles.shareIcon}>🔗</span>
               <span>{t('result.shareCopy')}</span>
             </button>

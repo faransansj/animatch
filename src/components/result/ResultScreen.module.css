@@ -357,6 +357,18 @@
   color: var(--text-dim);
 }
 
+.watermark {
+  margin-top: auto;
+  padding-top: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-light);
+  opacity: 0.6;
+  text-align: center;
+  font-family: var(--font-outfit);
+  letter-spacing: 0.05em;
+}
+
 /* Runner-up */
 .runnerUpSection {
   width: 100%;
@@ -535,6 +547,10 @@
 
 .twitter:hover {
   border-color: #1DA1F2;
+}
+
+.kakao:hover {
+  border-color: #FEE500;
 }
 
 .bluesky:hover {

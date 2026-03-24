@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] - 2026-03-17
+
+### Added
+- **Phase 1 Infrastructure Implementation**:
+    - **Result Card PNG Export**: Integrated `html2canvas` with watermark for branding.
+    - **One-click Sharing**: Added KakaoTalk sharing SDK and buttons.
+    - **Dynamic OG Tags**: Implemented D1-backed middleware for character-specific social previews.
+    - **GA4 Integration**: Added custom events for `share_click`, `result_viewed`, and `image_saved`.
+
+## [Planned]
+
+### Phase 2: Seeding & Viral Outreach
+- [ ] **Content Preparation:** Extract high-quality result cards for trending characters.
+- [ ] **Community Strategy:** Draft post templates for DC Inside, ArcaLive, and Twitter/X.
+- [ ] **Outreach:** Identify key subculture influencers for potential collaboration.
+
+### Phase 3: Analysis & Scaling
+- [ ] **Data Review:** Analyze GA4 data to identify high-performing channels.
+- [ ] **Viral Loop Optimization:** Identify and fix friction points in the sharing flow.
+- [ ] **Growth Tracking:** Begin MAU tracking for potential partnership pitching (e.g., Laftel).
+
+
 ## [2.0.1] - 2026-03-06
 
 ### Fixed

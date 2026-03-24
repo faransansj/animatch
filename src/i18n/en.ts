@@ -93,6 +93,7 @@ export default {
     shareTitle: 'Share Results',
     shareX: 'Share on X',
     shareBluesky: 'Bluesky',
+    shareKakao: 'KakaoTalk',
     shareCopy: 'Copy Link',
     shareDownload: 'Save Image',
     saveModalTitle: 'Choose Save Format',
@@ -103,8 +104,8 @@ export default {
     downloading: 'Generating image...',
     downloadComplete: 'Image saved!',
     downloadError: 'Download failed. Please try again.',
-    shareText: 'I found my anime partner on AniMatch! 💕\nMy anime partner is "{{name}}" ({{anime}})\nMatch: {{percent}}%\n\nTry it yourself! 👉',
-    shareTextShort: 'I found my anime partner on AniMatch! 💕 My anime partner is "{{name}}" ({{anime}}) Match: {{percent}}%',
+    shareText: 'I found my anime partner on AniMatch! 💕\nMy anime partner is "{{name}}" ({{anime}})\nMatch: {{percent}}%\n\nTry it now! 👉 {{url}}',
+    shareTextShort: 'My anime partner is "{{name}}"! {{percent}}% Match! 💕 Try it now 👉 {{url}}',
     adBanner: 'AdSense Banner (728×90)',
   },
   model: {

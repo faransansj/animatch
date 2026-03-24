@@ -93,6 +93,7 @@ export default {
         shareTitle: '分享結果',
         shareX: '分享至 X',
         shareBluesky: 'Bluesky',
+        shareKakao: 'KakaoTalk',
         shareCopy: '複製連結',
         shareDownload: '儲存圖片',
         saveModalTitle: '請問要儲存哪種格式？',
@@ -103,8 +104,8 @@ export default {
         downloading: '正在產生圖片...',
         downloadComplete: '圖片已儲存！',
         downloadError: '下載失敗，請再試一次。',
-        shareText: '我在 AniMatch 找到了命中注定的動漫戀人！ 💕\n我的動漫戀人是「{{name}}」({{anime}})\n契合度: {{percent}}%\n\n你也來測試看看吧！ 👉',
-        shareTextShort: '我在 AniMatch 找到了命中注定的動漫戀人！ 💕 我的動漫戀人是「{{name}}」({{anime}}) 契合度: {{percent}}%',
+        shareText: '我在 AniMatch 找到了命中注定的動漫戀人！ 💕\n我的動漫戀人是「{{name}}」({{anime}})\n契合度: {{percent}}%\n\n現在就來測試看看吧！ 👉 {{url}}',
+        shareTextShort: '命中注定的動漫戀人是「{{name}}」！{{percent}}% 契合！ 💕 現在就測 👉 {{url}}',
         adBanner: 'AdSense Banner (728×90)',
     },
     model: {

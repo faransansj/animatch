@@ -22,7 +22,9 @@ const DEFAULT_ORIGIN = 'https://animatch.midori-lab.com';
 app.use('*', cors({
   origin: (origin, c) => {
     const allowed = (c as any).env?.ALLOWED_ORIGIN ?? DEFAULT_ORIGIN;
-    if (!origin || origin === allowed || origin.startsWith('http://localhost')) {
+    // localhost는 개발 환경에서만 허용 (프로덕션 ALLOWED_ORIGIN 환경변수로 제어)
+    const isDev = !c.env?.ALLOWED_ORIGIN;
+    if (!origin || origin === allowed || (isDev && origin.startsWith('http://localhost'))) {
       return origin ?? allowed;
     }
     return '';
@@ -101,6 +103,18 @@ app.onError((err, c) => {
   }
 
   return c.json({ error: 'Internal Server Error' }, 500);
+});
+
+// ── Admin authentication middleware ─────────────────────────────────────────
+// X-AniMatch-Secret 헤더가 환경변수 ANIMATCH_SECRET과 일치해야 접근 허용.
+
+const adminAuth = createMiddleware<{ Bindings: Env }>(async (c, next) => {
+  const secret = c.req.header('X-AniMatch-Secret');
+  const expected = c.env.ANIMATCH_SECRET;
+  if (!expected || !secret || secret !== expected) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  await next();
 });
 
 // ── Rate limiting middleware ──────────────────────────────────────────────────
@@ -201,6 +215,7 @@ app.get('/analytics/trending', rateLimitMiddleware, async (c) => {
 
 app.get('/analytics/ab-report', rateLimitMiddleware, async (c) => {
   try {
+    // ab_variant 컬럼이 migration 미적용 시에도 빈 배열로 graceful 처리
     const result = await c.env.DB.prepare(
       `SELECT
          ab_variant,
@@ -217,9 +232,11 @@ app.get('/analytics/ab-report', rateLimitMiddleware, async (c) => {
        ORDER BY match_count DESC`
     ).all();
 
-    return c.json({ variants: result.results });
-  } catch {
-    return c.json({ error: 'Failed to fetch AB report' }, 500);
+    return c.json({ variants: result.results ?? [] });
+  } catch (err) {
+    // ab_variant 컬럼 미존재 등 스키마 오류 시 빈 배열 반환 (500 방지)
+    console.warn('[ab-report] Query failed, likely missing migration:', err);
+    return c.json({ variants: [], warning: 'AB variant data unavailable' });
   }
 });
 
@@ -246,6 +263,69 @@ app.post('/analytics/feedback', rateLimitMiddleware, async (c) => {
     return c.json({ ok: true });
   } catch {
     return c.json({ error: 'Failed to record feedback' }, 500);
+  }
+});
+
+// ── GET /api/og/:id ──────────────────────────────────────────────────────────
+// Returns character-specific OG image data or redirects to character image.
+app.get('/og/:id', async (c) => {
+  const heroineId = parseInt(c.req.param('id'), 10);
+  if (isNaN(heroineId)) return c.notFound();
+
+  try {
+    const char = await c.env.DB.prepare(
+      `SELECT c.name_en, a.title_en AS anime_en, c.image_url
+       FROM characters c
+       JOIN animes a ON c.anime_id = a.id
+       WHERE c.heroine_id_original = ?`
+    ).bind(heroineId).first();
+
+    if (!char) return c.notFound();
+
+    // In a real prod env, we'd use satori/resvg here to generate a PNG.
+    // Since we want to be fast and lightweight, we'll redirect to the character image
+    // but the _middleware will have already set the dynamic description.
+    return c.redirect(char.image_url as string);
+  } catch {
+    return c.notFound();
+  }
+});
+
+// ── GET /api/admin/dashboard ──────────────────────────────────────────────────
+// Returns aggregated metrics for internal review.
+app.get('/admin/dashboard', adminAuth, rateLimitMiddleware, async (c) => {
+  try {
+    const [counts, topChars, feedback] = await Promise.all([
+      c.env.DB.prepare(`
+        SELECT 
+          COUNT(*) as total_matches,
+          COUNT(DISTINCT DATE(created_at)) as days_active,
+          SUM(CASE WHEN created_at > datetime('now', '-24 hours') THEN 1 ELSE 0 END) as matches_24h
+        FROM analysis_logs
+      `).first(),
+      c.env.DB.prepare(`
+        SELECT matched_character, matched_anime, COUNT(*) as count
+        FROM analysis_logs
+        GROUP BY matched_character
+        ORDER BY count DESC
+        LIMIT 5
+      `).all(),
+      c.env.DB.prepare(`
+        SELECT 
+          rating,
+          COUNT(*) as count
+        FROM match_feedback
+        GROUP BY rating
+      `).all(),
+    ]);
+
+    return c.json({
+      summary: counts,
+      top_characters: topChars.results,
+      feedback_breakdown: feedback.results,
+    });
+  } catch (err) {
+    return c.json({ error: 'Failed to fetch dashboard data' }, 500);
   }
 });
 

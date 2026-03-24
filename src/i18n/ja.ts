@@ -93,6 +93,7 @@ export default {
         shareTitle: '結果をシェア',
         shareX: 'Xでシェア',
         shareBluesky: 'Bluesky',
+        shareKakao: 'カカオトーク',
         shareCopy: 'リンクをコピー',
         shareDownload: '画像を保存',
         saveModalTitle: 'どの形式で保存しますか？',
@@ -103,8 +104,8 @@ export default {
         downloading: '画像を作成中...',
         downloadComplete: '画像を保存しました！',
         downloadError: 'ダウンロードに失敗しました。もう一度お試しください。',
-        shareText: 'AniMatchで私のアニメの恋人を見つけました！ 💕\n私のアニメの恋人は「{{name}}」 ({{anime}})\nシンクロ率: {{percent}}%\n\nあなたも探してみて！ 👉',
-        shareTextShort: 'AniMatchで私のアニメの恋人を見つけました！ 💕 アニメの恋人:「{{name}}」({{anime}}) シンクロ率: {{percent}}%',
+        shareText: 'AniMatchで私のアニメの恋人を見つけました！ 💕\n私のアニメの恋人は「{{name}}」 ({{anime}})\nシンクロ率: {{percent}}%\n\n今すぐテストしてみて！ 👉 {{url}}',
+        shareTextShort: '運命のアニメキャラは「{{name}}」！ {{percent}}% 一致！ 💕 今すぐ診断 👉 {{url}}',
         adBanner: 'AdSense Banner (728×90)',
     },
     model: {

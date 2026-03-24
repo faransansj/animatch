@@ -93,6 +93,7 @@ export default {
     shareTitle: '결과 공유하기',
     shareX: 'X 공유',
     shareBluesky: 'Bluesky',
+    shareKakao: '카카오톡',
     shareCopy: '링크 복사',
     shareDownload: '이미지 저장',
     saveModalTitle: '어떤 형식으로 저장할까요?',
@@ -103,8 +104,8 @@ export default {
     downloading: '이미지 생성 중...',
     downloadComplete: '이미지가 저장되었습니다!',
     downloadError: '다운로드 실패. 다시 시도해주세요.',
-    shareText: 'AniMatch에서 나의 애니 연인을 찾았어요! 💕\n나의 애니 연인은 "{{name}}" ({{anime}})\n매칭도: {{percent}}%\n\n당신도 찾아보세요! 👉',
-    shareTextShort: 'AniMatch에서 나의 애니 연인을 찾았어요! 💕 나의 애니 연인은 "{{name}}" ({{anime}}) 매칭도: {{percent}}%',
+    shareText: 'AniMatch에서 나의 애니 연인을 찾았어요! 💕\n나의 애니 연인은 "{{name}}" ({{anime}})\n매칭도: {{percent}}%\n\n지금 바로 테스트해보세요! 👉 {{url}}',
+    shareTextShort: '운명의 애니 연인은 "{{name}}"! {{percent}}% 일치! 💕 지금 테스트하기 👉 {{url}}',
     adBanner: 'AdSense Banner (728×90)',
   },
   model: {

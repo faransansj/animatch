@@ -23,6 +23,7 @@
     "@sentry/vite-plugin": "^4.9.1",
     "framer-motion": "^11.18.0",
     "hono": "^4.11.9",
+    "html2canvas": "^1.4.1",
     "i18next": "^24.2.0",
     "i18next-browser-languagedetector": "^8.2.1",
     "onnxruntime-web": "^1.21.0",

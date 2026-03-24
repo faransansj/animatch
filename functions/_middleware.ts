@@ -45,7 +45,7 @@ async function getCharacterData(
   // 2. Query D1
   try {
     const result = await db.prepare(
-      `SELECT c.id, c.name_en, a.title_en AS anime_en
+      `SELECT c.heroine_id_original, c.name_en, a.title_en AS anime_en
        FROM characters c
        JOIN animes a ON c.anime_id = a.id
        WHERE c.name_en IS NOT NULL AND a.title_en IS NOT NULL`
@@ -57,7 +57,7 @@ async function getCharacterData(
 
     const data: Record<number, CharacterOGData> = {};
     for (const row of result.results) {
-      data[row.id as number] = {
+      data[row.heroine_id_original as number] = {
         name_en: row.name_en as string,
         anime_en: row.anime_en as string,
       };
@@ -89,12 +89,13 @@ const SECURITY_HEADERS: Record<string, string> = {
   'Content-Security-Policy': [
     "default-src 'self'",
     "script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://browser.sentry-cdn.com https://us.i.posthog.com",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     "font-src 'self' https://fonts.gstatic.com",
-    "img-src 'self' data: blob: https://pub-*.r2.dev https://animatch.midori-lab.com",
-    "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://o*.ingest.sentry.io https://us.i.posthog.com https://api.telegram.org",
+    "img-src 'self' data: blob: https://pub-*.r2.dev https://animatch.midori-lab.com https://s4.anilist.co",
+    // cdn.jsdelivr.net: ONNX/WASM 모델 파일 fetch에 필요
+    "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://o*.ingest.sentry.io https://us.i.posthog.com https://cdn.jsdelivr.net",
     "worker-src 'self' blob:",
-    "script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://browser.sentry-cdn.com",
+    "script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://browser.sentry-cdn.com https://cdn.jsdelivr.net",
     "media-src 'none'",
     "object-src 'none'",
     "frame-src 'self'",
@@ -102,7 +103,7 @@ const SECURITY_HEADERS: Record<string, string> = {
     "base-uri 'self'",
     "upgrade-insecure-requests",
   ].join('; '),
-  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
   'X-Frame-Options': 'SAMEORIGIN',
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
@@ -131,6 +132,7 @@ export const onRequest: PagesFunction<MiddlewareEnv> = async (context) => {
   // ── Crawler path: rewrite OG meta tags ───────────────────────────────────
   if (url.pathname === '/' && matchId && CRAWLER_UA.test(ua)) {
     const heroineId = parseInt(matchId, 10);
+    const percent = url.searchParams.get('p');
     if (!isNaN(heroineId)) {
       // Load character data from KV cache / D1
       const characterMap = await getCharacterData(context.env.DB, context.env.KV);
@@ -141,9 +143,11 @@ export const onRequest: PagesFunction<MiddlewareEnv> = async (context) => {
         let html = await response.text();
 
         const ogTitle = escapeHtml(`AniMatch - ${charData.name_en} (${charData.anime_en})`);
-        const ogDesc = escapeHtml(`I matched with ${charData.name_en} from ${charData.anime_en} on AniMatch! Find your anime partner too.`);
-        const ogImage = `${url.origin}/images/tarot/${heroineId}.webp`;
-        const ogUrl = `${url.origin}/?match=${heroineId}`;
+        const ogDesc = percent 
+          ? escapeHtml(`I matched with ${charData.name_en} (${percent}% match) from ${charData.anime_en} on AniMatch! Find your anime partner too.`)
+          : escapeHtml(`I matched with ${charData.name_en} from ${charData.anime_en} on AniMatch! Find your anime partner too.`);
+        const ogImage = `${url.origin}/api/og/${heroineId}`;
+        const ogUrl = percent ? `${url.origin}/?match=${heroineId}&p=${percent}` : `${url.origin}/?match=${heroineId}`;
 
         html = html
           .replace(/<meta property="og:title"[^>]*>/, `<meta property="og:title" content="${ogTitle}">`)
