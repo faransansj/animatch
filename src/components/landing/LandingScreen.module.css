@@ -222,7 +222,90 @@
   color: var(--text-muted);
 }
 
-/* CTA */
+/* Concept Selection Cards */
+.conceptCards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 32px;
+}
+
+.conceptCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: all 0.4s ease;
+  cursor: pointer;
+}
+
+.conceptCard:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.conceptCard:first-child:hover {
+  border-color: rgba(255, 107, 157, 0.4);
+  box-shadow: 0 8px 30px var(--glow-pink);
+}
+
+.conceptPolaroid {
+  border-color: rgba(212, 162, 78, 0.25);
+  background: rgba(212, 162, 78, 0.05);
+}
+
+.conceptPolaroid:hover {
+  border-color: rgba(224, 122, 95, 0.5) !important;
+  box-shadow: 0 8px 30px rgba(224, 122, 95, 0.2) !important;
+  background: rgba(212, 162, 78, 0.1) !important;
+}
+
+.conceptBadge {
+  position: absolute;
+  top: -8px;
+  right: -4px;
+  background: linear-gradient(135deg, #E07A5F, #C68B3F);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(224, 122, 95, 0.4);
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.conceptEmoji {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.conceptName {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.conceptDesc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* CTA — kept as fallback */
 .ctaBtn {
   display: inline-flex;
   align-items: center;
@@ -291,8 +374,15 @@
     height: 160px;
   }
 
-  .ctaBtn {
-    padding: 16px 36px;
-    font-size: 16px;
+  .conceptCards {
+    gap: 10px;
+  }
+
+  .conceptCard {
+    padding: 18px 12px;
+  }
+
+  .conceptEmoji {
+    font-size: 1.6rem;
   }
 }

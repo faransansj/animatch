@@ -1,0 +1,288 @@
+.screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(175deg, var(--polaroid-bg) 0%, var(--polaroid-bg-warm) 100%);
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Warm ambient glow orbs */
+.warmOrb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.2;
+}
+
+.orb1 {
+  width: 300px;
+  height: 300px;
+  background: var(--polaroid-accent);
+  top: -100px;
+  right: -80px;
+}
+
+.orb2 {
+  width: 250px;
+  height: 250px;
+  background: var(--polaroid-honey);
+  bottom: 20%;
+  left: -80px;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 20px 40px;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+  gap: 20px;
+}
+
+.cameraViewportArea {
+  width: 100%;
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.errorBanner {
+  background: rgba(224, 122, 95, 0.15);
+  border: 1px solid var(--polaroid-accent);
+  color: var(--polaroid-sepia-light);
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  width: 100%;
+  text-align: center;
+}
+
+.buttonControls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  width: 100%;
+  max-width: 300px;
+}
+
+.shutterFlash {
+  position: fixed;
+  inset: 0;
+  background: #ffffff;
+  z-index: 9999;
+  pointer-events: none;
+  animation: flashFade 0.6s ease-out forwards;
+}
+
+@keyframes flashFade {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Upload zone styled as polaroid frame */
+.uploadZone {
+  width: 100%;
+  max-width: 300px;
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.uploadZone:hover {
+  transform: scale(1.02);
+}
+
+.uploadPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  aspect-ratio: 1 / 1;
+  text-align: center;
+}
+
+.uploadIcon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.uploadText {
+  font-family: var(--font-handwriting);
+  font-size: 1.1rem;
+  color: var(--polaroid-text);
+}
+
+.uploadHint {
+  font-size: 0.75rem;
+  color: var(--polaroid-text-dim);
+}
+
+/* Preview image inside polaroid */
+.preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Orientation toggle — warm variant */
+.orientationWrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.orientationToggle {
+  position: relative;
+  display: flex;
+  background: rgba(245, 240, 232, 0.1);
+  border-radius: 12px;
+  padding: 3px;
+  border: 1px solid rgba(245, 240, 232, 0.15);
+}
+
+.toggleOption {
+  padding: 8px 20px;
+  font-size: 0.85rem;
+  border-radius: 10px;
+  color: var(--polaroid-sepia-light);
+  transition: color var(--transition);
+  z-index: 1;
+  position: relative;
+}
+
+.toggleOption.active {
+  color: var(--polaroid-text);
+  font-weight: 600;
+}
+
+.toggleSlider {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  height: calc(100% - 6px);
+  background: var(--polaroid-frame);
+  border-radius: 10px;
+  transition: transform var(--transition);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.toggleSlider.right {
+  transform: translateX(100%);
+}
+
+/* Tips */
+.tips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: var(--polaroid-sepia-light);
+  opacity: 0.8;
+}
+
+.tipDivider {
+  opacity: 0.4;
+}
+
+/* Consent */
+.consentWrap {
+  width: 100%;
+}
+
+.consentLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: var(--polaroid-sepia-light);
+  line-height: 1.4;
+}
+
+.consentCheckbox {
+  margin-top: 2px;
+  accent-color: var(--polaroid-accent);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Analyze button — warm vintage style */
+.analyzeBtn {
+  width: 100%;
+  max-width: 300px;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, var(--polaroid-accent), var(--polaroid-amber));
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--transition);
+  box-shadow: 0 4px 16px rgba(224, 122, 95, 0.3);
+}
+
+.analyzeBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(224, 122, 95, 0.4);
+}
+
+.analyzeBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Privacy notice */
+.privacyNotice {
+  font-size: 0.75rem;
+  color: var(--polaroid-sepia-light);
+  opacity: 0.6;
+  text-align: center;
+}
+
+.privacyLink {
+  text-decoration: underline;
+  opacity: 0.8;
+}
+
+.privacyLink:hover {
+  opacity: 1;
+}
+
+/* Camera button */
+.cameraBtn {
+  padding: 10px 20px;
+  background: rgba(245, 240, 232, 0.1);
+  border: 1px solid rgba(245, 240, 232, 0.2);
+  border-radius: 12px;
+  color: var(--polaroid-sepia-light);
+  font-size: 0.9rem;
+  transition: all var(--transition);
+}
+
+.cameraBtn:hover {
+  background: rgba(245, 240, 232, 0.18);
+}

@@ -1,0 +1,85 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+}
+
+.photoDragArea {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 310px;
+  width: 100%;
+  perspective: 1000px;
+}
+
+.draggableCard {
+  position: relative;
+  display: inline-block;
+  cursor: grab;
+  touch-action: none; /* Crucial for Framer Motion drag on mobile */
+  user-select: none;
+}
+
+.draggableCard:active {
+  cursor: grabbing;
+}
+
+.filmImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Hand guidance overlay */
+.handHint {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(44, 36, 32, 0.85);
+  border: 1px solid var(--polaroid-sepia);
+  color: var(--polaroid-frame);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-family: var(--font-handwriting);
+  font-size: 1.1rem;
+  pointer-events: none;
+  animation: floatHand 1.6s ease-in-out infinite;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  white-space: nowrap;
+  z-index: 10;
+}
+
+@keyframes floatHand {
+  0%, 100% { transform: translate(-50%, 0) scale(1); }
+  50% { transform: translate(-50%, -6px) scale(1.05); }
+}
+
+/* Chemical Sparkle particle effect */
+.sparkle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--polaroid-honey);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 15;
+  box-shadow: 0 0 8px var(--polaroid-honey);
+  animation: sparkleFade 0.6s cubic-bezier(0.1, 0.8, 0.1, 1) forwards;
+}
+
+@keyframes sparkleFade {
+  0% {
+    transform: scale(1) translate(0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.2) translate(var(--dx, 20px), var(--dy, -20px));
+    opacity: 0;
+  }
+}

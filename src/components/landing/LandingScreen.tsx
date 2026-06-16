@@ -207,10 +207,20 @@ export default function LandingScreen() {
           </AnimatePresence>
         </div>
 
-        <button className={styles.ctaBtn} onClick={handleStart}>
-          <span>{t('landing.cta')}</span>
-          <span className={styles.ctaArrow}>{t('landing.ctaArrow')}</span>
-        </button>
+        {/* Concept Selection Cards */}
+        <div className={styles.conceptCards}>
+          <button className={styles.conceptCard} onClick={handleStart}>
+            <span className={styles.conceptEmoji}>🎴</span>
+            <span className={styles.conceptName}>{t('landing.conceptTarot')}</span>
+            <span className={styles.conceptDesc}>{t('landing.conceptTarotDesc')}</span>
+          </button>
+          <button className={`${styles.conceptCard} ${styles.conceptPolaroid}`} onClick={() => { trackFunnelEvent('Polaroid Concept Selected'); navigate('/polaroid'); }}>
+            <span className={styles.conceptBadge}>{t('landing.conceptNew')}</span>
+            <span className={styles.conceptEmoji}>📸</span>
+            <span className={styles.conceptName}>{t('landing.conceptPolaroid')}</span>
+            <span className={styles.conceptDesc}>{t('landing.conceptPolaroidDesc')}</span>
+          </button>
+        </div>
 
         <AdBanner />
       </main>

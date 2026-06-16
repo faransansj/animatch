@@ -1,0 +1,160 @@
+.wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.characterContainer {
+  position: relative;
+  width: 260px;
+  max-width: 70vw;
+  animation: gentleFloat 4s ease-in-out infinite alternate;
+}
+
+.characterImg {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  filter: drop-shadow(0 8px 24px rgba(62, 45, 30, 0.25));
+}
+
+/* Warm glow behind the character */
+.characterGlow {
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(
+    circle,
+    rgba(212, 162, 78, 0.25) 0%,
+    rgba(224, 122, 95, 0.12) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 50%;
+}
+
+/* Camera lens sparkle */
+.lensGlow {
+  position: absolute;
+  top: 38%;
+  left: 42%;
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle, rgba(255, 251, 230, 0.9), transparent 70%);
+  border-radius: 50%;
+  animation: lensSparkle 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes lensSparkle {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.5); }
+}
+
+@keyframes gentleFloat {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-8px); }
+}
+
+/* Flash overlay — covers the entire screen */
+.flashOverlay {
+  position: fixed;
+  inset: 0;
+  background: var(--polaroid-flash);
+  z-index: 100;
+  pointer-events: none;
+  animation: cameraFlash 0.8s ease-out forwards;
+}
+
+@keyframes cameraFlash {
+  0% { opacity: 1; }
+  20% { opacity: 0.95; }
+  100% { opacity: 0; }
+}
+
+/* Polaroid ejecting from camera */
+.ejectingPhoto {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: ejectPhoto 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  z-index: 10;
+}
+
+@keyframes ejectPhoto {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-60px) rotate(-5deg) scale(0.3);
+  }
+  40% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(10px) rotate(2deg) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(40px) rotate(-2deg) scale(1);
+  }
+}
+
+.speechBubble {
+  background: var(--polaroid-frame);
+  color: var(--polaroid-text);
+  padding: 10px 18px;
+  border-radius: 16px 16px 16px 4px;
+  font-family: var(--font-handwriting);
+  font-size: 1.2rem;
+  box-shadow: 0 2px 12px rgba(62, 45, 30, 0.15);
+  animation: bubblePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-width: 200px;
+  text-align: center;
+}
+
+@keyframes bubblePop {
+  0% { opacity: 0; transform: scale(0.5) translateY(10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Floating instant photos in background */
+.floatingPhotos {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.floatingPhoto {
+  position: absolute;
+  width: 40px;
+  height: 50px;
+  background: var(--polaroid-frame);
+  padding: 3px 3px 10px 3px;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  opacity: 0.3;
+  animation: floatDown 8s linear infinite;
+}
+
+.floatingPhoto::before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: calc(100% - 7px);
+  background: linear-gradient(145deg, var(--polaroid-sepia-light), var(--polaroid-sepia));
+  border-radius: 1px;
+}
+
+@keyframes floatDown {
+  0% {
+    transform: translateY(-60px) rotate(-15deg);
+    opacity: 0;
+  }
+  10% { opacity: 0.3; }
+  90% { opacity: 0.3; }
+  100% {
+    transform: translateY(calc(100vh + 60px)) rotate(15deg);
+    opacity: 0;
+  }
+}

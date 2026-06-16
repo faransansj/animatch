@@ -12,6 +12,11 @@ import TermsOfService from '@/components/legal/TermsOfService';
 import SEO from '@/components/shared/SEO';
 import { useMLEngine } from '@/hooks/useMLEngine';
 
+// Polaroid Concept
+import PolaroidUploadScreen from '@/components/polaroid/PolaroidUploadScreen';
+import PolaroidDevelopScreen from '@/components/polaroid/PolaroidDevelopScreen';
+import PolaroidResultScreen from '@/components/polaroid/PolaroidResultScreen';
+
 export default function App() {
   const location = useLocation();
 
@@ -27,6 +32,10 @@ export default function App() {
           <Route path="/upload" element={<UploadScreen />} />
           <Route path="/loading" element={<GachaScreen />} />
           <Route path="/result" element={<ResultScreen />} />
+          {/* Polaroid Concept Flow */}
+          <Route path="/polaroid" element={<PolaroidUploadScreen />} />
+          <Route path="/polaroid/developing" element={<PolaroidDevelopScreen />} />
+          <Route path="/polaroid/result" element={<PolaroidResultScreen />} />
           <Route path="/characters" element={<CharacterBrowse />} />
           <Route path="/characters/:id" element={<CharacterDetail />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -37,4 +46,3 @@ export default function App() {
     </>
   );
 }
-

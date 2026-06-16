@@ -51,53 +51,6 @@ export function shareToBluesky(char: CharacterEmbedding, percent: number, lang: 
 
   window.open(`https://bsky.app/intent/compose?text=${encodeURIComponent(text)}`, '_blank');
 }
-
-declare global {
-  interface Window {
-    Kakao: any;
-  }
-}
-
-const KAKAO_KEY = import.meta.env.VITE_KAKAO_APP_KEY;
-
-export function shareToKakao(char: CharacterEmbedding, percent: number, lang: string) {
-  if (typeof window === 'undefined' || !window.Kakao) return;
-
-  if (!window.Kakao.isInitialized() && KAKAO_KEY) {
-    window.Kakao.init(KAKAO_KEY);
-  }
-
-  const { name, anime } = getLocalizedChar(char, lang);
-  const shareUrl = getShareUrl(char.heroine_id, percent);
-  const isKo = lang.startsWith('ko');
-
-  let text = isKo
-    ? `나의 애니 연인은 "${name}" (${anime})! 매칭도: ${percent}%`
-    : `My anime partner is "${name}" (${anime})! Match: ${percent}%`;
-
-  window.Kakao.Share.sendDefault({
-    objectType: 'feed',
-    content: {
-      title: isKo ? 'AniMatch - 나의 애니 연인 찾기' : 'AniMatch - Find Your Anime Partner',
-      description: text,
-      imageUrl: char.heroine_image || `https://animatch.midori-lab.com/api/og/${char.heroine_id}`,
-      link: {
-        mobileWebUrl: shareUrl,
-        webUrl: shareUrl,
-      },
-    },
-    buttons: [
-      {
-        title: isKo ? '지금 테스트하기' : 'Try It Now',
-        link: {
-          mobileWebUrl: shareUrl,
-          webUrl: shareUrl,
-        },
-      },
-    ],
-  });
-}
-
 export function copyLink(heroineId: number, percent?: number, onSuccess?: () => void) {
   navigator.clipboard.writeText(getShareUrl(heroineId, percent)).then(onSuccess);
 }

@@ -8,7 +8,7 @@ import Header from '@/components/shared/Header';
 import { useResultStore } from '@/stores/resultStore';
 import { useUploadStore } from '@/stores/uploadStore';
 import { useAppStore } from '@/stores/appStore';
-import { shareToX, shareToBluesky, copyLink, shareToKakao } from '@/utils/share';
+import { shareToX, shareToBluesky, copyLink } from '@/utils/share';
 import { generateResultCard, generateStoryCard } from '@/utils/resultCard';
 import { useLocalizedChar } from '@/hooks/useLocalizedChar';
 import type { MatchCandidate, MatchResult } from '@/types/match';
@@ -436,20 +436,13 @@ export default function ResultScreen() {
           transition={{ duration: 0.6, delay: 0.6 }}
         >
           <h3 className={styles.shareTitle}>{t('result.shareTitle')}</h3>
-          <div className={styles.shareButtons} style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+          <div className={styles.shareButtons} style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
             <button className={`${styles.shareBtn} ${styles.twitter}`} onClick={() => {
               shareToX(char, matchResult.percent, i18n.language);
               import('@/utils/telemetry').then(({ trackFunnelEvent }) => trackFunnelEvent('share_click', { method: 'twitter', character: localized.name }));
             }}>
               <span className={styles.shareIcon}>𝕏</span>
               <span>{t('result.shareX')}</span>
-            </button>
-            <button className={`${styles.shareBtn} ${styles.kakao}`} onClick={() => {
-              shareToKakao(char, matchResult.percent, i18n.language);
-              import('@/utils/telemetry').then(({ trackFunnelEvent }) => trackFunnelEvent('share_click', { method: 'kakao', character: localized.name }));
-            }}>
-              <span className={styles.shareIcon}>💬</span>
-              <span>{t('result.shareKakao')}</span>
             </button>
             <button className={`${styles.shareBtn} ${styles.bluesky}`} onClick={() => {
               shareToBluesky(char, matchResult.percent, i18n.language);

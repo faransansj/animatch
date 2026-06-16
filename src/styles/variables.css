@@ -19,4 +19,23 @@
   --radius-lg: 24px;
   --font-main: 'Pretendard Variable', 'Outfit', -apple-system, sans-serif;
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Polaroid Concept — warm analog aesthetic */
+  --polaroid-bg: #2C2420;
+  --polaroid-bg-warm: #3D322A;
+  --polaroid-bg-cream: #FFF8F0;
+  --polaroid-frame: #F5F0E8;
+  --polaroid-frame-shadow: rgba(62, 45, 30, 0.35);
+  --polaroid-sepia: #D4A574;
+  --polaroid-sepia-light: #E8C9A0;
+  --polaroid-flash: #FFFBE6;
+  --polaroid-flash-warm: #FFE4CC;
+  --polaroid-accent: #E07A5F;
+  --polaroid-accent-rose: #D4857F;
+  --polaroid-accent-sage: #8FAE8B;
+  --polaroid-honey: #D4A24E;
+  --polaroid-amber: #C68B3F;
+  --polaroid-text: #4A3728;
+  --polaroid-text-dim: #7A6655;
+  --font-handwriting: 'Caveat', 'Nanum Pen Script', cursive;
 }
