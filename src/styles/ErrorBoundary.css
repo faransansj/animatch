@@ -1,0 +1,167 @@
+.error-boundary-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.error-boundary-content {
+  text-align: center;
+  max-width: 500px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 40px 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.error-boundary-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.error-boundary-content h2 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.error-boundary-content p {
+  font-size: 1.1rem;
+  margin-bottom: 25px;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.error-boundary-reload {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(238, 90, 36, 0.4);
+}
+
+.error-boundary-reload:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(238, 90, 36, 0.6);
+}
+
+.error-boundary-reload:active {
+  transform: translateY(0);
+}
+
+.error-boundary-details {
+  margin-top: 30px;
+  text-align: left;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.error-boundary-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #ffd700;
+}
+
+.error-boundary-error {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  text-align: left;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 15px;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.error-boundary-error strong {
+  color: #ffd700;
+}
+
+/* Specialized error fallbacks */
+.network-error .error-boundary-icon::before {
+  content: "🌐";
+}
+
+.model-error .error-boundary-icon::before {
+  content: "🤖";
+}
+
+.face-error .error-boundary-icon::before {
+  content: "👤";
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .error-boundary-content {
+    padding: 30px 20px;
+    max-width: 90%;
+  }
+
+  .error-boundary-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .error-boundary-content p {
+    font-size: 1rem;
+  }
+
+  .error-boundary-reload {
+    padding: 10px 25px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .error-boundary-fallback {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+
+  .error-boundary-content {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Animation for error appearance */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.error-boundary-fallback {
+  animation: fadeIn 0.5s ease-out;
+}

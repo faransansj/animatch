@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "cf:dev": "wrangler pages dev dist",
     "deploy": "pnpm build && rm -rf dist/models && wrangler pages deploy dist",
-    "deploy:models": "wrangler r2 object put animatch-models/clip-image-encoder-q8.onnx --file public/models/clip-image-encoder-q8.onnx --remote && wrangler r2 object put animatch-models/mobilefacenet-q8.onnx --file public/models/mobilefacenet-q8.onnx --remote",
+    "deploy:models": "wrangler r2 object put animatch-models/clip-image-encoder-q4.onnx --file public/models/clip-image-encoder-q4.onnx --remote && wrangler r2 object put animatch-models/mobilefacenet-q8.onnx --file public/models/mobilefacenet-q8.onnx --remote",
     "deploy:db": "wrangler d1 migrations apply animatch-db --remote",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -41,6 +41,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260218.0",
     "@playwright/test": "^1.58.2",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^25.3.3",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

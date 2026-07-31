@@ -10,7 +10,7 @@ export default defineConfig({
     test: {
         globals: true,
         environment: 'jsdom',
-        include: ['src/**/__tests__/**/*.test.ts'],
+        include: ['src/**/__tests__/**/*.test.{ts,tsx}'],
         coverage: {
             provider: 'v8',
             include: ['src/ml/**/*.ts', 'src/stores/**/*.ts'],

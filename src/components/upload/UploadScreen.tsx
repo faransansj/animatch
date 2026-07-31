@@ -16,16 +16,19 @@ import { useUploadStore } from '@/stores/uploadStore';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { useFaceDetection } from '@/hooks/useFaceDetection';
 import { runGuidelineCheck } from '@/utils/image';
+import { validateFileType, validateFileSize, MAX_FILE_SIZE } from '@/utils/fileValidation';
 import { trackFunnelEvent } from '@/utils/telemetry';
+import ErrorBoundary, { FaceDetectionErrorFallback } from '@/components/shared/ErrorBoundary';
 import styles from './UploadScreen.module.css';
 
-export default function UploadScreen() {
+function UploadScreen() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { orientation, setOrientation, showToast } = useAppStore();
   const {
-    rawImageData, processedImageData, feedbackItems,
-    cropModalOpen, setCropModalOpen, setProcessedImageData, setFeedbackItems, reset,
+    rawImageData, processedImageData, feedbackItems, error,
+    cropModalOpen, setCropModalOpen, setProcessedImageData, setFeedbackItems,
+    setError, clearError, reset,
   } = useUploadStore();
   const { handleFile, handleDataURL } = useImageUpload();
   const { detect, selectFace } = useFaceDetection();
@@ -61,14 +64,73 @@ export default function UploadScreen() {
 
   const onFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) handleFile(file);
-  }, [handleFile]);
+    if (!file) return;
+
+    // Reset error state
+    clearError();
+
+    // Perform immediate validation for better UX
+    const typeValidation = validateFileType(file);
+    if (!typeValidation.valid) {
+      setError(typeValidation.error ?? 'Invalid file type');
+      e.target.value = ''; // Clear the input to allow re-selection
+      return;
+    }
+
+    const sizeValidation = validateFileSize(file);
+    if (!sizeValidation.valid) {
+      setError(sizeValidation.error ?? 'Invalid file size');
+      e.target.value = ''; // Clear the input to allow re-selection
+      return;
+    }
+
+    // Additional validation for file name
+    if (file.name.length > 255) {
+      setError('File name is too long (maximum 255 characters)');
+      e.target.value = '';
+      return;
+    }
+
+    // If all validations pass, process the file
+    handleFile(file);
+  }, [handleFile, clearError, setError]);
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
-  }, [handleFile]);
+    if (!file) return;
+
+    // Reset error state
+    clearError();
+
+    // Perform validation for dropped files
+    const typeValidation = validateFileType(file);
+    if (!typeValidation.valid) {
+      setError(typeValidation.error ?? 'Invalid file type');
+      return;
+    }
+
+    const sizeValidation = validateFileSize(file);
+    if (!sizeValidation.valid) {
+      setError(sizeValidation.error ?? 'Invalid file size');
+      return;
+    }
+
+    // Additional validation for file name
+    if (file.name.length > 255) {
+      setError('File name is too long (maximum 255 characters)');
+      return;
+    }
+
+    // Prevent multiple files from being dropped
+    if (e.dataTransfer.files.length > 1) {
+      setError('Please only drop one image file at a time');
+      return;
+    }
+
+    // If all validations pass, process the file
+    handleFile(file);
+  }, [handleFile, clearError, setError]);
 
   const onDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -158,6 +220,7 @@ export default function UploadScreen() {
 
         <h2 className={styles.title}>{t('upload.title')}</h2>
         <p className={styles.subtitle}>{t('upload.subtitle')}</p>
+        {error && <p className={styles.uploadError} role="alert">{error}</p>}
 
         {/* Upload Zone */}
         <div
@@ -282,5 +345,20 @@ export default function UploadScreen() {
         applyCrop={applyCrop}
       />
     </motion.section>
+  );
+}
+
+// Export the wrapped component
+export default function WrappedUploadScreen() {
+  return (
+    <ErrorBoundary
+      fallback={<FaceDetectionErrorFallback onRetry={() => window.location.reload()} />}
+      onError={(error, errorInfo) => {
+        console.error('UploadScreen Error:', error, errorInfo);
+        // You could also send this to your analytics service
+      }}
+    >
+      <UploadScreen />
+    </ErrorBoundary>
   );
 }

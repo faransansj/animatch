@@ -16,7 +16,7 @@ let arcfaceSession: ort.InferenceSession | null = null;
 // ── Shared helpers ────────────────────────────────────────────────────────────
 
 const SESSION_OPTIONS: ort.InferenceSession.SessionOptions = {
-    executionProviders: ['wasm'],
+    executionProviders: ['webgpu', 'wasm'],
     graphOptimizationLevel: 'all',
     executionMode: 'sequential',
     enableCpuMemArena: true,
@@ -68,6 +68,9 @@ ctx.addEventListener('message', async (e) => {
                 const results = await clipSession.run({ image: tensor });
                 const embedding = l2Normalize(results['embedding']!.data as Float32Array);
 
+                // Explicitly dispose tensor if supported or clear references
+                tensor.dispose?.();
+
                 ctx.postMessage({ id, type: 'RUN_CLIP_DONE', payload: embedding }, [embedding.buffer]);
                 break;
             }
@@ -87,6 +90,9 @@ ctx.addEventListener('message', async (e) => {
                 const results = await arcfaceSession.run({ [inputName]: tensor });
                 const outputName = arcfaceSession.outputNames[0]!;
                 const embedding = l2Normalize(results[outputName]!.data as Float32Array);
+
+                // Explicitly dispose tensor if supported or clear references
+                tensor.dispose?.();
 
                 ctx.postMessage({ id, type: 'RUN_ARCFACE_DONE', payload: embedding }, [embedding.buffer]);
                 break;

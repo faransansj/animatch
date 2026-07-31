@@ -4,13 +4,11 @@ export const PREPROCESS = {
   std: [0.26862954, 0.26130258, 0.27577711] as const,
 };
 
-export const MODEL_PATH = '/assets/models/clip-image-encoder-q8.onnx';
-export const MODEL_PATH_LITE = '/assets/models/clip-image-encoder-q4.onnx';
+export const MODEL_PATH = '/assets/models/clip-image-encoder-q4.onnx';
 
 
 /**
- * Detects whether the current device is a mobile/tablet or on cellular connection.
- * Used to select the lighter Q4 model to save data and prevent memory crashes.
+ * Detects constrained devices where ArcFace is skipped to prevent memory crashes.
  */
 export function shouldUseLiteModel(): boolean {
   if (typeof navigator === 'undefined') return false;
@@ -34,9 +32,7 @@ export function shouldUseLiteModel(): boolean {
   return isMobile;
 }
 
-/**
- * Returns the appropriate CLIP model path based on device capabilities.
- */
+/** Returns the Q4 CLIP model used on every device. */
 export function getModelPath(): string {
-  return shouldUseLiteModel() ? MODEL_PATH_LITE : MODEL_PATH;
+  return MODEL_PATH;
 }

@@ -15,6 +15,7 @@ import type { MatchCandidate, MatchResult } from '@/types/match';
 import type { CharacterEmbedding } from '@/types/character';
 import AdBanner from '@/components/shared/AdBanner';
 import { getLocalizedChar } from '@/utils/localize';
+import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import styles from './ResultScreen.module.css';
 
 function HeroImage({ char, children }: { char: CharacterEmbedding; children: React.ReactNode }) {
@@ -132,7 +133,7 @@ function RunnerUpImage({ char }: { char: CharacterEmbedding }) {
 
 
 
-export default function ResultScreen() {
+function ResultScreen() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { matchResult, setMatchResult } = useResultStore();
@@ -197,14 +198,14 @@ export default function ResultScreen() {
         }
       } else {
         if (!cardRef.current) return;
-        
+
         const canvas = await html2canvas(cardRef.current, {
           useCORS: true,
           scale: 2,
           backgroundColor: '#0F172A', // Match theme bg
           logging: false,
         });
-        
+
         blob = await new Promise((resolve, reject) => {
           canvas.toBlob((b) => b ? resolve(b) : reject(), 'image/png');
         });
@@ -519,5 +520,19 @@ export default function ResultScreen() {
         </div>
       )}
     </motion.section>
+  );
+}
+
+// Export the wrapped component
+export default function WrappedResultScreen() {
+  return (
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        console.error('ResultScreen Error:', error, errorInfo);
+        // You could also send this to your analytics service
+      }}
+    >
+      <ResultScreen />
+    </ErrorBoundary>
   );
 }

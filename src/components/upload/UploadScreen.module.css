@@ -73,6 +73,12 @@
   margin-bottom: 28px;
 }
 
+.uploadError {
+  margin: -16px 0 16px;
+  color: var(--error, #e5484d);
+  font-size: 14px;
+}
+
 /* Upload Zone */
 .uploadZone {
   width: 100%;

@@ -110,7 +110,7 @@ animatch/
 │   │   ├── og-default.webp    # OG 기본 이미지 (1200×630)
 │   │   └── tarot/             # 캐릭터 타로카드 이미지 (WebP)
 │   └── models/
-│       ├── clip-image-encoder-q8.onnx    # CLIP INT8 (85MB)
+│       ├── clip-image-encoder-q4.onnx    # CLIP INT4
 │       └── mobilefacenet-q8.onnx         # ArcFace INT8
 │
 ├── db/

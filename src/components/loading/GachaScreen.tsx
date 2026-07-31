@@ -7,6 +7,7 @@ import { useUploadStore } from '@/stores/uploadStore';
 import { useGachaAnimation } from '@/hooks/useGachaAnimation';
 import { trackFunnelEvent } from '@/utils/telemetry';
 import { isMobile } from '@/utils/device';
+import ErrorBoundary, { ModelLoadingErrorFallback } from '@/components/shared/ErrorBoundary';
 import styles from './GachaScreen.module.css';
 
 
@@ -32,7 +33,7 @@ function LoadingParticles() {
   return <div ref={ref} className={styles.particles} />;
 }
 
-export default function GachaScreen() {
+function GachaScreen() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
@@ -153,5 +154,20 @@ export default function GachaScreen() {
         </div>
       </main>
     </motion.section>
+  );
+}
+
+// Export the wrapped component
+export default function WrappedGachaScreen() {
+  return (
+    <ErrorBoundary
+      fallback={<ModelLoadingErrorFallback onRetry={() => window.location.reload()} />}
+      onError={(error, errorInfo) => {
+        console.error('GachaScreen Error:', error, errorInfo);
+        // You could also send this to your analytics service
+      }}
+    >
+      <GachaScreen />
+    </ErrorBoundary>
   );
 }

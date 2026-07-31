@@ -13,13 +13,10 @@ const storageMap = new Map<string, string>();
 beforeEach(() => {
     storageMap.clear();
     vi.restoreAllMocks();
-
-    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(
-        (key: string) => storageMap.get(key) ?? null,
-    );
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(
-        (key: string, value: string) => { storageMap.set(key, value); },
-    );
+    vi.stubGlobal('localStorage', {
+        getItem: (key: string) => storageMap.get(key) ?? null,
+        setItem: (key: string, value: string) => { storageMap.set(key, value); },
+    });
 });
 
 // ── getActiveExperimentId ─────────────────────────────────────────────────────

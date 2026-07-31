@@ -1,32 +1,68 @@
 import { useCallback } from 'react';
 import { useUploadStore } from '@/stores/uploadStore';
-import { runGuidelineCheck, resizeImage } from '@/utils/image';
+import { processImage } from '@/utils/image';
+import { validateAndSanitizeFile } from '@/utils/fileValidation';
 
 export function useImageUpload() {
-  const { setRawImageData, setProcessedImageData, setFeedbackItems } = useUploadStore();
+  const {
+    setRawImageData,
+    setProcessedImageData,
+    setFeedbackItems,
+    setError,
+    clearError
+  } = useUploadStore();
 
   const processDataURL = useCallback(async (dataURL: string) => {
-    // Immediately resize the incoming data URL to prevent memory spikes
-    const resizedDataURL = await resizeImage(dataURL, 1080);
+    try {
+      clearError();
 
-    setRawImageData(resizedDataURL);
-    setProcessedImageData(resizedDataURL);
-    const feedback = await runGuidelineCheck(resizedDataURL);
-    setFeedbackItems(feedback);
-  }, [setRawImageData, setProcessedImageData, setFeedbackItems]);
+      const processed = await processImage(dataURL);
+      setRawImageData(processed.dataURL);
+      setProcessedImageData(processed.dataURL);
+      setFeedbackItems(processed.feedback);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to process image';
+      setError(errorMessage);
+      console.error('Image processing error:', error);
+    }
+  }, [setRawImageData, setProcessedImageData, setFeedbackItems, setError, clearError]);
 
   const handleFile = useCallback(async (file: File) => {
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const dataURL = e.target?.result as string;
-      processDataURL(dataURL);
-    };
-    reader.readAsDataURL(file);
-  }, [processDataURL]);
+    try {
+      clearError();
+
+      const validation = await validateAndSanitizeFile(file);
+      if (!validation.valid || !validation.sanitizedData) {
+        setError(validation.error || 'Failed to validate file');
+        return;
+      }
+
+      await processDataURL(validation.sanitizedData);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to process file';
+      setError(errorMessage);
+      console.error('File processing error:', error);
+    }
+  }, [processDataURL, setError, clearError]);
 
   const handleDataURL = useCallback(async (dataURL: string) => {
-    processDataURL(dataURL);
-  }, [processDataURL]);
+    try {
+      clearError();
+
+      // Validate data URL format
+      if (!dataURL || !dataURL.startsWith('data:')) {
+        setError('Invalid image data format');
+        return;
+      }
+
+      // Process the data URL with validation
+      await processDataURL(dataURL);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to process image data';
+      setError(errorMessage);
+      console.error('DataURL processing error:', error);
+    }
+  }, [processDataURL, setError, clearError]);
 
   return { handleFile, handleDataURL };
 }
