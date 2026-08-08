@@ -1,7 +1,7 @@
 -- ============================================================
 -- AniMatch Character Database Schema
 -- Cloudflare D1 Compatible (SQLite)
--- Version: 1.1.0  (2026-02-27 — synced with migrations/)
+-- Version: 1.2.0  (2026-03-24 — synced with migrations/0007)
 -- ============================================================
 -- NOTE: This file is a reference document only.
 --       All changes must also be applied via a numbered migration in migrations/.
@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS animes (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   title_ko      TEXT NOT NULL,           -- 한국어 제목
   title_jp      TEXT,                    -- 일본어 제목
+  title_ja      TEXT,                    -- 0004 legacy alias
+  title_zh_tw   TEXT,                    -- 번체 중국어 제목
   title_en      TEXT,                    -- 영어 제목
   genre         TEXT NOT NULL,           -- 장르 (JSON 배열)
   genre_en      TEXT,                    -- 영문 장르 (JSON 배열)
@@ -28,17 +30,20 @@ CREATE TABLE IF NOT EXISTS animes (
 -- 캐릭터 테이블
 CREATE TABLE IF NOT EXISTS characters (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  anime_id      INTEGER NOT NULL REFERENCES animes(id),
+  anime_id      INTEGER NOT NULL REFERENCES animes(id) ON DELETE CASCADE,
   name_ko       TEXT NOT NULL,           -- 한국어 이름
   name_jp       TEXT,                    -- 일본어 이름
+  name_ja       TEXT,                    -- 0004 legacy alias
+  name_zh_tw    TEXT,                    -- 번체 중국어 이름
   name_en       TEXT,                    -- 영어 이름
   gender        TEXT NOT NULL CHECK(gender IN ('male', 'female')),
   role          TEXT NOT NULL CHECK(role IN ('protagonist', 'heroine')),
-  partner_id    INTEGER REFERENCES characters(id),  -- 매칭 상대
+  partner_id    INTEGER REFERENCES characters(id) ON DELETE SET NULL,  -- 매칭 상대
   image_url     TEXT,                    -- 대표 이미지 URL
   personality   TEXT,                    -- 성격 설명 (JSON 배열)
   personality_en TEXT,                   -- 영문 성격 설명 (JSON 배열)
   charm_points  TEXT,                    -- 애인으로서의 매력 포인트
+  charm_en      TEXT,                    -- 0004 legacy alias
   charm_points_en TEXT,                  -- 영문 매력 포인트
   iconic_quote  TEXT,                    -- 명대사 (가챠 연출용)
   iconic_quote_en TEXT,                  -- 영문 명대사
@@ -48,7 +53,8 @@ CREATE TABLE IF NOT EXISTS characters (
   emoji         TEXT,                    -- 대표 이모지
   mal_favorites INTEGER DEFAULT 0,       -- MAL 즐겨찾기 수
   created_at    TEXT DEFAULT (datetime('now')),
-  updated_at    TEXT DEFAULT (datetime('now'))
+  updated_at    TEXT DEFAULT (datetime('now')),
+  heroine_id_original INTEGER         -- 0004 legacy identifier; use id for new code
 );
 
 -- 인덱스
@@ -56,6 +62,7 @@ CREATE INDEX IF NOT EXISTS idx_characters_anime_id ON characters(anime_id);
 CREATE INDEX IF NOT EXISTS idx_characters_role ON characters(role);
 CREATE INDEX IF NOT EXISTS idx_characters_gender ON characters(gender);
 CREATE INDEX IF NOT EXISTS idx_characters_partner ON characters(partner_id);
+CREATE INDEX IF NOT EXISTS idx_characters_heroine_id ON characters(heroine_id_original);
 CREATE INDEX IF NOT EXISTS idx_animes_orientation ON animes(orientation);
 CREATE INDEX IF NOT EXISTS idx_animes_tier ON animes(tier);
 
@@ -71,14 +78,16 @@ CREATE TABLE IF NOT EXISTS analysis_logs (
   dual_matching     INTEGER NOT NULL DEFAULT 0,
   language          TEXT NOT NULL DEFAULT 'ko',
   user_agent        TEXT NOT NULL DEFAULT '',
-  ab_variant        TEXT NOT NULL DEFAULT '',  -- added in 0002_ab_testing.sql
-  created_at        TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at        TEXT NOT NULL DEFAULT (datetime('now')),
+  ab_variant        TEXT NOT NULL DEFAULT ''   -- added in 0002_ab_testing.sql
 );
 
 CREATE INDEX IF NOT EXISTS idx_analysis_created_at  ON analysis_logs(created_at);
 CREATE INDEX IF NOT EXISTS idx_analysis_character   ON analysis_logs(matched_character);
 CREATE INDEX IF NOT EXISTS idx_analysis_anime       ON analysis_logs(matched_anime);
 CREATE INDEX IF NOT EXISTS idx_analysis_ab_variant  ON analysis_logs(ab_variant);
+CREATE INDEX IF NOT EXISTS idx_analysis_language    ON analysis_logs(language);
+CREATE INDEX IF NOT EXISTS idx_analysis_logs_recent ON analysis_logs(created_at, matched_character, matched_anime);
 
 -- 매칭 평가 피드백 테이블
 -- Applied via: migrations/0003_match_feedback.sql
@@ -96,3 +105,4 @@ CREATE TABLE IF NOT EXISTS match_feedback (
 CREATE INDEX IF NOT EXISTS idx_feedback_created_at  ON match_feedback(created_at);
 CREATE INDEX IF NOT EXISTS idx_feedback_rating      ON match_feedback(rating);
 CREATE INDEX IF NOT EXISTS idx_feedback_orientation ON match_feedback(orientation);
+CREATE INDEX IF NOT EXISTS idx_feedback_ab_variant  ON match_feedback(ab_variant);

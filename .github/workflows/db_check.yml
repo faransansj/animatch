@@ -1,0 +1,42 @@
+name: DB Integrity Check
+
+on:
+  push:
+    paths:
+      - 'db/**'
+      - 'migrations/**'
+      - 'functions/**'
+      - 'public/embeddings.json'
+      - 'public/embeddings.json.gz'
+      - 'scripts/export_embeddings.py'
+      - 'scripts/db_integrity_check.sql'
+      - 'scripts/verify_db_integrity.py'
+      - '.github/workflows/db_check.yml'
+      - 'wrangler.toml'
+  pull_request:
+    paths:
+      - 'db/**'
+      - 'migrations/**'
+      - 'functions/**'
+      - 'public/embeddings.json'
+      - 'public/embeddings.json.gz'
+      - 'scripts/export_embeddings.py'
+      - 'scripts/db_integrity_check.sql'
+      - 'scripts/verify_db_integrity.py'
+      - '.github/workflows/db_check.yml'
+      - 'wrangler.toml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Run DB Integrity Check
+        run: python scripts/verify_db_integrity.py

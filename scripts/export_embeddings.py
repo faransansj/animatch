@@ -47,7 +47,7 @@ def main():
 
     # Query all characters with their anime metadata
     cursor.execute("""
-        SELECT c.*, a.title_ko, a.title_jp, a.title_en, a.title_zh_tw, a.genre, a.genre_ja, a.genre_en, a.genre_zh_tw, a.orientation, a.tier,
+        SELECT c.*, a.title_ko, a.title_jp, a.title_ja, a.title_en, a.title_zh_tw, a.genre, a.genre_en, a.orientation, a.tier,
                p.name_ko as p_name_ko, p.name_en as p_name_en
         FROM characters c
         JOIN animes a ON c.anime_id = a.id
@@ -75,41 +75,41 @@ def main():
             
             'anime': row['title_ko'],
             'anime_en': row['title_en'] or '',
-            'anime_ja': row['title_jp'] or '',
+            'anime_ja': row['title_jp'] or row['title_ja'] or '',
             'anime_zh_tw': row['title_zh_tw'] or '',
             
             'genre': load_json(row['genre']),
             'genre_en': load_json(row['genre_en']),
-            'genre_ja': load_json(row['genre_ja']),
-            'genre_zh_tw': load_json(row['genre_zh_tw']),
+            'genre_ja': [],
+            'genre_zh_tw': [],
             
             'heroine_id': h_id,
             'heroine_name': row['name_ko'],
             'heroine_name_en': row['name_en'] or '',
-            'heroine_name_ja': row['name_jp'] or '',
+            'heroine_name_ja': row['name_jp'] or row['name_ja'] or '',
             'heroine_name_zh_tw': row['name_zh_tw'] or '',
             
             'heroine_image': row['image_url'] or '',
             
             'heroine_personality': load_json(row['personality']),
             'heroine_personality_en': load_json(row['personality_en']),
-            'heroine_personality_ja': load_json(row['personality_ja']),
-            'heroine_personality_zh_tw': load_json(row['personality_zh_tw']),
+            'heroine_personality_ja': [],
+            'heroine_personality_zh_tw': [],
             
             'heroine_charm': row['charm_points'] or '',
-            'heroine_charm_en': row['charm_points_en'] or '',
-            'heroine_charm_ja': row['charm_points_ja'] or '',
-            'heroine_charm_zh_tw': row['charm_points_zh_tw'] or '',
+            'heroine_charm_en': row['charm_points_en'] or row['charm_en'] or '',
+            'heroine_charm_ja': '',
+            'heroine_charm_zh_tw': '',
             
             'heroine_quote': row['iconic_quote'] or '',
             'heroine_quote_en': row['iconic_quote_en'] or '',
-            'heroine_quote_ja': row['iconic_quote_ja'] or '',
-            'heroine_quote_zh_tw': row['iconic_quote_zh_tw'] or '',
+            'heroine_quote_ja': '',
+            'heroine_quote_zh_tw': '',
             
             'heroine_tags': load_json(row['tags']),
             'heroine_tags_en': load_json(row['tags_en']),
-            'heroine_tags_ja': load_json(row['tags_ja']),
-            'heroine_tags_zh_tw': load_json(row['tags_zh_tw']),
+            'heroine_tags_ja': [],
+            'heroine_tags_zh_tw': [],
             
             'heroine_color': row['color_primary'] or 'linear-gradient(135deg, #667eea, #764ba2)',
             'heroine_emoji': row['emoji'] or '💫',
@@ -121,6 +121,9 @@ def main():
             entry['arcface_embedding'] = vectors['arcface_embedding']
             
         new_characters.append(entry)
+
+    if not new_characters:
+        raise RuntimeError('No characters exported; refusing to overwrite embeddings')
 
     existing_data['characters'] = new_characters
     existing_data['count'] = len(new_characters)

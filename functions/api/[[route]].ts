@@ -277,7 +277,7 @@ app.get('/og/:id', async (c) => {
       `SELECT c.name_en, a.title_en AS anime_en, c.image_url
        FROM characters c
        JOIN animes a ON c.anime_id = a.id
-       WHERE c.heroine_id_original = ?`
+       WHERE c.id = ?`
     ).bind(heroineId).first();
 
     if (!char) return c.notFound();

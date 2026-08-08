@@ -19,7 +19,7 @@ interface CharacterOGData {
 
 const CRAWLER_UA = /bot|crawl|spider|preview|telegram|whatsapp|discord|slack|facebook|twitter|Twitterbot|Slackbot|Discordbot|facebookexternalhit|Facebot|LinkedInBot|Pinterest|Embedly|vkShare|LINE/i;
 
-const KV_CACHE_KEY = 'og:character-data';
+const KV_CACHE_KEY = 'og:character-data:v2';
 const KV_CACHE_TTL = 3600; // 1 hour
 
 // ── Character data loader with KV cache ──────────────────────────────────────
@@ -45,7 +45,7 @@ async function getCharacterData(
   // 2. Query D1
   try {
     const result = await db.prepare(
-      `SELECT c.heroine_id_original, c.name_en, a.title_en AS anime_en
+      `SELECT c.id, c.name_en, a.title_en AS anime_en
        FROM characters c
        JOIN animes a ON c.anime_id = a.id
        WHERE c.name_en IS NOT NULL AND a.title_en IS NOT NULL`
@@ -57,7 +57,7 @@ async function getCharacterData(
 
     const data: Record<number, CharacterOGData> = {};
     for (const row of result.results) {
-      data[row.heroine_id_original as number] = {
+      data[row.id as number] = {
         name_en: row.name_en as string,
         anime_en: row.anime_en as string,
       };
